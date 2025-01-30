@@ -32,4 +32,9 @@ export const mlbService = {
     return fetchData(`https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`)
       .then((data) => data.liveData.linescore.innings);
     },
+
+  getDecisions: (gamePk) => {
+    return fetchData(`https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`)
+      .then((data) => data.liveData.decisions);
+  }
 };

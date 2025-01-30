@@ -90,3 +90,7 @@ button svg:hover {
 .card:hover .lineup-dropdown {
   z-index: 10000; 
 }
+
+.table-sm th, .table-sm td {
+  text-align: center;
+}
