@@ -398,68 +398,74 @@ const GameCard = ({ game }) => {
                   />
                 );
 
-                // Get batting or pitching summary
-                let statSummary = "";
+                // Determine summaries (batting and/or pitching)
+                let statSummary = [];
                 if (player.stats.batting && player.stats.batting.summary) {
-                  statSummary = player.stats.batting.summary; // Batting summary
-                } else if (
-                  player.stats.pitching &&
-                  player.stats.pitching.summary
-                ) {
-                  statSummary = player.stats.pitching.summary; // Pitching summary
+                  statSummary.push(player.stats.batting.summary); // Batting summary
+                }
+                if (player.stats.pitching && player.stats.pitching.summary) {
+                  statSummary.push(player.stats.pitching.summary); // Pitching summary
                 }
 
                 return (
                   <div className="mb-3" key={playerId}>
+                    {/* Aligning the player name and headshot to the left, summary to the right */}
                     <div
                       className="d-flex justify-content-center align-items-center mb-2"
                       style={{ gap: "10px" }}
                     >
                       {headshot} {/* Headshot first */}
-                      <span>{playerName}</span>
+                      <span style={{ flex: 1, textAlign: "left" }}>
+                        {playerName}
+                      </span>
+                      {/* Display summaries if available */}
+                      {statSummary.length > 0 && (
+                        <div
+                          className="text-muted"
+                          style={{
+                            fontSize: "0.75rem",
+                            textAlign: "right", // Align the summary to the right
+                            marginLeft: "10px", // Space between name and summary
+                          }}
+                        >
+                          {statSummary.join(" | ")}{" "}
+                          {/* Combine multiple summaries */}
+                        </div>
+                      )}
                     </div>
-                    {/* Display summary if available */}
-                    {statSummary && (
-                      <div
-                        className="mt-1"
-                        style={{
-                          fontSize: "0.75rem",
-                          color: "#6c757d",
-                          textAlign: "center", // Center the summary
-                          marginTop: "5px", // Adjust the margin for better alignment
-                        }}
-                      >
-                        {statSummary}
-                      </div>
-                    )}
                   </div>
                 );
               })}
             </div>
           )}
 
-          <div className="d-flex flex-column align-items-center">
+          <div className="d-flex justify-content-between align-items-center w-100">
+            {/* Lineup Dropdown for Away Team */}
+            <LineupDropdown
+              team={away.team}
+              players={awayLineup}
+              toggleLineup={toggleAwayLineup}
+              showLineup={showAwayLineup}
+            />
+
+            {/* Recap Link in between */}
             {recapLink && (
-              <Card.Text className="text-center mb-3">
+              <Card.Text className="text-center mb-3 mx-3">
+                {" "}
+                {/* Added margin for spacing */}
                 <a href={recapLink} target="_blank" rel="noopener noreferrer">
                   Recap
                 </a>
               </Card.Text>
             )}
-            <div className="d-flex justify-content-between align-items-center w-100">
-              <LineupDropdown
-                team={away.team}
-                players={awayLineup}
-                toggleLineup={toggleAwayLineup}
-                showLineup={showAwayLineup}
-              />
-              <LineupDropdown
-                team={home.team}
-                players={homeLineup}
-                toggleLineup={toggleHomeLineup}
-                showLineup={showHomeLineup}
-              />
-            </div>
+
+            {/* Lineup Dropdown for Home Team */}
+            <LineupDropdown
+              team={home.team}
+              players={homeLineup}
+              toggleLineup={toggleHomeLineup}
+              showLineup={showHomeLineup}
+            />
           </div>
         </Card.Body>
       </Card>
