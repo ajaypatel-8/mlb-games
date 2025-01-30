@@ -302,68 +302,43 @@ const GameCard = ({ game }) => {
               style={{ fontSize: "0.85rem" }}
             >
               <div
-                className="d-flex justify-content-center mb-2"
+                className="d-flex justify-content-center align-items-center mb-2"
                 style={{ gap: "15px" }}
               >
-                {Object.entries(decisions)
-                  .filter(([role]) => role !== "save")
-                  .map(
-                    ([role, player]) =>
-                      player && (
-                        <div
-                          key={role}
-                          className="d-flex align-items-center justify-content-center mb-2"
-                          style={{ gap: "10px" }}
-                        >
-                          {role.charAt(0).toUpperCase()}:
-                          {getPlayerHeadshot(player.id) ? (
-                            <img
-                              src={getPlayerHeadshot(player.id)}
-                              alt={role.toUpperCase()}
-                              style={{
-                                width: "30px",
-                                height: "30px",
-                                borderRadius: "50%",
-                              }}
-                            />
-                          ) : (
-                            <FontAwesomeIcon
-                              icon={faUserCircle}
-                              style={{ color: "#white", fontSize: "25px" }}
-                            />
-                          )}
-                          {player.fullName}
-                        </div>
-                      )
-                  )}
+                {Object.entries(decisions).map(
+                  ([role, player]) =>
+                    player && (
+                      <div
+                        key={role}
+                        className="d-flex align-items-center"
+                        style={{ gap: "10px" }}
+                      >
+                        <strong>{role.charAt(0).toUpperCase()}:</strong>
+                        {getPlayerHeadshot(player.id) ? (
+                          <img
+                            src={getPlayerHeadshot(player.id)}
+                            alt={role.toUpperCase()}
+                            style={{
+                              width: "30px",
+                              height: "30px",
+                              borderRadius: "50%",
+                            }}
+                          />
+                        ) : (
+                          <FontAwesomeIcon
+                            icon={faUserCircle}
+                            style={{ color: "white", fontSize: "25px" }}
+                          />
+                        )}
+                        {/* Abbreviate first name */}
+                        {`${player.fullName.split(" ")[0][0]}. ${player.fullName
+                          .split(" ")
+                          .slice(1)
+                          .join(" ")}`}
+                      </div>
+                    )
+                )}
               </div>
-
-              {decisions.save && (
-                <div
-                  key="save"
-                  className="d-flex align-items-center justify-content-center mb-2"
-                  style={{ gap: "10px" }}
-                >
-                  <strong>S:</strong>
-                  {getPlayerHeadshot(decisions.save.id) ? (
-                    <img
-                      src={getPlayerHeadshot(decisions.save.id)}
-                      alt="Save"
-                      style={{
-                        width: "30px",
-                        height: "30px",
-                        borderRadius: "50%",
-                      }}
-                    />
-                  ) : (
-                    <FontAwesomeIcon
-                      icon={faUserCircle}
-                      style={{ color: "#white", fontSize: "25px" }}
-                    />
-                  )}
-                  {decisions.save.fullName}
-                </div>
-              )}
             </div>
           )}
 
