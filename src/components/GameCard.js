@@ -175,6 +175,11 @@ const GameCard = ({ game }) => {
                           <strong>Away: </strong>
                           {probablePitchers.away?.fullName || "TBD"}
                         </div>
+                      </div>
+                      <div
+                        className="d-flex justify-content-center"
+                        style={{ gap: "0px" }}
+                      >
                         <div>
                           <strong>Home: </strong>
                           {probablePitchers.home?.fullName || "TBD"}
@@ -296,13 +301,12 @@ const GameCard = ({ game }) => {
               className="text-center mt-3 mb-3"
               style={{ fontSize: "0.85rem" }}
             >
-              {/* Main wrapper for winning/losing pitcher */}
               <div
                 className="d-flex justify-content-center mb-2"
                 style={{ gap: "15px" }}
               >
                 {Object.entries(decisions)
-                  .filter(([role]) => role !== "save") // Exclude save from the main row
+                  .filter(([role]) => role !== "save")
                   .map(
                     ([role, player]) =>
                       player && (
@@ -334,7 +338,6 @@ const GameCard = ({ game }) => {
                   )}
               </div>
 
-              {/* Save displayed on a new line if it exists */}
               {decisions.save && (
                 <div
                   key="save"
@@ -364,23 +367,20 @@ const GameCard = ({ game }) => {
             </div>
           )}
 
-          {topPerformers && (
+          {/* Only show Top Performers for completed games */}
+          {isFinal && topPerformers && (
             <div
               className="text-center mt-3 mb-3"
               style={{ fontSize: "0.75rem" }}
             >
-              {/* Section Header */}
               <h5 className="mb-3" style={{ fontSize: "1rem" }}>
                 Top Performers
               </h5>
-
-              {/* Display top performers */}
               {topPerformers.map((performer) => {
                 const { player } = performer;
                 const playerName = player.person.fullName;
                 const playerId = player.person.id;
 
-                // Get the player's headshot
                 const headshot = getPlayerHeadshot(playerId) ? (
                   <img
                     src={getPlayerHeadshot(playerId)}
@@ -398,38 +398,34 @@ const GameCard = ({ game }) => {
                   />
                 );
 
-                // Determine summaries (batting and/or pitching)
                 let statSummary = [];
                 if (player.stats.batting && player.stats.batting.summary) {
-                  statSummary.push(player.stats.batting.summary); // Batting summary
+                  statSummary.push(player.stats.batting.summary);
                 }
                 if (player.stats.pitching && player.stats.pitching.summary) {
-                  statSummary.push(player.stats.pitching.summary); // Pitching summary
+                  statSummary.push(player.stats.pitching.summary);
                 }
 
                 return (
                   <div className="mb-3" key={playerId}>
-                    {/* Aligning the player name and headshot to the left, summary to the right */}
                     <div
                       className="d-flex justify-content-center align-items-center mb-2"
                       style={{ gap: "10px" }}
                     >
-                      {headshot} {/* Headshot first */}
+                      {headshot}
                       <span style={{ flex: 1, textAlign: "left" }}>
                         {playerName}
                       </span>
-                      {/* Display summaries if available */}
                       {statSummary.length > 0 && (
                         <div
                           className="text-muted"
                           style={{
                             fontSize: "0.75rem",
-                            textAlign: "right", // Align the summary to the right
-                            marginLeft: "10px", // Space between name and summary
+                            textAlign: "right",
+                            marginLeft: "10px",
                           }}
                         >
-                          {statSummary.join(" | ")}{" "}
-                          {/* Combine multiple summaries */}
+                          {statSummary.join(" | ")}
                         </div>
                       )}
                     </div>
@@ -440,7 +436,6 @@ const GameCard = ({ game }) => {
           )}
 
           <div className="d-flex justify-content-between align-items-center w-100">
-            {/* Lineup Dropdown for Away Team */}
             <LineupDropdown
               team={away.team}
               players={awayLineup}
@@ -448,18 +443,14 @@ const GameCard = ({ game }) => {
               showLineup={showAwayLineup}
             />
 
-            {/* Recap Link in between */}
             {recapLink && (
               <Card.Text className="text-center mb-3 mx-3">
-                {" "}
-                {/* Added margin for spacing */}
                 <a href={recapLink} target="_blank" rel="noopener noreferrer">
                   Recap
                 </a>
               </Card.Text>
             )}
 
-            {/* Lineup Dropdown for Home Team */}
             <LineupDropdown
               team={home.team}
               players={homeLineup}
@@ -472,5 +463,4 @@ const GameCard = ({ game }) => {
     </Col>
   );
 };
-
 export default GameCard;
