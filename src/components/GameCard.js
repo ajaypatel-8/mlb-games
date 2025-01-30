@@ -5,7 +5,6 @@ import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
 import LineupDropdown from "./LineupDropdown";
 import { mlbService } from "../services/mlbService";
 import mlbTeams from "/Users/ajaypatel/mlb-games/src/mlbTeams.json";
-import mlbHeadshots from "/Users/ajaypatel/mlb-games/src/mlbHeadshots.json";
 
 const GameCard = ({ game }) => {
   const { away, home } = game.teams;
@@ -76,8 +75,7 @@ const GameCard = ({ game }) => {
   };
 
   const getPlayerHeadshot = (playerId) => {
-    const player = mlbHeadshots.find((p) => p.savant_id === playerId);
-    return player ? player.espn_headshot : null;
+    return `https://img.mlbstatic.com/mlb-photos/image/upload/w_180,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${playerId}/headshot/silo/current`;
   };
 
   const renderEmptyBoxScore = () => (
