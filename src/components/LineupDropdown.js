@@ -17,14 +17,14 @@ const LineupDropdown = ({ team, players, toggleLineup, showLineup }) => {
     >
       {players.length > 0 ? (
         players.map((player, index) => (
-          <Dropdown.Item key={index}>
-            <a
-              href={getPlayerSavantLink(player.id)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {player.fullName} - {player.primaryPosition.abbreviation}
-            </a>
+          <Dropdown.Item
+            key={index}
+            as="button" // Make this a button to directly handle click
+            onClick={() =>
+              window.open(getPlayerSavantLink(player.id), "_blank")
+            } // Open link directly on click
+          >
+            {player.fullName} - {player.primaryPosition.abbreviation}
           </Dropdown.Item>
         ))
       ) : (
