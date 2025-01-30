@@ -13,6 +13,7 @@ const LineupDropdown = ({ team, players, toggleLineup, showLineup }) => {
       title={team === "away" ? team.teamName : team.teamName} // Display team name
       onClick={toggleLineup}
       className="mb-2"
+      style={{ zIndex: 9999, position: "relative" }} // Add z-index and position
     >
       {players.length > 0 ? (
         players.map((player, index) => (
