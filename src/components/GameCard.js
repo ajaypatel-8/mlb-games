@@ -364,6 +364,80 @@ const GameCard = ({ game }) => {
             </div>
           )}
 
+          {topPerformers && (
+            <div
+              className="text-center mt-3 mb-3"
+              style={{ fontSize: "0.75rem" }}
+            >
+              {/* Section Header */}
+              <h5 className="mb-3" style={{ fontSize: "1rem" }}>
+                Top Performers
+              </h5>
+
+              {/* Display top performers */}
+              {topPerformers.map((performer) => {
+                const { player } = performer;
+                const playerName = player.person.fullName;
+                const playerId = player.person.id;
+
+                // Get the player's headshot
+                const headshot = getPlayerHeadshot(playerId) ? (
+                  <img
+                    src={getPlayerHeadshot(playerId)}
+                    alt={playerName}
+                    style={{
+                      width: "30px",
+                      height: "30px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                ) : (
+                  <FontAwesomeIcon
+                    icon={faUserCircle}
+                    style={{ color: "#6c757d", fontSize: "25px" }}
+                  />
+                );
+
+                // Get batting or pitching summary
+                let statSummary = "";
+                if (player.stats.batting && player.stats.batting.summary) {
+                  statSummary = player.stats.batting.summary; // Batting summary
+                } else if (
+                  player.stats.pitching &&
+                  player.stats.pitching.summary
+                ) {
+                  statSummary = player.stats.pitching.summary; // Pitching summary
+                }
+
+                return (
+                  <div className="mb-3" key={playerId}>
+                    <div
+                      className="d-flex justify-content-center align-items-center mb-2"
+                      style={{ gap: "10px" }}
+                    >
+                      {headshot} {/* Headshot first */}
+                      <span>{playerName}</span>
+                    </div>
+                    {/* Display summary if available */}
+                    {statSummary && (
+                      <div
+                        className="mt-1"
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "#6c757d",
+                          textAlign: "center", // Center the summary
+                          marginTop: "5px", // Adjust the margin for better alignment
+                        }}
+                      >
+                        {statSummary}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           <div className="d-flex flex-column align-items-center">
             {recapLink && (
               <Card.Text className="text-center mb-3">
