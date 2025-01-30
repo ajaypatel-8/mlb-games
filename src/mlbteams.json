@@ -440,6 +440,28 @@
       "mlb_logo": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/mlb.png"
     },
     {
+        "team_name": "Athletics",
+        "team_location": "Sacramento",
+        "team_mascot": "Athletics",
+        "team_abbr": "ATH",
+        "team_id_num": 133,
+        "team_logo_espn": "https://a.espncdn.com/i/teamlogos/mlb/500/oak.png",
+        "team_scoreboard_logo_espn": "https://a.espncdn.com/i/teamlogos/mlb/500/scoreboard/oak.png",
+        "team_cap_logo_on_light": "https://www.mlbstatic.com/team-logos/team-cap-on-light/133.svg",
+        "team_cap_logo_on_dark": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/133.svg",
+        "team_dot_logo": "midfield.mlbstatic.com/v1/team/133/spots/500",
+        "team_color": "#003831",
+        "team_color2": "#EFB21E",
+        "team_color3": "#A2AAAD",
+        "team_color4": "NA",
+        "team_color5": "NA",
+        "team_league": "AL",
+        "team_division": "AL West",
+        "team_division_location": "West",
+        "team_league_logo": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/al.png",
+        "mlb_logo": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/mlb.png"
+      },
+    {
       "team_name": "Philadelphia Phillies",
       "team_location": "Philadelphia",
       "team_mascot": "Phillies",

@@ -29,12 +29,29 @@ export const mlbService = {
   },
 
   getLinescore: (gamePk) => {
-    return fetchData(`https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`)
-      .then((data) => data.liveData.linescore.innings);
-    },
+    return fetchData(
+      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
+    ).then((data) => data.liveData.linescore.innings);
+  },
 
   getDecisions: (gamePk) => {
-    return fetchData(`https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`)
-      .then((data) => data.liveData.decisions);
-  }
+    return fetchData(
+      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
+    ).then((data) => data.liveData.decisions);
+  },
+  getStartTime: (gamePk) => {
+    return fetchData(
+      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
+    ).then((data) => data.gameData.datetime);
+  },
+  getProbablePitchers: (gamePk) => {
+    return fetchData(
+      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
+    ).then((data) => data.gameData.probablePitchers);
+  },
+  getTopPerformers: (gamePk) => {
+    return fetchData(
+      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
+    ).then((data) => data.liveData.boxscore.topPerformers);
+  },
 };

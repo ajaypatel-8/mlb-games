@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, Col, Table } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserCircle } from "@fortawesome/free-regular-svg-icons"; // Ensure correct import
+import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
 import LineupDropdown from "./LineupDropdown";
 import { mlbService } from "../services/mlbService";
 import mlbTeams from "/Users/ajaypatel/mlb-games/src/mlbTeams.json";
@@ -20,6 +20,9 @@ const GameCard = ({ game }) => {
   const [recapLink, setRecapLink] = useState(null);
   const [linescore, setLinescore] = useState([]);
   const [decisions, setDecisions] = useState([]);
+  const [startTime, setStartTime] = useState(null);
+  const [probablePitchers, setProbablePitchers] = useState(null);
+  const [topPerformers, setTopPerformers] = useState([]);
 
   useEffect(() => {
     const fetchGameContent = async () => {
@@ -33,49 +36,152 @@ const GameCard = ({ game }) => {
 
         const decisionsData = await mlbService.getDecisions(gamePk);
         setDecisions(decisionsData);
+
+        const topPerformersData = await mlbService.getTopPerformers(gamePk);
+        setTopPerformers(topPerformersData);
+
+        if (game.status.detailedState === "Scheduled") {
+          const startTimeData = await mlbService.getStartTime(gamePk);
+          const { time, ampm } = startTimeData;
+          setStartTime(`${time} ${ampm}`);
+
+          const probablePitchersData = await mlbService.getProbablePitchers(
+            gamePk
+          );
+          setProbablePitchers(probablePitchersData || null);
+        }
       } catch (error) {
         console.error("Failed to fetch game content:", error);
+        setProbablePitchers(null);
       }
     };
-    fetchGameContent();
-  }, [gamePk]);
 
-  const toggleAwayLineup = () => setShowAwayLineup(prev => !prev);
-  const toggleHomeLineup = () => setShowHomeLineup(prev => !prev);
+    fetchGameContent();
+  }, [gamePk, game.status.detailedState]);
+
+  console.log(topPerformers);
+
+  const toggleAwayLineup = () => setShowAwayLineup((prev) => !prev);
+  const toggleHomeLineup = () => setShowHomeLineup((prev) => !prev);
 
   const calculateTotal = (teamType, stat) =>
-    linescore.reduce((total, inning) => total + (inning[teamType]?.[stat] || 0), 0);
+    linescore.reduce(
+      (total, inning) => total + (inning[teamType]?.[stat] || 0),
+      0
+    );
 
   const getTeamLogo = (teamAbbreviation) => {
-    const team = mlbTeams.find(t => t.team_abbr === teamAbbreviation);
+    const team = mlbTeams.find((t) => t.team_abbr === teamAbbreviation);
     return team ? team.team_scoreboard_logo_espn : "";
   };
 
   const getPlayerHeadshot = (playerId) => {
     const player = mlbHeadshots.find((p) => p.savant_id === playerId);
-    return player ? player.espn_headshot : null; // Return null if no headshot
+    return player ? player.espn_headshot : null;
   };
+
+  const renderEmptyBoxScore = () => (
+    <>
+      <tr>
+        <td>
+          <img
+            src={getTeamLogo(away.team.abbreviation)}
+            alt={away.team.name}
+            style={{ width: "25px", height: "25px" }}
+          />
+        </td>
+        {linescore.map((inning, index) => (
+          <td key={index}>-</td>
+        ))}
+        <td>
+          <strong>-</strong>
+        </td>
+        <td>
+          <strong>-</strong>
+        </td>
+        <td>
+          <strong>-</strong>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <img
+            src={getTeamLogo(home.team.abbreviation)}
+            alt={home.team.name}
+            style={{ width: "25px", height: "25px" }}
+          />
+        </td>
+        {linescore.map((inning, index) => (
+          <td key={index}>-</td>
+        ))}
+        <td>
+          <strong>-</strong>
+        </td>
+        <td>
+          <strong>-</strong>
+        </td>
+        <td>
+          <strong>-</strong>
+        </td>
+      </tr>
+    </>
+  );
 
   return (
     <Col key={game.gamePk} md={4} className="mb-4">
-      <Card className="shadow-lg border-0" style={{ borderRadius: "15px", position: "relative" }}>
+      <Card
+        className="shadow-lg border-0"
+        style={{ borderRadius: "15px", position: "relative" }}
+      >
         <Card.Body className="p-4">
-          <Card.Title className="mb-2 text-center" style={{ fontSize: "1.1rem", margin: "0" }}>
+          <Card.Title
+            className="mb-2"
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              whiteSpace: "nowrap",
+              fontSize: "1.1rem",
+              margin: "0",
+            }}
+          >
             {away.team.name} @ {home.team.name}
           </Card.Title>
 
-          <div className="text-center" style={{ fontSize: "0.9rem", marginBottom: "1rem" }}>
+          <div
+            className="text-center"
+            style={{ fontSize: "0.9rem", marginBottom: "1rem" }}
+          >
             <div>
-              ({away.leagueRecord.wins}-{away.leagueRecord.losses}) ({home.leagueRecord.wins}-{home.leagueRecord.losses})
+              ({away.leagueRecord.wins}-{away.leagueRecord.losses}) (
+              {home.leagueRecord.wins}-{home.leagueRecord.losses})
             </div>
           </div>
 
           <Card.Text className="mb-3">
             {!isFinal ? (
-              <>
+              <div className="text-center">
                 <strong>Status:</strong> {game.status.detailedState}
-                <br />
-              </>
+                {game.status.detailedState === "Scheduled" && startTime && (
+                  <>
+                    <br />
+                    <strong>Start Time:</strong> {startTime}
+                  </>
+                )}
+                {game.status.detailedState === "Scheduled" &&
+                  probablePitchers && (
+                    <>
+                      <div>
+                        <span>
+                          Away: {probablePitchers.away?.fullName || "TBD"}
+                        </span>
+                        <br />
+                        <span>
+                          Home: {probablePitchers.home?.fullName || "TBD"}
+                        </span>
+                      </div>
+                    </>
+                  )}
+              </div>
             ) : (
               <div className="text-center">
                 <strong>Final Score:</strong> {away.score} - {home.score}
@@ -83,17 +189,30 @@ const GameCard = ({ game }) => {
             )}
           </Card.Text>
 
-          {linescore.length > 0 && (
-            <Table striped bordered hover responsive className="table-sm" style={{ fontSize: "0.85rem", marginBottom: "0.5rem" }}>
+          {linescore.length > 0 && isFinal ? (
+            <Table
+              striped
+              bordered
+              hover
+              responsive
+              className="table-sm"
+              style={{ fontSize: "0.85rem", marginBottom: "0.5rem" }}
+            >
               <thead>
                 <tr>
                   <th></th>
                   {linescore.map((inning, index) => (
                     <th key={index}>{inning.num}</th>
                   ))}
-                  <th><strong>R</strong></th>
-                  <th><strong>H</strong></th>
-                  <th><strong>E</strong></th>
+                  <th>
+                    <strong>R</strong>
+                  </th>
+                  <th>
+                    <strong>H</strong>
+                  </th>
+                  <th>
+                    <strong>E</strong>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -108,11 +227,16 @@ const GameCard = ({ game }) => {
                   {linescore.map((inning, index) => (
                     <td key={index}>{inning.away?.runs || 0}</td>
                   ))}
-                  <td><strong>{calculateTotal("away", "runs")}</strong></td>
-                  <td><strong>{calculateTotal("away", "hits")}</strong></td>
-                  <td><strong>{calculateTotal("away", "errors")}</strong></td>
+                  <td>
+                    <strong>{calculateTotal("away", "runs")}</strong>
+                  </td>
+                  <td>
+                    <strong>{calculateTotal("away", "hits")}</strong>
+                  </td>
+                  <td>
+                    <strong>{calculateTotal("away", "errors")}</strong>
+                  </td>
                 </tr>
-
                 <tr>
                   <td>
                     <img
@@ -124,33 +248,82 @@ const GameCard = ({ game }) => {
                   {linescore.map((inning, index) => (
                     <td key={index}>{inning.home?.runs || 0}</td>
                   ))}
-                  <td><strong>{calculateTotal("home", "runs")}</strong></td>
-                  <td><strong>{calculateTotal("home", "hits")}</strong></td>
-                  <td><strong>{calculateTotal("home", "errors")}</strong></td>
+                  <td>
+                    <strong>{calculateTotal("home", "runs")}</strong>
+                  </td>
+                  <td>
+                    <strong>{calculateTotal("home", "hits")}</strong>
+                  </td>
+                  <td>
+                    <strong>{calculateTotal("home", "errors")}</strong>
+                  </td>
                 </tr>
               </tbody>
+            </Table>
+          ) : (
+            <Table
+              striped
+              bordered
+              hover
+              responsive
+              className="table-sm"
+              style={{ fontSize: "0.85rem", marginBottom: "0.5rem" }}
+            >
+              <thead>
+                <tr>
+                  <th></th>
+                  {linescore.map((inning, index) => (
+                    <th key={index}>{inning.num}</th>
+                  ))}
+                  <th>
+                    <strong>R</strong>
+                  </th>
+                  <th>
+                    <strong>H</strong>
+                  </th>
+                  <th>
+                    <strong>E</strong>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>{renderEmptyBoxScore()}</tbody>
             </Table>
           )}
 
           {decisions && (
-            <div className="text-center mt-3 mb-3" style={{ fontSize: "0.85rem" }}> {/* Adjusted text size */}
-              {Object.entries(decisions).map(([role, player]) => (
-                player && (
-                  <div key={role} className="d-flex align-items-center justify-content-center mb-2" style={{ gap: "10px" }}> {/* Ensured even spacing */}
-                    {role.charAt(0).toUpperCase() + role.slice(1)}:
-                    {getPlayerHeadshot(player.id) ? (
-                      <img
-                        src={getPlayerHeadshot(player.id)}
-                        alt={role.toUpperCase()}
-                        style={{ width: "30px", height: "30px", borderRadius: "50%" }}
-                      />
-                    ) : (
-                        <FontAwesomeIcon icon={faUserCircle} style={{ color: "#white", fontSize: "25px" }} />
-                    )}
-                    {player.fullName}
-                  </div>
-                )
-              ))}
+            <div
+              className="text-center mt-3 mb-3"
+              style={{ fontSize: "0.85rem" }}
+            >
+              {Object.entries(decisions).map(
+                ([role, player]) =>
+                  player && (
+                    <div
+                      key={role}
+                      className="d-flex align-items-center justify-content-center mb-2"
+                      style={{ gap: "10px" }}
+                    >
+                      {role.charAt(0).toUpperCase() + role.slice(1)}:
+                      {getPlayerHeadshot(player.id) ? (
+                        <img
+                          src={getPlayerHeadshot(player.id)}
+                          alt={role.toUpperCase()}
+                          style={{
+                            width: "30px",
+                            height: "30px",
+                            borderRadius: "50%",
+                          }}
+                        />
+                      ) : (
+                        <FontAwesomeIcon
+                          icon={faUserCircle}
+                          style={{ color: "#white", fontSize: "25px" }}
+                        />
+                      )}
+                      {player.fullName}
+                    </div>
+                  )
+              )}
             </div>
           )}
 
@@ -162,10 +335,19 @@ const GameCard = ({ game }) => {
                 </a>
               </Card.Text>
             )}
-
             <div className="d-flex justify-content-between align-items-center w-100">
-              <LineupDropdown team={away.team} players={awayLineup} toggleLineup={toggleAwayLineup} showLineup={showAwayLineup} />
-              <LineupDropdown team={home.team} players={homeLineup} toggleLineup={toggleHomeLineup} showLineup={showHomeLineup} />
+              <LineupDropdown
+                team={away.team}
+                players={awayLineup}
+                toggleLineup={toggleAwayLineup}
+                showLineup={showAwayLineup}
+              />
+              <LineupDropdown
+                team={home.team}
+                players={homeLineup}
+                toggleLineup={toggleHomeLineup}
+                showLineup={showHomeLineup}
+              />
             </div>
           </div>
         </Card.Body>
