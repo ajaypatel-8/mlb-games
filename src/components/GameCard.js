@@ -158,7 +158,6 @@ const GameCard = ({ game }) => {
           <Card.Text className="mb-3">
             {!isFinal ? (
               <div className="text-center">
-                <strong>Status:</strong> {game.status.detailedState}
                 {game.status.detailedState === "Scheduled" && startTime && (
                   <>
                     <br />
@@ -168,14 +167,18 @@ const GameCard = ({ game }) => {
                 {game.status.detailedState === "Scheduled" &&
                   probablePitchers && (
                     <>
-                      <div>
-                        <span>
-                          Away: {probablePitchers.away?.fullName || "TBD"}
-                        </span>
-                        <br />
-                        <span>
-                          Home: {probablePitchers.home?.fullName || "TBD"}
-                        </span>
+                      <div
+                        className="d-flex justify-content-center"
+                        style={{ gap: "0px" }}
+                      >
+                        <div>
+                          <strong>Away: </strong>
+                          {probablePitchers.away?.fullName || "TBD"}
+                        </div>
+                        <div>
+                          <strong>Home: </strong>
+                          {probablePitchers.home?.fullName || "TBD"}
+                        </div>
                       </div>
                     </>
                   )}
@@ -293,34 +296,70 @@ const GameCard = ({ game }) => {
               className="text-center mt-3 mb-3"
               style={{ fontSize: "0.85rem" }}
             >
-              {Object.entries(decisions).map(
-                ([role, player]) =>
-                  player && (
-                    <div
-                      key={role}
-                      className="d-flex align-items-center justify-content-center mb-2"
-                      style={{ gap: "10px" }}
-                    >
-                      {role.charAt(0).toUpperCase() + role.slice(1)}:
-                      {getPlayerHeadshot(player.id) ? (
-                        <img
-                          src={getPlayerHeadshot(player.id)}
-                          alt={role.toUpperCase()}
-                          style={{
-                            width: "30px",
-                            height: "30px",
-                            borderRadius: "50%",
-                          }}
-                        />
-                      ) : (
-                        <FontAwesomeIcon
-                          icon={faUserCircle}
-                          style={{ color: "#white", fontSize: "25px" }}
-                        />
-                      )}
-                      {player.fullName}
-                    </div>
-                  )
+              {/* Main wrapper for winning/losing pitcher */}
+              <div
+                className="d-flex justify-content-center mb-2"
+                style={{ gap: "15px" }}
+              >
+                {Object.entries(decisions)
+                  .filter(([role]) => role !== "save") // Exclude save from the main row
+                  .map(
+                    ([role, player]) =>
+                      player && (
+                        <div
+                          key={role}
+                          className="d-flex align-items-center justify-content-center mb-2"
+                          style={{ gap: "10px" }}
+                        >
+                          {role.charAt(0).toUpperCase()}:
+                          {getPlayerHeadshot(player.id) ? (
+                            <img
+                              src={getPlayerHeadshot(player.id)}
+                              alt={role.toUpperCase()}
+                              style={{
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "50%",
+                              }}
+                            />
+                          ) : (
+                            <FontAwesomeIcon
+                              icon={faUserCircle}
+                              style={{ color: "#white", fontSize: "25px" }}
+                            />
+                          )}
+                          {player.fullName}
+                        </div>
+                      )
+                  )}
+              </div>
+
+              {/* Save displayed on a new line if it exists */}
+              {decisions.save && (
+                <div
+                  key="save"
+                  className="d-flex align-items-center justify-content-center mb-2"
+                  style={{ gap: "10px" }}
+                >
+                  <strong>S:</strong>
+                  {getPlayerHeadshot(decisions.save.id) ? (
+                    <img
+                      src={getPlayerHeadshot(decisions.save.id)}
+                      alt="Save"
+                      style={{
+                        width: "30px",
+                        height: "30px",
+                        borderRadius: "50%",
+                      }}
+                    />
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faUserCircle}
+                      style={{ color: "#white", fontSize: "25px" }}
+                    />
+                  )}
+                  {decisions.save.fullName}
+                </div>
               )}
             </div>
           )}
