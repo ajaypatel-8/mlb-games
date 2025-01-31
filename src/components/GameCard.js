@@ -176,7 +176,8 @@ const GameCard = ({ game, gameDate }) => {
             style={{
               display: "flex",
               justifyContent: "center",
-              whiteSpace: "nowrap",
+              whiteSpace: "normal", // Allow text to wrap
+              wordWrap: "break-word", // Ensure long words can break onto the next line
               fontSize: "1.1rem",
               margin: "0",
             }}

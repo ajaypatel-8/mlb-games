@@ -196,4 +196,21 @@ button svg:hover {
     font-size: 0.75rem; /* Smaller font size for links */
     padding: 0.1rem 0.4rem; /* Adjust padding for smaller screens */
   }
+
+  /* Center the three links on mobile */
+  .d-flex.justify-content-center-links {
+    justify-content: center; /* Centers the links */
+    flex-wrap: wrap; /* Allows items to wrap if needed */
+    margin-bottom: 1rem;
+  }
+
+  /* Card header adjustment to wrap the text (team @ team) */
+  .card-header {
+    display: flex;
+    flex-wrap: wrap; /* Ensures the text wraps inside the header */
+    justify-content: center; /* Optional: centers content */
+    align-items: center; /* Aligns content vertically */
+    word-wrap: break-word; /* Breaks words when necessary */
+    overflow-wrap: break-word; /* Ensures long words break properly */
+  }
 }
