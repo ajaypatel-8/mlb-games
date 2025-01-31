@@ -10,9 +10,9 @@ const Schedule = () => {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [hasLoaded, setHasLoaded] = useState(false); // New state for tracking initial load
+  const [hasLoaded, setHasLoaded] = useState(false);
 
-  const lastValidDate = "2024-10-30";
+  const lastValidDate = "2024-10-31";
 
   const fetchSchedule = async (date) => {
     setLoading(true);
@@ -46,9 +46,8 @@ const Schedule = () => {
 
   useEffect(() => {
     if (!hasLoaded && !loading && error && !schedule.length) {
-      // Only set the default date if it's the initial load and no games were found
       setSelectedDate(new Date(lastValidDate));
-      setHasLoaded(true); // Mark initial load as complete
+      setHasLoaded(true);
     }
   }, [error, loading, schedule, hasLoaded]);
 
