@@ -5,7 +5,7 @@ import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import mlbTeams from "/Users/ajaypatel/mlb-games/src/mlbTeams.json";
 
 const LineupModal = ({ team, players, gameDate }) => {
-  const [showModal, setShowModal] = useState(false); // State to control modal visibility
+  const [showModal, setShowModal] = useState(false);
 
   const teamLogos = useMemo(() => {
     return mlbTeams.reduce((acc, team) => {
@@ -15,7 +15,7 @@ const LineupModal = ({ team, players, gameDate }) => {
   }, []);
 
   const getTeamLogo = (teamAbbreviation) => {
-    return teamLogos[teamAbbreviation] || null; // Return null if no logo is found
+    return teamLogos[teamAbbreviation] || null;
   };
 
   const getPlayerSavantLink = (id) => {
@@ -68,22 +68,24 @@ const LineupModal = ({ team, players, gameDate }) => {
         className="wide-modal"
       >
         <Modal.Header closeButton>
-          <div className="d-flex align-items-center">
-            {/* Team logo - Only render if the logo is found */}
-            {getTeamLogo(team.abbreviation) && (
-              <img
-                src={getTeamLogo(team.abbreviation)}
-                alt={team.teamName}
-                style={{ width: "30px", height: "30px", marginRight: "10px" }}
-              />
-            )}
-            <Modal.Title marginLeft="10px">{`${team.teamName} Players ${formattedDate}`}</Modal.Title>
+          <div className="d-flex w-100 justify-content-between align-items-center">
+            <div className="d-flex align-items-center">
+              {getTeamLogo(team.abbreviation) && (
+                <img
+                  src={getTeamLogo(team.abbreviation)}
+                  alt={team.teamName}
+                  style={{ width: "30px", height: "30px", marginRight: "10px" }}
+                />
+              )}
+              <Modal.Title>{`${team.teamName} Players`}</Modal.Title>
+            </div>
+
+            <span className="text-muted">{formattedDate}</span>
           </div>
         </Modal.Header>
 
         <Modal.Body>
           <div className="row">
-            {/* Render Hitters - First Column */}
             {hitters.length > 0 && (
               <div className="col-md-6">
                 <h5>Hitters</h5>

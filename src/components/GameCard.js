@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
 import { mlbService } from "../services/mlbService";
 import mlbTeams from "/Users/ajaypatel/mlb-games/src/mlbTeams.json";
-import LineupModal from "./LineupDropdown";
+import LineupModal from "./PlayersModal";
 
 const GameCard = ({ game, gameDate }) => {
   const { away, home } = game.teams;
