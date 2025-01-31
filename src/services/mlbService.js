@@ -12,6 +12,12 @@ const fetchData = async (url, params = {}) => {
   }
 };
 
+const fetchLiveData = async (gamePk) => {
+  return fetchData(
+    `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
+  );
+};
+
 export const mlbService = {
   getSchedule: (startDate, endDate, teamId) => {
     const params = {
@@ -24,51 +30,29 @@ export const mlbService = {
     return fetchData(`${BASE_URL}/schedule`, params);
   },
 
-  getGameContent: (gamePk) => {
-    return fetchData(`${BASE_URL}/game/${gamePk}/content`);
-  },
+  getGameContent: (gamePk) => fetchData(`${BASE_URL}/game/${gamePk}/content`),
 
-  getLinescore: (gamePk) => {
-    return fetchData(
-      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
-    ).then((data) => data.liveData.linescore.innings);
-  },
-  getLeftOnBase: (gamePk) => {
-    return fetchData(
-      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
-    ).then((data) => data.liveData.linescore.teams);
-  },
+  getLinescore: (gamePk) =>
+    fetchLiveData(gamePk).then((data) => data.liveData.linescore.innings),
 
-  getBatters: (gamePk) => {
-    return fetchData(
-      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
-    ).then((data) => data.liveData.boxscore.teams);
-  },
+  getLeftOnBase: (gamePk) =>
+    fetchLiveData(gamePk).then((data) => data.liveData.linescore.teams),
 
-  getPitchers: (gamePk) => {
-    return fetchData(
-      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
-    ).then((data) => data.liveData.boxscore.teams);
-  },
+  getBatters: (gamePk) =>
+    fetchLiveData(gamePk).then((data) => data.liveData.boxscore.teams),
 
-  getDecisions: (gamePk) => {
-    return fetchData(
-      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
-    ).then((data) => data.liveData.decisions);
-  },
-  getStartTime: (gamePk) => {
-    return fetchData(
-      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
-    ).then((data) => data.gameData.datetime);
-  },
-  getProbablePitchers: (gamePk) => {
-    return fetchData(
-      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
-    ).then((data) => data.gameData.probablePitchers);
-  },
-  getTopPerformers: (gamePk) => {
-    return fetchData(
-      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
-    ).then((data) => data.liveData.boxscore.topPerformers);
-  },
+  getPitchers: (gamePk) =>
+    fetchLiveData(gamePk).then((data) => data.liveData.boxscore.teams),
+
+  getDecisions: (gamePk) =>
+    fetchLiveData(gamePk).then((data) => data.liveData.decisions),
+
+  getStartTime: (gamePk) =>
+    fetchLiveData(gamePk).then((data) => data.gameData.datetime),
+
+  getProbablePitchers: (gamePk) =>
+    fetchLiveData(gamePk).then((data) => data.gameData.probablePitchers),
+
+  getTopPerformers: (gamePk) =>
+    fetchLiveData(gamePk).then((data) => data.liveData.boxscore.topPerformers),
 };

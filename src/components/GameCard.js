@@ -2,11 +2,11 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Card, Col, Table } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
-import LineupDropdown from "./LineupDropdown";
 import { mlbService } from "../services/mlbService";
 import mlbTeams from "/Users/ajaypatel/mlb-games/src/mlbTeams.json";
+import LineupModal from "./LineupDropdown";
 
-const GameCard = ({ game }) => {
+const GameCard = ({ game, gameDate }) => {
   const { away, home } = game.teams;
   const isFinal = game.status.detailedState === "Final";
   const gamePk = game.gamePk;
@@ -76,8 +76,6 @@ const GameCard = ({ game }) => {
     fetchGameContent();
   }, [gamePk, game.status.detailedState]);
 
-  console.log(awayLineup);
-
   const toggleAwayLineup = () => setShowAwayLineup((prev) => !prev);
   const toggleHomeLineup = () => setShowHomeLineup((prev) => !prev);
 
@@ -88,7 +86,19 @@ const GameCard = ({ game }) => {
     }, {});
   }, []);
 
-  const getTeamLogo = (teamAbbreviation) => teamLogos[teamAbbreviation] || "";
+  const getTeamLogo = (teamAbbreviation) => {
+    const logo = teamLogos[teamAbbreviation];
+    if (logo) {
+      return (
+        <img
+          src={logo}
+          alt={teamAbbreviation}
+          style={{ width: "25px", height: "25px" }}
+        />
+      );
+    }
+    return teamAbbreviation; // Return the abbreviation if no logo is found
+  };
 
   const getPlayerHeadshot = (playerId) => {
     return `https://img.mlbstatic.com/mlb-photos/image/upload/w_180,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${playerId}/headshot/silo/current`;
@@ -119,19 +129,10 @@ const GameCard = ({ game }) => {
     }))
     .sort((a, b) => a.battingOrder - b.battingOrder);
 
-  console.log("sorted away lineup", sortedAwayLineup);
-  console.log("sorted home lineup", sortedHomeLineup);
-
   const renderEmptyBoxScore = () => (
     <>
       <tr>
-        <td>
-          <img
-            src={getTeamLogo(away.team.abbreviation)}
-            alt={away.team.name}
-            style={{ width: "25px", height: "25px" }}
-          />
-        </td>
+        <td>{getTeamLogo(away.team.abbreviation)}</td>
         {linescore.map((inning, index) => (
           <td key={index}>-</td>
         ))}
@@ -146,13 +147,7 @@ const GameCard = ({ game }) => {
         </td>
       </tr>
       <tr>
-        <td>
-          <img
-            src={getTeamLogo(home.team.abbreviation)}
-            alt={home.team.name}
-            style={{ width: "25px", height: "25px" }}
-          />
-        </td>
+        <td>{getTeamLogo(home.team.abbreviation)}</td>
         {linescore.map((inning, index) => (
           <td key={index}>-</td>
         ))}
@@ -271,11 +266,8 @@ const GameCard = ({ game }) => {
               <tbody>
                 <tr>
                   <td>
-                    <img
-                      src={getTeamLogo(away.team.abbreviation)}
-                      alt={away.team.name}
-                      style={{ width: "25px", height: "25px" }}
-                    />
+                    {getTeamLogo(away.team.abbreviation)}{" "}
+                    {/* If no logo, displays team abbreviation */}
                   </td>
                   {linescore.map((inning, index) => (
                     <td key={index}>{inning.away?.runs || 0}</td>
@@ -295,11 +287,8 @@ const GameCard = ({ game }) => {
                 </tr>
                 <tr>
                   <td>
-                    <img
-                      src={getTeamLogo(home.team.abbreviation)}
-                      alt={home.team.name}
-                      style={{ width: "25px", height: "25px" }}
-                    />
+                    {getTeamLogo(home.team.abbreviation)}{" "}
+                    {/* If no logo, displays team abbreviation */}
                   </td>
                   {linescore.map((inning, index) => (
                     <td key={index}>{inning.home?.runs || 0}</td>
@@ -415,12 +404,10 @@ const GameCard = ({ game }) => {
                 const playerName = player.person.fullName;
                 const playerId = player.person.id;
 
-                // Abbreviate first name to initial
                 const abbreviatedName = `${
                   playerName.split(" ")[0][0]
                 }. ${playerName.split(" ").slice(1).join(" ")}`;
 
-                // Headshot with link to Baseball Savant
                 const headshot = (
                   <a
                     href={`https://baseballsavant.mlb.com/savant-player/${playerId}`}
@@ -483,28 +470,32 @@ const GameCard = ({ game }) => {
             </div>
           )}
 
-          <div className="d-flex justify-content-between align-items-center w-100">
-            <LineupDropdown
-              team={away.team}
-              players={sortedAwayLineup}
-              toggleLineup={toggleAwayLineup}
-              showLineup={showAwayLineup}
-            />
+          {isFinal && (
+            <div className="d-flex justify-content-between align-items-center w-100">
+              <LineupModal
+                team={away.team}
+                players={sortedAwayLineup}
+                toggleLineup={toggleAwayLineup}
+                showLineup={showAwayLineup}
+                gameDate={gameDate}
+              />
 
-            {recapLink && (
-              <Card.Text className="text-center mb-3 mx-3">
-                <a href={recapLink} target="_blank" rel="noopener noreferrer">
-                  Recap
-                </a>
-              </Card.Text>
-            )}
-            <LineupDropdown
-              team={home.team}
-              players={sortedHomeLineup}
-              toggleLineup={toggleHomeLineup}
-              showLineup={showHomeLineup}
-            />
-          </div>
+              {recapLink && (
+                <Card.Text className="text-center mb-3 mx-3">
+                  <a href={recapLink} target="_blank" rel="noopener noreferrer">
+                    Recap
+                  </a>
+                </Card.Text>
+              )}
+              <LineupModal
+                team={home.team}
+                players={sortedHomeLineup}
+                toggleLineup={toggleHomeLineup}
+                showLineup={showHomeLineup}
+                gameDate={gameDate}
+              />
+            </div>
+          )}
         </Card.Body>
       </Card>
     </Col>

@@ -16,7 +16,11 @@ const Schedule = () => {
     setError(null);
     try {
       const formattedDate = format(date, "yyyy-MM-dd");
-      const data = await mlbService.getSchedule(formattedDate, formattedDate, null);
+      const data = await mlbService.getSchedule(
+        formattedDate,
+        formattedDate,
+        null
+      );
 
       if (data?.dates?.length > 0) {
         setSchedule(data.dates);
@@ -39,24 +43,32 @@ const Schedule = () => {
 
   return (
     <Container>
-      <DatePickerComponent selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+      <DatePickerComponent
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+      />
 
       {loading && <Spinner animation="border" className="d-block mx-auto" />}
       {error && <p className="text-danger text-center">{error}</p>}
 
-      {schedule.length > 0 && !loading && !error ? (
-        schedule.map((dateData) => (
-          <div key={dateData.date} className="mb-4">
-            <Row>
-              {dateData.games.map((game) => (
-                <GameCard key={game.gamePk} game={game} />
-              ))}
-            </Row>
-          </div>
-        ))
-      ) : (
-        !loading && !error && <p className="text-center">No games scheduled for this date.</p>
-      )}
+      {schedule.length > 0 && !loading && !error
+        ? schedule.map((dateData) => (
+            <div key={dateData.date} className="mb-4">
+              <Row>
+                {dateData.games.map((game) => (
+                  <GameCard
+                    key={game.gamePk}
+                    game={game}
+                    gameDate={selectedDate}
+                  />
+                ))}
+              </Row>
+            </div>
+          ))
+        : !loading &&
+          !error && (
+            <p className="text-center">No games scheduled for this date.</p>
+          )}
     </Container>
   );
 };

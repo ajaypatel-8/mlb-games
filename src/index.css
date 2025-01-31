@@ -73,24 +73,28 @@ button svg:hover {
 }
 
 .card {
+  position: relative; 
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-
 .card:hover {
-  z-index: 9999;
+  z-index: 1; 
   transform: translateY(-5px);
 }
 
 .lineup-dropdown {
-  z-index: 10000; 
+  z-index: 100000;
   position: absolute;
 }
 
-.card:hover .lineup-dropdown {
-  z-index: 10000; 
+.lineup-dropdown .card {
+  z-index: 100000; 
 }
 
 .table-sm th, .table-sm td {
   text-align: center;
+}
+
+.wide-modal .modal-dialog {
+  max-width: 50%; /* Adjust the width to your preference */
 }
