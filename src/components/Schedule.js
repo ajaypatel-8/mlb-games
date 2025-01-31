@@ -67,7 +67,7 @@ const Schedule = () => {
           ))
         : !loading &&
           !error && (
-            <p className="text-center">No games scheduled for this date.</p>
+            <p className="text-center">No games scheduled for this date!</p>
           )}
     </Container>
   );
