@@ -56,7 +56,15 @@ const LineupModal = ({ team, players, gameDate }) => {
       <Button
         variant={team === "away" ? "outline-primary" : "outline-success"}
         onClick={() => setShowModal(true)}
+        className="d-flex align-items-center gap-2"
       >
+        {getTeamLogo(team.abbreviation) && (
+          <img
+            src={getTeamLogo(team.abbreviation)}
+            alt={`${team.teamName} logo`}
+            style={{ width: "24px", height: "24px" }}
+          />
+        )}
         Players
       </Button>
 

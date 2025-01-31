@@ -471,7 +471,7 @@ const GameCard = ({ game, gameDate }) => {
           )}
 
           {isFinal && (
-            <div className="d-flex justify-content-between align-items-center w-100">
+            <div className="d-flex justify-content-evenly align-items-center w-100">
               <LineupModal
                 team={away.team}
                 players={sortedAwayLineup}
