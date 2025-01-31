@@ -490,9 +490,9 @@ const GameCard = ({ game, gameDate }) => {
           )}
 
           {isFinal && (
-            <div className="d-flex justify-content-evenly align-items-center w-100 flex-wrap">
+            <div className="d-flex flex-column align-items-center w-100">
               {/* Row for recap and savant links */}
-              <div className="d-flex justify-content-evenly w-100 mb-3">
+              <div className="d-flex justify-content-between w-100 mb-3">
                 {recapLink && (
                   <Card.Text className="text-center mb-3 mx-3">
                     <a
