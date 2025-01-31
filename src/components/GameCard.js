@@ -471,42 +471,56 @@ const GameCard = ({ game, gameDate }) => {
           )}
 
           {isFinal && (
-            <div className="d-flex justify-content-evenly align-items-center w-100">
-              <LineupModal
-                team={away.team}
-                players={sortedAwayLineup}
-                toggleLineup={toggleAwayLineup}
-                showLineup={showAwayLineup}
-                gameDate={gameDate}
-              />
+            <div className="d-flex justify-content-evenly align-items-center w-100 flex-wrap">
+              {/* Row for recap and savant links */}
+              <div className="d-flex justify-content-evenly w-100 mb-3">
+                {recapLink && (
+                  <Card.Text className="text-center mb-3 mx-3">
+                    <a
+                      href={recapLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Recap
+                    </a>
+                  </Card.Text>
+                )}
 
-              {recapLink && (
-                <Card.Text className="text-center mb-3 mx-3">
-                  <a href={recapLink} target="_blank" rel="noopener noreferrer">
-                    Recap
-                  </a>
-                </Card.Text>
-              )}
+                {gamePk && (
+                  <Card.Text className="text-center mb-3 mx-3">
+                    <a
+                      href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Savant
+                    </a>
+                  </Card.Text>
+                )}
+              </div>
 
-              {/* Savant Game Link */}
-              {gamePk && (
-                <Card.Text className="text-center mb-3 mx-3">
-                  <a
-                    href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Savant
-                  </a>
-                </Card.Text>
-              )}
-              <LineupModal
-                team={home.team}
-                players={sortedHomeLineup}
-                toggleLineup={toggleHomeLineup}
-                showLineup={showHomeLineup}
-                gameDate={gameDate}
-              />
+              {/* Row for lineup modal buttons */}
+              <div className="d-flex justify-content-between w-100">
+                <div className="lineup-modal-container">
+                  <LineupModal
+                    team={away.team}
+                    players={sortedAwayLineup}
+                    toggleLineup={toggleAwayLineup}
+                    showLineup={showAwayLineup}
+                    gameDate={gameDate}
+                  />
+                </div>
+
+                <div className="lineup-modal-container">
+                  <LineupModal
+                    team={home.team}
+                    players={sortedHomeLineup}
+                    toggleLineup={toggleHomeLineup}
+                    showLineup={showHomeLineup}
+                    gameDate={gameDate}
+                  />
+                </div>
+              </div>
             </div>
           )}
         </Card.Body>

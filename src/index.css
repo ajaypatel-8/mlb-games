@@ -4,6 +4,7 @@ body {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden; /* Prevents horizontal scrolling */
 }
 
 code {
@@ -11,15 +12,16 @@ code {
 }
 
 .smaller-text {
-  font-size: 14px;
+  font-size: 1rem; /* Uses relative units for scalability */
 }
 
+/* Datepicker adjustments */
 .custom-datepicker-input {
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 10px;
   padding: 10px 15px;
-  font-size: 16px;
+  font-size: 1rem;
   color: #333;
   display: inline-block;
   cursor: pointer;
@@ -36,22 +38,26 @@ code {
   border-color: #007bff;
 }
 
+/* Flexbox utilities */
 .d-flex {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap; /* Allows items to wrap on smaller screens */
 }
 
 .mb-4 {
   margin-bottom: 1.5rem;
 }
 
+/* Button styling */
 button {
   background: none;
   border: none;
-  padding: 0 10px;
+  padding: 5px 8px; /* Reduced padding to make button smaller */
   cursor: pointer;
   outline: none;
+  font-size: 0.85rem; /* Smaller font size */
 }
 
 button:focus {
@@ -63,8 +69,8 @@ button:hover {
 }
 
 button svg {
-  width: 20px;
-  height: 20px;
+  width: 16px; /* Reduced size for SVG icons */
+  height: 16px;
   color: #007bff;
 }
 
@@ -72,9 +78,13 @@ button svg:hover {
   color: #0056b3;
 }
 
+/* Card adjustments */
 .card {
   position: relative; 
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%; /* Ensures cards take full width on small screens */
+  max-width: 400px; /* Limits max width */
+  margin: auto; /* Centers cards */
 }
 
 .card:hover {
@@ -82,6 +92,7 @@ button svg:hover {
   transform: translateY(-5px);
 }
 
+/* Dropdown menu fixes */
 .lineup-dropdown {
   z-index: 100000;
   position: absolute;
@@ -91,10 +102,88 @@ button svg:hover {
   z-index: 100000; 
 }
 
-.table-sm th, .table-sm td {
-  text-align: center;
+/* Table responsiveness */
+.table-container {
+  width: 100%;
+  overflow-x: auto; /* Enables horizontal scrolling for small screens */
 }
 
-.wide-modal .modal-dialog {
-  max-width: 50%; /* Adjust the width to your preference */
+.table-sm th, .table-sm td {
+  text-align: center;
+  font-size: 0.9rem; /* Reduced font size for better fit */
 }
+
+/* Modal width adjustments */
+.wide-modal .modal-dialog {
+  max-width: 50%;
+}
+
+/* Flex adjustments for the two-row layout */
+.d-flex.justify-content-evenly {
+  justify-content: space-evenly; /* Ensure space between items */
+  margin-bottom: 1rem; /* Adds space between rows */
+}
+
+.smaller-link {
+  font-size: 0.85rem; /* Slightly smaller text for links */
+  padding: 0.1rem 0.4rem; /* Adjust padding for smaller screens */
+}
+
+/* Row 2 (Lineup Modals) */
+.d-flex .lineup-modal-container {
+  flex-shrink: 1; /* Allow lineup modals to shrink */
+  max-width: 100%; /* Prevent overflow on smaller screens */
+  padding: 0 1rem; /* Adds spacing around the lineups */
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+  .smaller-text {
+    font-size: 0.9rem;
+  }
+
+  .custom-datepicker-input {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+  }
+
+  .card {
+    max-width: 100%; /* Ensures full width usage */
+  }
+
+  .wide-modal .modal-dialog {
+    max-width: 90%; /* Makes modals fit smaller screens */
+  }
+
+  button {
+    padding: 4px 6px; /* Smaller padding for mobile */
+    font-size: 0.75rem; /* Smaller font size on mobile */
+  }
+
+  .table-sm th, .table-sm td {
+    font-size: 0.8rem; /* Further reduces table text */
+  }
+
+  .d-flex {
+    flex-direction: column; /* Stack items vertically on small screens */
+    justify-content: center; /* Center content */
+  }
+
+  /* Responsive adjustments for Recap and Savant links */
+  .d-flex.justify-content-evenly {
+    flex-direction: column; /* Stack links vertically on mobile */
+    margin-bottom: 1rem;
+  }
+
+  /* Adjust lineup modal containers */
+  .d-flex .lineup-modal-container {
+    max-width: 100%; /* Prevent overflow on smaller screens */
+    margin-bottom: 1rem; /* Adds space between stacked items */
+  }
+
+  .card-text a {
+    font-size: 0.75rem; /* Smaller font size for links */
+    padding: 0.1rem 0.4rem; /* Adjust padding for smaller screens */
+  }
+}
+
