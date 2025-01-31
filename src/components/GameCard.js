@@ -3,7 +3,7 @@ import { Card, Col, Table } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
 import { mlbService } from "../services/mlbService";
-import mlbTeams from "../mlbTeams.json";
+import mlbTeams from "./mlbTeams.json";
 import LineupModal from "./PlayersModal";
 
 const GameCard = ({ game, gameDate }) => {

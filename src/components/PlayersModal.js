@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
-import mlbTeams from "../mlbTeams.json";
+import mlbTeams from "./mlbTeams.json";
 
 const LineupModal = ({ team, players, gameDate }) => {
   const [showModal, setShowModal] = useState(false);
