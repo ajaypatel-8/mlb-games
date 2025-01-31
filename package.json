@@ -1,7 +1,7 @@
 {
   "name": "mlb-games",
   "version": "0.1.0",
-  "homepage": "https://github.com/ajaypatel-8/mlb-games",
+  "homepage": "https://ajaypatel-8.github.io/mlb-games",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
