@@ -97,14 +97,13 @@ const GameCard = ({ game, gameDate }) => {
         />
       );
     }
-    return teamAbbreviation; // Return the abbreviation if no logo is found
+    return teamAbbreviation;
   };
 
   const getPlayerHeadshot = (playerId) => {
     return `https://img.mlbstatic.com/mlb-photos/image/upload/w_180,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${playerId}/headshot/silo/current`;
   };
   const filterPlayerStats = (player) => {
-    // Check if the player has valid stats for batting, pitching, or fielding
     return (
       (player.stats?.batting && Object.keys(player.stats.batting).length > 0) ||
       (player.stats?.pitching &&
@@ -176,10 +175,10 @@ const GameCard = ({ game, gameDate }) => {
             style={{
               display: "flex",
               justifyContent: "center",
-              alignItems: "center", // Ensures the content is vertically centered
-              textAlign: "center", // Centers text horizontally
-              whiteSpace: "normal", // Allow text to wrap
-              wordWrap: "break-word", // Ensure long words can break onto the next line
+              alignItems: "center",
+              textAlign: "center",
+              whiteSpace: "normal",
+              wordWrap: "break-word",
               fontSize: "1.1rem",
               margin: "0",
             }}
@@ -268,10 +267,7 @@ const GameCard = ({ game, gameDate }) => {
               </thead>
               <tbody>
                 <tr>
-                  <td>
-                    {getTeamLogo(away.team.abbreviation)}{" "}
-                    {/* If no logo, displays team abbreviation */}
-                  </td>
+                  <td>{getTeamLogo(away.team.abbreviation)} </td>
                   {linescore.map((inning, index) => (
                     <td key={index}>{inning.away?.runs || 0}</td>
                   ))}
@@ -289,10 +285,7 @@ const GameCard = ({ game, gameDate }) => {
                   </td>
                 </tr>
                 <tr>
-                  <td>
-                    {getTeamLogo(home.team.abbreviation)}{" "}
-                    {/* If no logo, displays team abbreviation */}
-                  </td>
+                  <td>{getTeamLogo(home.team.abbreviation)} </td>
                   {linescore.map((inning, index) => (
                     <td key={index}>{inning.home?.runs || 0}</td>
                   ))}
@@ -381,7 +374,6 @@ const GameCard = ({ game, gameDate }) => {
                             />
                           )}
                         </a>
-                        {/* Abbreviate first name */}
                         <a
                           href={`https://baseballsavant.mlb.com/savant-player/${player.id}`}
                           target="_blank"
@@ -402,7 +394,6 @@ const GameCard = ({ game, gameDate }) => {
             </div>
           )}
 
-          {/* Only show Top Performers for completed games */}
           {isFinal && topPerformers && (
             <div
               className="text-center mt-3 mb-3"
@@ -491,7 +482,6 @@ const GameCard = ({ game, gameDate }) => {
 
           {isFinal && (
             <div className="d-flex flex-column align-items-center w-100">
-              {/* Row for recap and savant links */}
               <div className="d-flex justify-content-between w-100 mb-3">
                 {recapLink && (
                   <Card.Text className="text-center mb-3 mx-3">
@@ -518,7 +508,6 @@ const GameCard = ({ game, gameDate }) => {
                 )}
               </div>
 
-              {/* Row for lineup modal buttons */}
               <div className="d-flex justify-content-between w-100">
                 <div className="lineup-modal-container">
                   <LineupModal

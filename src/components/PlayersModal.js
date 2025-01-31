@@ -35,7 +35,6 @@ const LineupModal = ({ team, players, gameDate }) => {
         .sort((a, b) => a.battingOrder - b.battingOrder)
     : [];
 
-  // Separate hitters and pitchers
   const hitters = sortedPlayers.filter(
     (player) => player.position.type !== "Pitcher"
   );
@@ -46,7 +45,7 @@ const LineupModal = ({ team, players, gameDate }) => {
   const sortedPitchers = pitchers.sort((a, b) => {
     const ipA = a.stats.pitching?.inningsPitched || 0;
     const ipB = b.stats.pitching?.inningsPitched || 0;
-    return ipB - ipA; // Sort by innings pitched in descending order
+    return ipB - ipA;
   });
 
   const formattedDate = new Date(gameDate).toLocaleDateString();
@@ -172,7 +171,6 @@ const LineupModal = ({ team, players, gameDate }) => {
               </div>
             )}
 
-            {/* Render Pitchers - Second Column */}
             {sortedPitchers.length > 0 && (
               <div className="col-md-6">
                 <h5>Pitchers</h5>
