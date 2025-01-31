@@ -10,6 +10,7 @@ const Schedule = () => {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [hasLoaded, setHasLoaded] = useState(false); // New state for tracking initial load
 
   const lastValidDate = "2024-10-30";
 
@@ -44,10 +45,12 @@ const Schedule = () => {
   }, [selectedDate]);
 
   useEffect(() => {
-    if (!loading && error && !schedule.length) {
+    if (!hasLoaded && !loading && error && !schedule.length) {
+      // Only set the default date if it's the initial load and no games were found
       setSelectedDate(new Date(lastValidDate));
+      setHasLoaded(true); // Mark initial load as complete
     }
-  }, [error, loading, schedule]);
+  }, [error, loading, schedule, hasLoaded]);
 
   return (
     <Container>
@@ -59,7 +62,7 @@ const Schedule = () => {
       {loading && <Spinner animation="border" className="d-block mx-auto" />}
       {error && !schedule.length && (
         <p className="text-danger text-center">
-          No games scheduled for this date. Showing games from {lastValidDate}.
+          No games scheduled for this date.
         </p>
       )}
 
