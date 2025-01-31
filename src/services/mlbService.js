@@ -33,6 +33,23 @@ export const mlbService = {
       `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
     ).then((data) => data.liveData.linescore.innings);
   },
+  getLeftOnBase: (gamePk) => {
+    return fetchData(
+      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
+    ).then((data) => data.liveData.linescore.teams);
+  },
+
+  getBatters: (gamePk) => {
+    return fetchData(
+      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
+    ).then((data) => data.liveData.boxscore.teams);
+  },
+
+  getPitchers: (gamePk) => {
+    return fetchData(
+      `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
+    ).then((data) => data.liveData.boxscore.teams);
+  },
 
   getDecisions: (gamePk) => {
     return fetchData(

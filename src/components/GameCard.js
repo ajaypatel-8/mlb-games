@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Card, Col, Table } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
@@ -11,13 +11,14 @@ const GameCard = ({ game }) => {
   const isFinal = game.status.detailedState === "Final";
   const gamePk = game.gamePk;
 
-  const awayLineup = game.lineups?.awayPlayers || [];
-  const homeLineup = game.lineups?.homePlayers || [];
-
+  const [awayLineup, setAwayLineup] = useState([]);
+  const [homeLineup, setHomeLineup] = useState([]);
   const [showAwayLineup, setShowAwayLineup] = useState(false);
   const [showHomeLineup, setShowHomeLineup] = useState(false);
+
   const [recapLink, setRecapLink] = useState(null);
   const [linescore, setLinescore] = useState([]);
+  const [leftOnBase, setLeftOnBase] = useState(null);
   const [decisions, setDecisions] = useState([]);
   const [startTime, setStartTime] = useState(null);
   const [probablePitchers, setProbablePitchers] = useState(null);
@@ -26,17 +27,29 @@ const GameCard = ({ game }) => {
   useEffect(() => {
     const fetchGameContent = async () => {
       try {
-        const data = await mlbService.getGameContent(gamePk);
-        const recapSlug = data.editorial?.recap?.mlb?.slug;
-        if (recapSlug) setRecapLink(`https://www.mlb.com/news/${recapSlug}`);
+        const [
+          data,
+          linescoreData,
+          leftOnBaseData,
+          decisionsData,
+          topPerformersData,
+        ] = await Promise.all([
+          mlbService.getGameContent(gamePk),
+          mlbService.getLinescore(gamePk),
+          mlbService.getLeftOnBase(gamePk),
+          mlbService.getDecisions(gamePk),
+          mlbService.getTopPerformers(gamePk),
+        ]);
 
-        const linescoreData = await mlbService.getLinescore(gamePk);
+        if (data.editorial?.recap?.mlb?.slug) {
+          setRecapLink(
+            `https://www.mlb.com/news/${data.editorial.recap.mlb.slug}`
+          );
+        }
+
         setLinescore(linescoreData);
-
-        const decisionsData = await mlbService.getDecisions(gamePk);
+        setLeftOnBase(leftOnBaseData);
         setDecisions(decisionsData);
-
-        const topPerformersData = await mlbService.getTopPerformers(gamePk);
         setTopPerformers(topPerformersData);
 
         if (game.status.detailedState === "Scheduled") {
@@ -49,6 +62,27 @@ const GameCard = ({ game }) => {
           );
           setProbablePitchers(probablePitchersData || null);
         }
+
+        const battersData = await mlbService.getBatters(gamePk);
+
+        // Split players into hitters and pitchers
+        const splitLineup = (lineupData) => {
+          const hitters = [];
+          const pitchers = [];
+
+          lineupData.forEach((player) => {
+            if (player.position?.type === "Pitcher") {
+              pitchers.push(player);
+            } else {
+              hitters.push(player);
+            }
+          });
+
+          return { hitters, pitchers };
+        };
+
+        setAwayLineup(battersData.away?.players || []);
+        setHomeLineup(battersData.home?.players || []);
       } catch (error) {
         console.error("Failed to fetch game content:", error);
         setProbablePitchers(null);
@@ -58,25 +92,51 @@ const GameCard = ({ game }) => {
     fetchGameContent();
   }, [gamePk, game.status.detailedState]);
 
-  console.log(topPerformers);
+  console.log(awayLineup);
 
   const toggleAwayLineup = () => setShowAwayLineup((prev) => !prev);
   const toggleHomeLineup = () => setShowHomeLineup((prev) => !prev);
 
-  const calculateTotal = (teamType, stat) =>
-    linescore.reduce(
-      (total, inning) => total + (inning[teamType]?.[stat] || 0),
-      0
-    );
+  const teamLogos = useMemo(() => {
+    return mlbTeams.reduce((acc, team) => {
+      acc[team.team_abbr] = team.team_scoreboard_logo_espn;
+      return acc;
+    }, {});
+  }, []);
 
-  const getTeamLogo = (teamAbbreviation) => {
-    const team = mlbTeams.find((t) => t.team_abbr === teamAbbreviation);
-    return team ? team.team_scoreboard_logo_espn : "";
-  };
+  const getTeamLogo = (teamAbbreviation) => teamLogos[teamAbbreviation] || "";
 
   const getPlayerHeadshot = (playerId) => {
     return `https://img.mlbstatic.com/mlb-photos/image/upload/w_180,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${playerId}/headshot/silo/current`;
   };
+  const filterPlayerStats = (player) => {
+    // Check if the player has valid stats for batting, pitching, or fielding
+    return (
+      (player.stats?.batting && Object.keys(player.stats.batting).length > 0) ||
+      (player.stats?.pitching &&
+        Object.keys(player.stats.pitching).length > 0) ||
+      (player.stats?.fielding && Object.keys(player.stats.fielding).length > 0)
+    );
+  };
+
+  const sortedAwayLineup = Object.values(awayLineup)
+    .filter(filterPlayerStats)
+    .map((player) => ({
+      ...player,
+      battingOrder: parseInt(player.battingOrder, 10),
+    }))
+    .sort((a, b) => a.battingOrder - b.battingOrder);
+
+  const sortedHomeLineup = Object.values(homeLineup)
+    .filter(filterPlayerStats)
+    .map((player) => ({
+      ...player,
+      battingOrder: parseInt(player.battingOrder, 10),
+    }))
+    .sort((a, b) => a.battingOrder - b.battingOrder);
+
+  console.log("sorted away lineup", sortedAwayLineup);
+  console.log("sorted home lineup", sortedHomeLineup);
 
   const renderEmptyBoxScore = () => (
     <>
@@ -219,6 +279,9 @@ const GameCard = ({ game }) => {
                   <th>
                     <strong>E</strong>
                   </th>
+                  <th>
+                    <strong>LOB</strong>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -234,13 +297,16 @@ const GameCard = ({ game }) => {
                     <td key={index}>{inning.away?.runs || 0}</td>
                   ))}
                   <td>
-                    <strong>{calculateTotal("away", "runs")}</strong>
+                    <strong>{leftOnBase?.away?.runs || 0}</strong>
                   </td>
                   <td>
-                    <strong>{calculateTotal("away", "hits")}</strong>
+                    <strong>{leftOnBase?.away?.hits || 0}</strong>
                   </td>
                   <td>
-                    <strong>{calculateTotal("away", "errors")}</strong>
+                    <strong>{leftOnBase?.away?.errors || 0}</strong>
+                  </td>
+                  <td>
+                    <strong>{leftOnBase?.away?.leftOnBase || 0}</strong>
                   </td>
                 </tr>
                 <tr>
@@ -255,13 +321,16 @@ const GameCard = ({ game }) => {
                     <td key={index}>{inning.home?.runs || 0}</td>
                   ))}
                   <td>
-                    <strong>{calculateTotal("home", "runs")}</strong>
+                    <strong>{leftOnBase?.home?.runs || 0}</strong>
                   </td>
                   <td>
-                    <strong>{calculateTotal("home", "hits")}</strong>
+                    <strong>{leftOnBase?.home?.hits || 0}</strong>
                   </td>
                   <td>
-                    <strong>{calculateTotal("home", "errors")}</strong>
+                    <strong>{leftOnBase?.home?.errors || 0}</strong>
+                  </td>
+                  <td>
+                    <strong>{leftOnBase?.home?.leftOnBase || 0}</strong>
                   </td>
                 </tr>
               </tbody>
@@ -314,22 +383,28 @@ const GameCard = ({ game }) => {
                         style={{ gap: "10px" }}
                       >
                         <strong>{role.charAt(0).toUpperCase()}:</strong>
-                        {getPlayerHeadshot(player.id) ? (
-                          <img
-                            src={getPlayerHeadshot(player.id)}
-                            alt={role.toUpperCase()}
-                            style={{
-                              width: "30px",
-                              height: "30px",
-                              borderRadius: "50%",
-                            }}
-                          />
-                        ) : (
-                          <FontAwesomeIcon
-                            icon={faUserCircle}
-                            style={{ color: "white", fontSize: "25px" }}
-                          />
-                        )}
+                        <a
+                          href={`https://baseballsavant.mlb.com/savant-player/${player.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {getPlayerHeadshot(player.id) ? (
+                            <img
+                              src={getPlayerHeadshot(player.id)}
+                              alt={role.toUpperCase()}
+                              style={{
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "50%",
+                              }}
+                            />
+                          ) : (
+                            <FontAwesomeIcon
+                              icon={faUserCircle}
+                              style={{ color: "white", fontSize: "25px" }}
+                            />
+                          )}
+                        </a>
                         {/* Abbreviate first name */}
                         {`${player.fullName.split(" ")[0][0]}. ${player.fullName
                           .split(" ")
@@ -356,21 +431,35 @@ const GameCard = ({ game }) => {
                 const playerName = player.person.fullName;
                 const playerId = player.person.id;
 
-                const headshot = getPlayerHeadshot(playerId) ? (
-                  <img
-                    src={getPlayerHeadshot(playerId)}
-                    alt={playerName}
-                    style={{
-                      width: "30px",
-                      height: "30px",
-                      borderRadius: "50%",
-                    }}
-                  />
-                ) : (
-                  <FontAwesomeIcon
-                    icon={faUserCircle}
-                    style={{ color: "#6c757d", fontSize: "25px" }}
-                  />
+                // Abbreviate first name to initial
+                const abbreviatedName = `${
+                  playerName.split(" ")[0][0]
+                }. ${playerName.split(" ").slice(1).join(" ")}`;
+
+                // Headshot with link to Baseball Savant
+                const headshot = (
+                  <a
+                    href={`https://baseballsavant.mlb.com/savant-player/${playerId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {getPlayerHeadshot(playerId) ? (
+                      <img
+                        src={getPlayerHeadshot(playerId)}
+                        alt={playerName}
+                        style={{
+                          width: "30px",
+                          height: "30px",
+                          borderRadius: "50%",
+                        }}
+                      />
+                    ) : (
+                      <FontAwesomeIcon
+                        icon={faUserCircle}
+                        style={{ color: "#6c757d", fontSize: "25px" }}
+                      />
+                    )}
+                  </a>
                 );
 
                 let statSummary = [];
@@ -389,7 +478,7 @@ const GameCard = ({ game }) => {
                     >
                       {headshot}
                       <span style={{ flex: 1, textAlign: "left" }}>
-                        {playerName}
+                        {abbreviatedName}
                       </span>
                       {statSummary.length > 0 && (
                         <div
@@ -413,7 +502,7 @@ const GameCard = ({ game }) => {
           <div className="d-flex justify-content-between align-items-center w-100">
             <LineupDropdown
               team={away.team}
-              players={awayLineup}
+              players={sortedAwayLineup}
               toggleLineup={toggleAwayLineup}
               showLineup={showAwayLineup}
             />
@@ -425,10 +514,9 @@ const GameCard = ({ game }) => {
                 </a>
               </Card.Text>
             )}
-
             <LineupDropdown
               team={home.team}
-              players={homeLineup}
+              players={sortedHomeLineup}
               toggleLineup={toggleHomeLineup}
               showLineup={showHomeLineup}
             />
