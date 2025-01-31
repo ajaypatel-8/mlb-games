@@ -164,18 +164,29 @@ button svg:hover {
     font-size: 0.8rem; /* Further reduces table text */
   }
 
-  .d-flex {
-    flex-direction: column; /* Stack items vertically on small screens */
-    justify-content: center; /* Center content */
+  /* Adjust the datepicker and arrows layout */
+  .d-flex.datepicker-wrapper {
+    flex-direction: row; /* Keep date range arrows and datepicker in a row */
+    justify-content: space-between; /* Ensure there's space between the elements */
+    align-items: center;
   }
 
-  /* Responsive adjustments for Recap and Savant links */
+  .d-flex.datepicker-wrapper .custom-datepicker-input {
+    margin-right: 10px; /* Adds margin to the right of the datepicker */
+  }
+
+  /* Maintain horizontal layout for links (Recap, Savant, etc.) */
   .d-flex.justify-content-evenly {
-    flex-direction: column; /* Stack links vertically on mobile */
+    flex-direction: row; /* Keep the links in a row */
+    justify-content: space-between; /* Space them evenly */
     margin-bottom: 1rem;
   }
 
-  /* Adjust lineup modal containers */
+  .d-flex.justify-content-evenly .smaller-link {
+    font-size: 0.85rem; /* Slightly smaller text for links */
+    padding: 0.1rem 0.4rem; /* Adjust padding for smaller screens */
+  }
+
   .d-flex .lineup-modal-container {
     max-width: 100%; /* Prevent overflow on smaller screens */
     margin-bottom: 1rem; /* Adds space between stacked items */

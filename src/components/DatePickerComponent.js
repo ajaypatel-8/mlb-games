@@ -23,7 +23,7 @@ const DatePickerComponent = ({ selectedDate, setSelectedDate }) => {
   );
 
   return (
-    <div className="d-flex justify-content-center mb-4 align-items-center">
+    <div className="d-flex justify-content-center mb-4 align-items-center datepicker-wrapper">
       <button onClick={goToPreviousDay}>
         <BsArrowLeft size={20} />
       </button>
