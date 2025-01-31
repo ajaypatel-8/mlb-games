@@ -80,7 +80,7 @@ button svg:hover {
 
 /* Card adjustments */
 .card {
-  position: relative; 
+  position: relative;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   width: 100%; /* Ensures cards take full width on small screens */
   max-width: 400px; /* Limits max width */
@@ -88,7 +88,7 @@ button svg:hover {
 }
 
 .card:hover {
-  z-index: 1; 
+  z-index: 1;
   transform: translateY(-5px);
 }
 
@@ -99,7 +99,7 @@ button svg:hover {
 }
 
 .lineup-dropdown .card {
-  z-index: 100000; 
+  z-index: 100000;
 }
 
 /* Table responsiveness */
@@ -212,5 +212,18 @@ button svg:hover {
     align-items: center; /* Aligns content vertically */
     word-wrap: break-word; /* Breaks words when necessary */
     overflow-wrap: break-word; /* Ensures long words break properly */
+  }
+
+  /* Centering modal on mobile */
+  .modal-dialog {
+    margin: 0 auto; /* Centers the modal horizontally */
+    width: 90%; /* Ensures the modal is not too wide on mobile */
+    max-width: 90%; /* Limits the max width to 90% */
+    top: 50%; /* Vertically centers the modal */
+    transform: translateY(-50%); /* Offsets the modal by half its height to center it */
+  }
+
+  .modal-body {
+    overflow: auto; /* Allows scrolling if content overflows */
   }
 }

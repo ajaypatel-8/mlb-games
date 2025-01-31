@@ -382,10 +382,19 @@ const GameCard = ({ game, gameDate }) => {
                           )}
                         </a>
                         {/* Abbreviate first name */}
-                        {`${player.fullName.split(" ")[0][0]}. ${player.fullName
-                          .split(" ")
-                          .slice(1)
-                          .join(" ")}`}
+                        <a
+                          href={`https://baseballsavant.mlb.com/savant-player/${player.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ textDecoration: "none", color: "inherit" }}
+                        >
+                          {`${
+                            player.fullName.split(" ")[0][0]
+                          }. ${player.fullName
+                            .split(" ")
+                            .slice(1)
+                            .join(" ")}`}{" "}
+                        </a>
                       </div>
                     )
                 )}
@@ -452,7 +461,14 @@ const GameCard = ({ game, gameDate }) => {
                     >
                       {headshot}
                       <span style={{ flex: 1, textAlign: "left" }}>
-                        {abbreviatedName}
+                        <a
+                          href={`https://baseballsavant.mlb.com/savant-player/${playerId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ textDecoration: "none", color: "inherit" }}
+                        >
+                          {abbreviatedName}
+                        </a>
                       </span>
                       {statSummary.length > 0 && (
                         <div

@@ -11,6 +11,8 @@ const Schedule = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const lastValidDate = "2024-10-30";
+
   const fetchSchedule = async (date) => {
     setLoading(true);
     setError(null);
@@ -41,6 +43,12 @@ const Schedule = () => {
     fetchSchedule(selectedDate);
   }, [selectedDate]);
 
+  useEffect(() => {
+    if (!loading && error && !schedule.length) {
+      setSelectedDate(new Date(lastValidDate));
+    }
+  }, [error, loading, schedule]);
+
   return (
     <Container>
       <DatePickerComponent
@@ -49,7 +57,11 @@ const Schedule = () => {
       />
 
       {loading && <Spinner animation="border" className="d-block mx-auto" />}
-      {error && <p className="text-danger text-center">{error}</p>}
+      {error && !schedule.length && (
+        <p className="text-danger text-center">
+          No games scheduled for this date. Showing games from {lastValidDate}.
+        </p>
+      )}
 
       {schedule.length > 0 && !loading && !error
         ? schedule.map((dateData) => (
