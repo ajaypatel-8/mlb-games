@@ -6,24 +6,23 @@ const LineupDropdown = ({ team, players, toggleLineup, showLineup }) => {
     return `https://baseballsavant.mlb.com/savant-player/${id}`;
   };
 
-  // Ensure players is an array and sort them based on battingOrder
   const sortedPlayers = Array.isArray(players)
     ? players
         .map((player) => ({
           ...player,
-          battingOrder: parseInt(player.battingOrder, 10), // Ensure it's an integer
+          battingOrder: parseInt(player.battingOrder, 10),
         }))
-        .sort((a, b) => a.battingOrder - b.battingOrder) // Sort by batting order
+        .sort((a, b) => a.battingOrder - b.battingOrder)
     : [];
 
   return (
     <DropdownButton
       variant={team === "away" ? "outline-primary" : "outline-success"}
       id={`dropdown-${team}-lineup`}
-      title={`${team.teamName}`} // Display team name with 'Lineup'
+      title={`${team.teamName}`}
       onClick={toggleLineup}
       className="mb-2"
-      style={{ zIndex: 9999, position: "relative" }} // Add z-index and position
+      style={{ zIndex: 9999, position: "relative" }}
     >
       {showLineup && sortedPlayers.length > 0 ? (
         sortedPlayers.map((player) => (

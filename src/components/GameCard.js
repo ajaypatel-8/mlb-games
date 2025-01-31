@@ -65,22 +65,6 @@ const GameCard = ({ game }) => {
 
         const battersData = await mlbService.getBatters(gamePk);
 
-        // Split players into hitters and pitchers
-        const splitLineup = (lineupData) => {
-          const hitters = [];
-          const pitchers = [];
-
-          lineupData.forEach((player) => {
-            if (player.position?.type === "Pitcher") {
-              pitchers.push(player);
-            } else {
-              hitters.push(player);
-            }
-          });
-
-          return { hitters, pitchers };
-        };
-
         setAwayLineup(battersData.away?.players || []);
         setHomeLineup(battersData.home?.players || []);
       } catch (error) {
