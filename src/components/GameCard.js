@@ -500,7 +500,7 @@ const GameCard = ({ game, gameDate }) => {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Recap
+                      Game Recap
                     </a>
                   </Card.Text>
                 )}
@@ -512,7 +512,7 @@ const GameCard = ({ game, gameDate }) => {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Savant
+                      Baseball Savant
                     </a>
                   </Card.Text>
                 )}
