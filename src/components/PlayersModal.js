@@ -57,7 +57,7 @@ const LineupModal = ({ team, players, gameDate }) => {
         variant={team === "away" ? "outline-primary" : "outline-success"}
         onClick={() => setShowModal(true)}
       >
-        Show Players
+        Players
       </Button>
 
       {/* Modal to display lineup */}

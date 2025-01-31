@@ -487,6 +487,19 @@ const GameCard = ({ game, gameDate }) => {
                   </a>
                 </Card.Text>
               )}
+
+              {/* Savant Game Link */}
+              {gamePk && (
+                <Card.Text className="text-center mb-3 mx-3">
+                  <a
+                    href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Savant
+                  </a>
+                </Card.Text>
+              )}
               <LineupModal
                 team={home.team}
                 players={sortedHomeLineup}
