@@ -14,7 +14,7 @@ const App = () => {
           alt="MLB Logo"
           style={{ width: "120px", height: "auto" }}
         />
-        <h1 className="text-center flex-grow-1">MLB's Schedule</h1>
+        <h1 className="text-center flex-grow-1">MLB Scores</h1>
         <div className="d-flex align-items-center">
           <a
             href="https://x.com/ajaypatel8_"
@@ -43,7 +43,7 @@ const App = () => {
         </div>
       </div>
       <h5 className="text-center smaller-text">
-        All Data Courtesy of MLB Advanced Media. By Ajay Patel
+        All Data Courtesy Of MLB Advanced Media. By Ajay Patel
       </h5>
       <Schedule />
     </div>
