@@ -322,34 +322,37 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 <tr>
                   <td>{getTeamLogo(home.team.abbreviation)}</td>
                   {linescore.map((inning, index) => (
-                    <td key={index}>{inning.home?.runs || 0}</td>
+                    <td className="table-column" key={index}>
+                      {inning.home?.runs || 0}
+                    </td>
                   ))}
-                  <td>
+                  <td className="table-column">
                     <strong>{leftOnBase?.home?.runs || 0}</strong>
                   </td>
-                  <td>
+                  <td className="table-column">
                     <strong>{leftOnBase?.home?.hits || 0}</strong>
                   </td>
-                  <td>
+                  <td className="table-column">
                     <strong>{leftOnBase?.home?.errors || 0}</strong>
                   </td>
                   {showDetailedStats && (
                     <>
-                      <td>{leftOnBase?.home?.leftOnBase || 0}</td>
-                      <td>
+                      <td className="table-column">
+                        {leftOnBase?.home?.leftOnBase || 0}
+                      </td>
+                      <td className="table-column">
                         {boxScore.home.teamStats.batting.baseOnBalls || 0}
                       </td>
                       <td>{boxScore.home.teamStats.batting.strikeOuts || 0}</td>
-                      <td>
+                      <td className="table-column">
                         {boxScore.home.teamStats.batting.stolenBases || 0}
                       </td>
-                      <td>
-                        {" "}
+                      <td className="table-column">
                         {boxScore.home.teamStats.batting.doubles +
                           boxScore.home.teamStats.batting.triples +
                           boxScore.home.teamStats.batting.homeRuns || 0}
                       </td>
-                      <td>
+                      <td className="table-column">
                         {boxScore.home.teamStats.batting.homeRuns || ".---"}
                       </td>
                       <td>{boxScore.home.teamStats.batting.ops || ".---"}</td>

@@ -227,3 +227,9 @@ button svg:hover {
     overflow: auto; /* Allows scrolling if content overflows */
   }
 }
+
+/* styles.css or your CSS file */
+.table-column {
+  min-width: 23px;
+}
+
