@@ -38,10 +38,7 @@ export const mlbService = {
   getLeftOnBase: (gamePk) =>
     fetchLiveData(gamePk).then((data) => data.liveData.linescore.teams),
 
-  getBatters: (gamePk) =>
-    fetchLiveData(gamePk).then((data) => data.liveData.boxscore.teams),
-
-  getPitchers: (gamePk) =>
+  getBoxScore: (gamePk) =>
     fetchLiveData(gamePk).then((data) => data.liveData.boxscore.teams),
 
   getDecisions: (gamePk) =>

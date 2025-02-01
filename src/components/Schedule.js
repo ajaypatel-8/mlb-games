@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { mlbService } from "../services/mlbService";
-import { Container, Row, Spinner } from "react-bootstrap";
+import { Container, Row, Spinner, Button } from "react-bootstrap";
 import DatePickerComponent from "./DatePickerComponent";
 import GameCard from "./GameCard";
 
@@ -11,6 +11,7 @@ const Schedule = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [showDetailedStats, setShowDetailedStats] = useState(false); // Toggle state for showing detailed stats
 
   const lastValidDate = "2024-10-31";
 
@@ -51,12 +52,25 @@ const Schedule = () => {
     }
   }, [error, loading, schedule, hasLoaded]);
 
+  const toggleDetailedStats = () => setShowDetailedStats(!showDetailedStats);
+
   return (
     <Container>
       <DatePickerComponent
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
       />
+
+      <div className="d-flex justify-content-center mb-3">
+        <Button
+          variant="primary"
+          onClick={toggleDetailedStats}
+          className="ml-2"
+          size="sm"
+        >
+          {showDetailedStats ? "Hide Detailed Stats" : "Show Detailed Stats"}
+        </Button>
+      </div>
 
       {loading && <Spinner animation="border" className="d-block mx-auto" />}
       {error && !schedule.length && (
@@ -74,6 +88,7 @@ const Schedule = () => {
                     key={game.gamePk}
                     game={game}
                     gameDate={selectedDate}
+                    showDetailedStats={showDetailedStats}
                   />
                 ))}
               </Row>

@@ -6,10 +6,12 @@ import { mlbService } from "../services/mlbService";
 import mlbTeams from "./mlbTeams.json";
 import LineupModal from "./PlayersModal";
 
-const GameCard = ({ game, gameDate }) => {
+const GameCard = ({ game, gameDate, showDetailedStats }) => {
   const { away, home } = game.teams;
   const isFinal = game.status.detailedState === "Final";
   const gamePk = game.gamePk;
+
+  const [boxScore, setBoxScore] = useState([]);
 
   const [awayLineup, setAwayLineup] = useState([]);
   const [homeLineup, setHomeLineup] = useState([]);
@@ -63,10 +65,11 @@ const GameCard = ({ game, gameDate }) => {
           setProbablePitchers(probablePitchersData || null);
         }
 
-        const battersData = await mlbService.getBatters(gamePk);
+        const boxScoreData = await mlbService.getBoxScore(gamePk);
 
-        setAwayLineup(battersData.away?.players || []);
-        setHomeLineup(battersData.home?.players || []);
+        setBoxScore(boxScoreData);
+        setAwayLineup(boxScoreData.away?.players || []);
+        setHomeLineup(boxScoreData.home?.players || []);
       } catch (error) {
         console.error("Failed to fetch game content:", error);
         setProbablePitchers(null);
@@ -74,7 +77,12 @@ const GameCard = ({ game, gameDate }) => {
     };
 
     fetchGameContent();
-  }, [gamePk, game.status.detailedState]);
+  }, [
+    gamePk,
+    game.status.detailedState,
+    boxScore.away?.players,
+    boxScore.home?.players,
+  ]);
 
   const toggleAwayLineup = () => setShowAwayLineup((prev) => !prev);
   const toggleHomeLineup = () => setShowHomeLineup((prev) => !prev);
@@ -243,7 +251,10 @@ const GameCard = ({ game, gameDate }) => {
               hover
               responsive
               className="table-sm"
-              style={{ fontSize: "0.85rem", marginBottom: "0.5rem" }}
+              style={{
+                fontSize: "0.85rem",
+                marginBottom: "0.5rem",
+              }}
             >
               <thead>
                 <tr>
@@ -260,14 +271,22 @@ const GameCard = ({ game, gameDate }) => {
                   <th>
                     <strong>E</strong>
                   </th>
-                  <th>
-                    <strong>LOB</strong>
-                  </th>
+                  {showDetailedStats && (
+                    <>
+                      <th>LOB</th>
+                      <th>BB</th>
+                      <th>K</th>
+                      <th>SB</th>
+                      <th>XBH</th>
+                      <th>HR</th>
+                      <th>OPS</th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>{getTeamLogo(away.team.abbreviation)} </td>
+                  <td>{getTeamLogo(away.team.abbreviation)}</td>
                   {linescore.map((inning, index) => (
                     <td key={index}>{inning.away?.runs || 0}</td>
                   ))}
@@ -280,12 +299,28 @@ const GameCard = ({ game, gameDate }) => {
                   <td>
                     <strong>{leftOnBase?.away?.errors || 0}</strong>
                   </td>
-                  <td>
-                    <strong>{leftOnBase?.away?.leftOnBase || 0}</strong>
-                  </td>
+                  {showDetailedStats && (
+                    <>
+                      <td>{leftOnBase?.away?.leftOnBase || 0}</td>
+                      <td>
+                        {boxScore.away.teamStats.batting.baseOnBalls || 0}
+                      </td>
+                      <td>{boxScore.away.teamStats.batting.strikeOuts || 0}</td>
+                      <td>
+                        {boxScore.away.teamStats.batting.stolenBases || 0}
+                      </td>
+                      <td>
+                        {boxScore.away.teamStats.batting.doubles +
+                          boxScore.away.teamStats.batting.triples +
+                          boxScore.away.teamStats.batting.homeRuns || 0}
+                      </td>
+                      <td>{boxScore.away.teamStats.batting.homeRuns || 0}</td>
+                      <td>{boxScore.away.teamStats.batting.ops || ".---"}</td>
+                    </>
+                  )}
                 </tr>
                 <tr>
-                  <td>{getTeamLogo(home.team.abbreviation)} </td>
+                  <td>{getTeamLogo(home.team.abbreviation)}</td>
                   {linescore.map((inning, index) => (
                     <td key={index}>{inning.home?.runs || 0}</td>
                   ))}
@@ -298,9 +333,28 @@ const GameCard = ({ game, gameDate }) => {
                   <td>
                     <strong>{leftOnBase?.home?.errors || 0}</strong>
                   </td>
-                  <td>
-                    <strong>{leftOnBase?.home?.leftOnBase || 0}</strong>
-                  </td>
+                  {showDetailedStats && (
+                    <>
+                      <td>{leftOnBase?.home?.leftOnBase || 0}</td>
+                      <td>
+                        {boxScore.home.teamStats.batting.baseOnBalls || 0}
+                      </td>
+                      <td>{boxScore.home.teamStats.batting.strikeOuts || 0}</td>
+                      <td>
+                        {boxScore.home.teamStats.batting.stolenBases || 0}
+                      </td>
+                      <td>
+                        {" "}
+                        {boxScore.home.teamStats.batting.doubles +
+                          boxScore.home.teamStats.batting.triples +
+                          boxScore.home.teamStats.batting.homeRuns || 0}
+                      </td>
+                      <td>
+                        {boxScore.home.teamStats.batting.homeRuns || ".---"}
+                      </td>
+                      <td>{boxScore.home.teamStats.batting.ops || ".---"}</td>
+                    </>
+                  )}
                 </tr>
               </tbody>
             </Table>
@@ -334,7 +388,7 @@ const GameCard = ({ game, gameDate }) => {
             </Table>
           )}
 
-          {decisions && (
+          {decisions && Object.entries(decisions).length > 0 && (
             <div
               className="text-center mt-3 mb-3"
               style={{ fontSize: "0.85rem" }}
@@ -378,7 +432,10 @@ const GameCard = ({ game, gameDate }) => {
                           href={`https://baseballsavant.mlb.com/savant-player/${player.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{ textDecoration: "none", color: "inherit" }}
+                          style={{
+                            textDecoration: "none",
+                            color: "inherit",
+                          }}
                         >
                           {`${
                             player.fullName.split(" ")[0][0]
@@ -512,7 +569,7 @@ const GameCard = ({ game, gameDate }) => {
                 <div className="lineup-modal-container">
                   <LineupModal
                     team={away.team}
-                    players={sortedAwayLineup}
+                    players={sortedAwayLineup || []}
                     toggleLineup={toggleAwayLineup}
                     showLineup={showAwayLineup}
                     gameDate={gameDate}
@@ -522,7 +579,7 @@ const GameCard = ({ game, gameDate }) => {
                 <div className="lineup-modal-container">
                   <LineupModal
                     team={home.team}
-                    players={sortedHomeLineup}
+                    players={sortedHomeLineup || []}
                     toggleLineup={toggleHomeLineup}
                     showLineup={showHomeLineup}
                     gameDate={gameDate}
