@@ -4,7 +4,7 @@ body {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden; /* Prevents horizontal scrolling */
+  overflow-x: hidden;
 }
 
 code {
@@ -12,10 +12,9 @@ code {
 }
 
 .smaller-text {
-  font-size: 1rem; /* Uses relative units for scalability */
+  font-size: 1rem;
 }
 
-/* Datepicker adjustments */
 .custom-datepicker-input {
   background-color: #fff;
   border: 1px solid #ccc;
@@ -38,26 +37,24 @@ code {
   border-color: #007bff;
 }
 
-/* Flexbox utilities */
 .d-flex {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+  flex-wrap: wrap;
 }
 
 .mb-4 {
   margin-bottom: 1.5rem;
 }
 
-/* Button styling */
 button {
   background: none;
   border: none;
-  padding: 5px 8px; /* Reduced padding to make button smaller */
+  padding: 5px 8px;
   cursor: pointer;
   outline: none;
-  font-size: 0.85rem; /* Smaller font size */
+  font-size: 0.85rem;
 }
 
 button:focus {
@@ -69,7 +66,7 @@ button:hover {
 }
 
 button svg {
-  width: 16px; /* Reduced size for SVG icons */
+  width: 16px;
   height: 16px;
   color: #007bff;
 }
@@ -78,13 +75,12 @@ button svg:hover {
   color: #0056b3;
 }
 
-/* Card adjustments */
 .card {
   position: relative;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 100%; /* Ensures cards take full width on small screens */
-  max-width: 400px; /* Limits max width */
-  margin: auto; /* Centers cards */
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
 }
 
 .card:hover {
@@ -92,7 +88,6 @@ button svg:hover {
   transform: translateY(-5px);
 }
 
-/* Dropdown menu fixes */
 .lineup-dropdown {
   z-index: 100000;
   position: absolute;
@@ -102,41 +97,36 @@ button svg:hover {
   z-index: 100000;
 }
 
-/* Table responsiveness */
 .table-container {
   width: 100%;
-  overflow-x: auto; /* Enables horizontal scrolling for small screens */
+  overflow-x: auto;
 }
 
 .table-sm th, .table-sm td {
   text-align: center;
-  font-size: 0.9rem; /* Reduced font size for better fit */
+  font-size: 0.9rem;
 }
 
-/* Modal width adjustments */
 .wide-modal .modal-dialog {
   max-width: 50%;
 }
 
-/* Flex adjustments for the two-row layout */
 .d-flex.justify-content-evenly {
-  justify-content: space-evenly; /* Ensure space between items */
-  margin-bottom: 1rem; /* Adds space between rows */
+  justify-content: space-evenly;
+  margin-bottom: 1rem;
 }
 
 .smaller-link {
-  font-size: 0.85rem; /* Slightly smaller text for links */
-  padding: 0.1rem 0.4rem; /* Adjust padding for smaller screens */
+  font-size: 0.85rem;
+  padding: 0.1rem 0.4rem;
 }
 
-/* Row 2 (Lineup Modals) */
 .d-flex .lineup-modal-container {
-  flex-shrink: 1; /* Allow lineup modals to shrink */
-  max-width: 100%; /* Prevent overflow on smaller screens */
-  padding: 0 1rem; /* Adds spacing around the lineups */
+  flex-shrink: 1;
+  max-width: 100%;
+  padding: 0 1rem;
 }
 
-/* Mobile-specific adjustments */
 @media (max-width: 768px) {
   .smaller-text {
     font-size: 0.9rem;
@@ -148,88 +138,81 @@ button svg:hover {
   }
 
   .card {
-    max-width: 100%; /* Ensures full width usage */
+    max-width: 100%;
   }
 
   .wide-modal .modal-dialog {
-    max-width: 90%; /* Makes modals fit smaller screens */
+    max-width: 90%;
   }
 
   button {
-    padding: 4px 6px; /* Smaller padding for mobile */
-    font-size: 0.75rem; /* Smaller font size on mobile */
+    padding: 4px 6px;
+    font-size: 0.75rem;
   }
 
   .table-sm th, .table-sm td {
-    font-size: 0.8rem; /* Further reduces table text */
+    font-size: 0.8rem;
   }
 
-  /* Adjust the datepicker and arrows layout */
   .d-flex.datepicker-wrapper {
-    flex-direction: row; /* Keep date range arrows and datepicker in a row */
-    justify-content: space-between; /* Ensure there's space between the elements */
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
   }
 
   .d-flex.datepicker-wrapper .custom-datepicker-input {
-    margin-right: 10px; /* Adds margin to the right of the datepicker */
+    margin-right: 10px;
   }
 
-  /* Maintain horizontal layout for links (Recap, Savant, etc.) */
   .d-flex.justify-content-evenly {
-    flex-direction: row; /* Keep the links in a row */
-    justify-content: space-between; /* Space them evenly */
+    flex-direction: row;
+    justify-content: space-between;
     margin-bottom: 1rem;
   }
 
   .d-flex.justify-content-evenly .smaller-link {
-    font-size: 0.85rem; /* Slightly smaller text for links */
-    padding: 0.1rem 0.4rem; /* Adjust padding for smaller screens */
+    font-size: 0.85rem;
+    padding: 0.1rem 0.4rem;
   }
 
   .d-flex .lineup-modal-container {
-    max-width: 100%; /* Prevent overflow on smaller screens */
-    margin-bottom: 1rem; /* Adds space between stacked items */
-  }
-
-  .card-text a {
-    font-size: 0.75rem; /* Smaller font size for links */
-    padding: 0.1rem 0.4rem; /* Adjust padding for smaller screens */
-  }
-
-  /* Center the three links on mobile */
-  .d-flex.justify-content-center-links {
-    justify-content: center; /* Centers the links */
-    flex-wrap: wrap; /* Allows items to wrap if needed */
+    max-width: 100%;
     margin-bottom: 1rem;
   }
 
-  /* Card header adjustment to wrap the text (team @ team) */
-  .card-header {
-    display: flex;
-    flex-wrap: wrap; /* Ensures the text wraps inside the header */
-    justify-content: center; /* Optional: centers content */
-    align-items: center; /* Aligns content vertically */
-    word-wrap: break-word; /* Breaks words when necessary */
-    overflow-wrap: break-word; /* Ensures long words break properly */
+  .card-text a {
+    font-size: 0.75rem;
+    padding: 0.1rem 0.4rem;
   }
 
-  /* Centering modal on mobile */
+  .d-flex.justify-content-center-links {
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .card-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
   .modal-dialog {
-    margin: 0 auto; /* Centers the modal horizontally */
-    width: 90%; /* Ensures the modal is not too wide on mobile */
-    max-width: 90%; /* Limits the max width to 90% */
-    top: 50%; /* Vertically centers the modal */
-    transform: translateY(-50%); /* Offsets the modal by half its height to center it */
+    margin: 0 auto;
+    width: 90%;
+    max-width: 90%;
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .modal-body {
-    overflow: auto; /* Allows scrolling if content overflows */
+    overflow: auto;
   }
 }
 
-/* styles.css or your CSS file */
 .table-column {
   min-width: 23px;
 }
-
