@@ -341,7 +341,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                           boxScore.away.teamStats.batting.homeRuns || 0}
                       </td>
                       <td>{boxScore.away.teamStats.batting.homeRuns || 0}</td>
-                      <td>{boxScore.away.teamStats.batting.ops || ".---"}</td>
+                      <td>{boxScore.away.teamStats.batting.ops || "-"}</td>
                     </>
                   )}
                 </tr>
@@ -379,9 +379,9 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                           boxScore.home.teamStats.batting.homeRuns || 0}
                       </td>
                       <td className="table-column">
-                        {boxScore.home.teamStats.batting.homeRuns || ".---"}
+                        {boxScore.home.teamStats.batting.homeRuns || 0}
                       </td>
-                      <td>{boxScore.home.teamStats.batting.ops || ".---"}</td>
+                      <td>{boxScore.home.teamStats.batting.ops || "-"}</td>
                     </>
                   )}
                 </tr>
