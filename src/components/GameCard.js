@@ -119,22 +119,46 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
       (player.stats?.fielding && Object.keys(player.stats.fielding).length > 0)
     );
   };
+  const sortLineup = (lineup) => {
+    const players = Object.values(lineup)
+      .filter(filterPlayerStats)
+      .map((player) => {
+        const battingOrder = parseInt(player.battingOrder, 10);
+        return { ...player, battingOrder };
+      });
 
-  const sortedAwayLineup = Object.values(awayLineup)
-    .filter(filterPlayerStats)
-    .map((player) => ({
-      ...player,
-      battingOrder: parseInt(player.battingOrder, 10),
-    }))
-    .sort((a, b) => a.battingOrder - b.battingOrder);
+    const normalPlayers = [];
+    const subbedInPlayers = [];
+    const invalidPlayers = [];
 
-  const sortedHomeLineup = Object.values(homeLineup)
-    .filter(filterPlayerStats)
-    .map((player) => ({
-      ...player,
-      battingOrder: parseInt(player.battingOrder, 10),
-    }))
-    .sort((a, b) => a.battingOrder - b.battingOrder);
+    players.forEach((player) => {
+      const isSubbedIn =
+        player.battingOrder >= 100 &&
+        player.battingOrder < 1000 &&
+        player.battingOrder % 10 !== 0;
+
+      if (isSubbedIn) {
+        subbedInPlayers.push(player);
+      } else if (
+        isNaN(player.battingOrder) ||
+        player.battingOrder < 1 ||
+        player.battingOrder > 900
+      ) {
+        invalidPlayers.push(player);
+      } else {
+        const position = Math.floor(player.battingOrder / 100) - 1;
+        normalPlayers[position] = player;
+      }
+    });
+
+    return [...normalPlayers, ...subbedInPlayers, ...invalidPlayers];
+  };
+
+  const sortedAwayLineup = sortLineup(awayLineup);
+  const sortedHomeLineup = sortLineup(homeLineup);
+
+  console.log("Sorted Away Lineup:", sortedAwayLineup);
+  console.log("Sorted Home Lineup:", sortedHomeLineup);
 
   const renderEmptyBoxScore = () => (
     <>
@@ -170,6 +194,8 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
       </tr>
     </>
   );
+
+  console.log(sortedAwayLineup);
 
   return (
     <Col key={game.gamePk} md={4} className="mb-4">

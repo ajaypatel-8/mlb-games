@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { faUserCircle, faArrowRight } from "@fortawesome/free-solid-svg-icons"; // Add the arrow icon
 import mlbTeams from "./mlbTeams.json";
 
 const LineupModal = ({ team, players, gameDate }) => {
@@ -139,6 +139,18 @@ const LineupModal = ({ team, players, gameDate }) => {
                       key={playerId}
                       className="d-flex justify-content-start align-items-center mb-3"
                     >
+                      {player.battingOrder >= 100 &&
+                        player.battingOrder < 1000 &&
+                        player.battingOrder % 10 !== 0 && (
+                          <FontAwesomeIcon
+                            icon={faArrowRight}
+                            style={{
+                              color: "#6c757d",
+                              fontSize: "20px",
+                              marginRight: "10px",
+                            }}
+                          />
+                        )}
                       {headshot}
                       <span
                         style={{
@@ -217,6 +229,18 @@ const LineupModal = ({ team, players, gameDate }) => {
                       key={playerId}
                       className="d-flex justify-content-start align-items-center mb-3"
                     >
+                      {player.battingOrder >= 100 &&
+                        player.battingOrder < 1000 &&
+                        player.battingOrder % 10 !== 0 && (
+                          <FontAwesomeIcon
+                            icon={faArrowRight}
+                            style={{
+                              color: "#6c757d",
+                              fontSize: "20px",
+                              marginRight: "10px",
+                            }}
+                          />
+                        )}
                       {headshot}
                       <span
                         style={{
