@@ -11,5 +11,4 @@ Some relevant features it supports:
 - Savant game feeds: links to Baseball Savant's in-depth game feeds are provided for each completed game
 - Lineup modals: pop up modals containing summaries of a team's lineup and pitchers from each completed
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).Thank you for visiting!
-
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). Thank you for visiting!

@@ -194,8 +194,6 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
     </>
   );
 
-  console.log(sortedAwayLineup);
-
   return (
     <Col key={game.gamePk} md={4} className="mb-4">
       <Card
