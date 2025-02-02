@@ -201,11 +201,12 @@ button svg:hover {
   }
 
   .modal-dialog {
-    position: absolute;
-    top: 50%;
-    left: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 90%;
     max-width: 90%;
+    z-index: 1050; /* Ensure the modal is above other content */
   }
 
   .modal-body {
