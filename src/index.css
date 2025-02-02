@@ -1,0 +1,218 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.smaller-text {
+  font-size: 1rem;
+}
+
+.custom-datepicker-input {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px 15px;
+  font-size: 1rem;
+  color: #333;
+  display: inline-block;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.custom-datepicker-input:hover {
+  border-color: #007bff;
+  background-color: #f0f8ff;
+}
+
+.custom-datepicker-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.d-flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+button {
+  background: none;
+  border: none;
+  padding: 5px 8px;
+  cursor: pointer;
+  outline: none;
+  font-size: 0.85rem;
+}
+
+button:focus {
+  outline: none;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+button svg {
+  width: 16px;
+  height: 16px;
+  color: #007bff;
+}
+
+button svg:hover {
+  color: #0056b3;
+}
+
+.card {
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+}
+
+.card:hover {
+  z-index: 1;
+  transform: translateY(-5px);
+}
+
+.lineup-dropdown {
+  z-index: 100000;
+  position: absolute;
+}
+
+.lineup-dropdown .card {
+  z-index: 100000;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-sm th, .table-sm td {
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.wide-modal .modal-dialog {
+  max-width: 50%;
+}
+
+.d-flex.justify-content-evenly {
+  justify-content: space-evenly;
+  margin-bottom: 1rem;
+}
+
+.smaller-link {
+  font-size: 0.85rem;
+  padding: 0.1rem 0.4rem;
+}
+
+.d-flex .lineup-modal-container {
+  flex-shrink: 1;
+  max-width: 100%;
+  padding: 0 1rem;
+}
+
+@media (max-width: 768px) {
+  .smaller-text {
+    font-size: 0.9rem;
+  }
+
+  .custom-datepicker-input {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+  }
+
+  .card {
+    max-width: 100%;
+  }
+
+  .wide-modal .modal-dialog {
+    max-width: 90%;
+  }
+
+  button {
+    padding: 4px 6px;
+    font-size: 0.75rem;
+  }
+
+  .table-sm th, .table-sm td {
+    font-size: 0.8rem;
+  }
+
+  .d-flex.datepicker-wrapper {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .d-flex.datepicker-wrapper .custom-datepicker-input {
+    margin-right: 10px;
+  }
+
+  .d-flex.justify-content-evenly {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .d-flex.justify-content-evenly .smaller-link {
+    font-size: 0.85rem;
+    padding: 0.1rem 0.4rem;
+  }
+
+  .d-flex .lineup-modal-container {
+    max-width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .card-text a {
+    font-size: 0.75rem;
+    padding: 0.1rem 0.4rem;
+  }
+
+  .d-flex.justify-content-center-links {
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .card-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .modal-dialog {
+    margin: 0 auto;
+    width: 90%;
+    max-width: 90%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .modal-body {
+    overflow: auto;
+  }
+}
+
+.table-column {
+  min-width: 23px;
+}
