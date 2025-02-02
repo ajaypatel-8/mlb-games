@@ -30,9 +30,13 @@ const DatePickerComponent = ({ selectedDate, setSelectedDate }) => {
       <DatePicker
         selected={selectedDate}
         onChange={(date) => setSelectedDate(date)}
+        showYearDropdown
         dateFormat="yyyy-MM-dd"
+        scrollableYearDropdown
+        yearDropdownItemNumber={15}
         customInput={<CustomInput />}
       />
+
       <button onClick={goToNextDay}>
         <BsArrowRight size={20} />
       </button>
