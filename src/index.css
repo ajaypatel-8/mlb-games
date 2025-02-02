@@ -201,11 +201,12 @@ button svg:hover {
   }
 
   .modal-dialog {
-    margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 90%;
     max-width: 90%;
-    top: 50%;
-    transform: translateY(-50%);
   }
 
   .modal-body {
