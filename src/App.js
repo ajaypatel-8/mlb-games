@@ -14,7 +14,7 @@ const App = () => {
           alt="MLB Logo"
           style={{ width: "120px", height: "auto" }}
         />
-        <h1 className="text-center flex-grow-1">MLB Scoressss</h1>
+        <h1 className="text-center flex-grow-1">MLB Scores</h1>
         <div className="d-flex align-items-center">
           <a
             href="https://x.com/ajaypatel8_"

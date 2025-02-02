@@ -11,7 +11,7 @@ const Schedule = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasLoaded, setHasLoaded] = useState(false);
-  const [showDetailedStats, setShowDetailedStats] = useState(false); // Toggle state for showing detailed stats
+  const [showDetailedStats, setShowDetailedStats] = useState(false);
 
   const lastValidDate = "2024-10-31";
 
