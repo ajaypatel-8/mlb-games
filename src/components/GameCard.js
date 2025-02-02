@@ -9,6 +9,8 @@ import LineupModal from "./PlayersModal";
 const GameCard = ({ game, gameDate, showDetailedStats }) => {
   const { away, home } = game.teams;
   const isFinal = game.status.detailedState === "Final";
+  const isInProgress = game.status.detailedState === "In Progress";
+  const isRainDelay = game.status.detailedState === "Rain Delay";
   const gamePk = game.gamePk;
 
   const [boxScore, setBoxScore] = useState([]);
@@ -157,9 +159,6 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
   const sortedAwayLineup = sortLineup(awayLineup);
   const sortedHomeLineup = sortLineup(homeLineup);
 
-  console.log("Sorted Away Lineup:", sortedAwayLineup);
-  console.log("Sorted Home Lineup:", sortedHomeLineup);
-
   const renderEmptyBoxScore = () => (
     <>
       <tr>
@@ -231,46 +230,48 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
           </div>
 
           <Card.Text className="mb-3">
-            {!isFinal ? (
+            {isInProgress || isRainDelay ? (
               <div className="text-center">
-                {game.status.detailedState === "Scheduled" && startTime && (
-                  <>
-                    <br />
-                    <strong>Start Time:</strong> {startTime}
-                  </>
-                )}
-                {game.status.detailedState === "Scheduled" &&
-                  probablePitchers && (
-                    <>
-                      <div
-                        className="d-flex justify-content-center"
-                        style={{ gap: "0px" }}
-                      >
-                        <div>
-                          <strong>Away: </strong>
-                          {probablePitchers.away?.fullName || "TBD"}
-                        </div>
-                      </div>
-                      <div
-                        className="d-flex justify-content-center"
-                        style={{ gap: "0px" }}
-                      >
-                        <div>
-                          <strong>Home: </strong>
-                          {probablePitchers.home?.fullName || "TBD"}
-                        </div>
-                      </div>
-                    </>
-                  )}
+                <strong>Score:</strong> {away.score} - {home.score}
               </div>
             ) : (
-              <div className="text-center">
-                <strong>Final Score:</strong> {away.score} - {home.score}
-              </div>
+              !isFinal && (
+                <div className="text-center">
+                  {game.status.detailedState === "Scheduled" && startTime && (
+                    <>
+                      <br />
+                      <strong>Start Time:</strong> {startTime} ET
+                    </>
+                  )}
+                  {game.status.detailedState === "Scheduled" &&
+                    probablePitchers && (
+                      <>
+                        <div
+                          className="d-flex justify-content-center"
+                          style={{ gap: "0px" }}
+                        >
+                          <div>
+                            <strong>Away: </strong>
+                            {probablePitchers.away?.fullName || "TBD"}
+                          </div>
+                        </div>
+                        <div
+                          className="d-flex justify-content-center"
+                          style={{ gap: "0px" }}
+                        >
+                          <div>
+                            <strong>Home: </strong>
+                            {probablePitchers.home?.fullName || "TBD"}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                </div>
+              )
             )}
           </Card.Text>
 
-          {linescore.length > 0 && isFinal ? (
+          {linescore.length > 0 && (isFinal || isInProgress || isRainDelay) ? (
             <Table
               striped
               bordered
@@ -311,6 +312,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 </tr>
               </thead>
               <tbody>
+                {/* Away Team */}
                 <tr>
                   <td>{getTeamLogo(away.team.abbreviation)}</td>
                   {linescore.map((inning, index) => (
@@ -345,6 +347,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     </>
                   )}
                 </tr>
+                {/* Home Team */}
                 <tr>
                   <td>{getTeamLogo(home.team.abbreviation)}</td>
                   {linescore.map((inning, index) => (
@@ -566,10 +569,10 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
             </div>
           )}
 
-          {isFinal && (
+          {(isFinal || isInProgress || isRainDelay) && (
             <div className="d-flex flex-column align-items-center w-100">
               <div className="d-flex justify-content-between w-100 mb-3">
-                {recapLink && (
+                {isFinal && recapLink && (
                   <Card.Text className="text-center mb-3 mx-3">
                     <a
                       href={recapLink}
