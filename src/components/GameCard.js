@@ -569,8 +569,16 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
             </div>
           )}
 
-          {(isFinal || isInProgress || isRainDelay) && (
+          {(isFinal ||
+            isInProgress ||
+            isRainDelay ||
+            game.status.detailedState === "Cancelled") && (
             <div className="d-flex flex-column align-items-center w-100">
+              {game.status.detailedState === "Cancelled" && (
+                <div className="text-center mb-3">
+                  <strong>Game Cancelled</strong>
+                </div>
+              )}
               <div className="d-flex justify-content-between w-100 mb-3">
                 {isFinal && recapLink && (
                   <Card.Text className="text-center mb-3 mx-3">
