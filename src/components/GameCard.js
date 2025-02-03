@@ -570,11 +570,17 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
           {(isFinal ||
             isInProgress ||
             isRainDelay ||
-            game.status.detailedState === "Cancelled") && (
+            game.status.detailedState === "Cancelled" ||
+            game.status.detailedState === "Postponed") && (
             <div className="d-flex flex-column align-items-center w-100">
               {game.status.detailedState === "Cancelled" && (
                 <div className="text-center mb-3">
                   <strong>Game Cancelled</strong>
+                </div>
+              )}
+              {game.status.detailedState === "Postponed" && (
+                <div className="text-center mb-3">
+                  <strong>Game Postponed</strong>
                 </div>
               )}
               <div className="d-flex justify-content-between w-100 mb-3">
