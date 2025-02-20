@@ -799,7 +799,10 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
 
               <div className="d-flex justify-content-between w-100 mb-3">
                 {isFinal && recapLink && (
-                  <Card.Text className="text-left mb-3 mx-3">
+                  <Card.Text
+                    className="text-left mb-3 mx-3"
+                    style={{ fontSize: "1rem" }}
+                  >
                     <a
                       href={recapLink}
                       target="_blank"
@@ -810,8 +813,11 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   </Card.Text>
                 )}
 
-                {isInProgress && gamePk && (
-                  <div className="text-center mb-3 mx-3 w-100">
+                {((isInProgress && gamePk) || !recapLink) && (
+                  <div
+                    className="text-center mb-3 mx-3 w-100"
+                    style={{ fontSize: "1rem" }}
+                  >
                     <a
                       href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
                       target="_blank"
@@ -822,8 +828,11 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   </div>
                 )}
 
-                {isFinal && gamePk && (
-                  <div className="text-right mb-3 mx-3">
+                {isFinal && gamePk && recapLink && (
+                  <div
+                    className="text-right mb-3 mx-3"
+                    style={{ fontSize: "1rem" }}
+                  >
                     <a
                       href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
                       target="_blank"
