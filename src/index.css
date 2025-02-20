@@ -117,7 +117,7 @@ button svg:hover {
 }
 
 .smaller-link {
-  font-size: 0.85rem;
+  font-size: 1rem;
   padding: 0.1rem 0.4rem;
 }
 
@@ -206,7 +206,7 @@ button svg:hover {
     align-items: center;
     width: 90%;
     max-width: 90%;
-    z-index: 1050; /* Ensure the modal is above other content */
+    z-index: 1050; 
   }
 
   .modal-body {
@@ -218,7 +218,6 @@ button svg:hover {
   min-width: 23px;
 }
 
-/* Allows for first column to be frozen when scrolling */
 .scrollable-table-container {
   overflow-x: auto; 
   white-space: nowrap; 
