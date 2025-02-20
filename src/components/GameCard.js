@@ -366,124 +366,130 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
           </Card.Text>
 
           {linescore.length > 0 && (isFinal || isInProgress || isRainDelay) ? (
-            <Table
-              striped
-              bordered
-              hover
-              responsive
-              className="table-sm"
-              style={{
-                fontSize: "0.85rem",
-                marginBottom: "0.5rem",
-              }}
-            >
-              <thead>
-                <tr>
-                  <th></th>
-                  {linescore.map((inning, index) => (
-                    <th key={index}>{inning.num}</th>
-                  ))}
-                  <th>
-                    <strong>R</strong>
-                  </th>
-                  <th>
-                    <strong>H</strong>
-                  </th>
-                  <th>
-                    <strong>E</strong>
-                  </th>
-                  {showDetailedStats && (
-                    <>
-                      <th>LOB</th>
-                      <th>BB</th>
-                      <th>K</th>
-                      <th>SB</th>
-                      <th>XBH</th>
-                      <th>HR</th>
-                      <th>OPS</th>
-                    </>
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {/* Away Team */}
-                <tr>
-                  <td>{getTeamLogo(away.team.abbreviation)}</td>
-                  {linescore.map((inning, index) => (
-                    <td key={index}>{inning.away?.runs || 0}</td>
-                  ))}
-                  <td>
-                    <strong>{leftOnBase?.away?.runs || 0}</strong>
-                  </td>
-                  <td>
-                    <strong>{leftOnBase?.away?.hits || 0}</strong>
-                  </td>
-                  <td>
-                    <strong>{leftOnBase?.away?.errors || 0}</strong>
-                  </td>
-                  {showDetailedStats && (
-                    <>
-                      <td>{leftOnBase?.away?.leftOnBase || 0}</td>
-                      <td>
-                        {boxScore.away.teamStats.batting.baseOnBalls || 0}
-                      </td>
-                      <td>{boxScore.away.teamStats.batting.strikeOuts || 0}</td>
-                      <td>
-                        {boxScore.away.teamStats.batting.stolenBases || 0}
-                      </td>
-                      <td>
-                        {boxScore.away.teamStats.batting.doubles +
-                          boxScore.away.teamStats.batting.triples +
-                          boxScore.away.teamStats.batting.homeRuns || 0}
-                      </td>
-                      <td>{boxScore.away.teamStats.batting.homeRuns || 0}</td>
-                      <td>{boxScore.away.teamStats.batting.ops || "-"}</td>
-                    </>
-                  )}
-                </tr>
-                {/* Home Team */}
-                <tr>
-                  <td>{getTeamLogo(home.team.abbreviation)}</td>
-                  {linescore.map((inning, index) => (
-                    <td className="table-column" key={index}>
-                      {inning.home?.runs || 0}
+            <div className="scrollable-table-container">
+              <Table
+                striped
+                bordered
+                hover
+                responsive
+                className="table-sm"
+                style={{
+                  fontSize: "0.85rem",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                <thead>
+                  <tr>
+                    <th></th>
+                    {linescore.map((inning, index) => (
+                      <th key={index}>{inning.num}</th>
+                    ))}
+                    <th>
+                      <strong>R</strong>
+                    </th>
+                    <th>
+                      <strong>H</strong>
+                    </th>
+                    <th>
+                      <strong>E</strong>
+                    </th>
+                    {showDetailedStats && (
+                      <>
+                        <th>LOB</th>
+                        <th>BB</th>
+                        <th>K</th>
+                        <th>SB</th>
+                        <th>XBH</th>
+                        <th>HR</th>
+                        <th>OPS</th>
+                      </>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Away Team */}
+                  <tr>
+                    <td>{getTeamLogo(away.team.abbreviation)}</td>
+                    {linescore.map((inning, index) => (
+                      <td key={index}>{inning.away?.runs || 0}</td>
+                    ))}
+                    <td>
+                      <strong>{leftOnBase?.away?.runs || 0}</strong>
                     </td>
-                  ))}
-                  <td className="table-column">
-                    <strong>{leftOnBase?.home?.runs || 0}</strong>
-                  </td>
-                  <td className="table-column">
-                    <strong>{leftOnBase?.home?.hits || 0}</strong>
-                  </td>
-                  <td className="table-column">
-                    <strong>{leftOnBase?.home?.errors || 0}</strong>
-                  </td>
-                  {showDetailedStats && (
-                    <>
-                      <td className="table-column">
-                        {leftOnBase?.home?.leftOnBase || 0}
+                    <td>
+                      <strong>{leftOnBase?.away?.hits || 0}</strong>
+                    </td>
+                    <td>
+                      <strong>{leftOnBase?.away?.errors || 0}</strong>
+                    </td>
+                    {showDetailedStats && (
+                      <>
+                        <td>{leftOnBase?.away?.leftOnBase || 0}</td>
+                        <td>
+                          {boxScore.away.teamStats.batting.baseOnBalls || 0}
+                        </td>
+                        <td>
+                          {boxScore.away.teamStats.batting.strikeOuts || 0}
+                        </td>
+                        <td>
+                          {boxScore.away.teamStats.batting.stolenBases || 0}
+                        </td>
+                        <td>
+                          {boxScore.away.teamStats.batting.doubles +
+                            boxScore.away.teamStats.batting.triples +
+                            boxScore.away.teamStats.batting.homeRuns || 0}
+                        </td>
+                        <td>{boxScore.away.teamStats.batting.homeRuns || 0}</td>
+                        <td>{boxScore.away.teamStats.batting.ops || "-"}</td>
+                      </>
+                    )}
+                  </tr>
+                  {/* Home Team */}
+                  <tr>
+                    <td>{getTeamLogo(home.team.abbreviation)}</td>
+                    {linescore.map((inning, index) => (
+                      <td className="table-column" key={index}>
+                        {inning.home?.runs || 0}
                       </td>
-                      <td className="table-column">
-                        {boxScore.home.teamStats.batting.baseOnBalls || 0}
-                      </td>
-                      <td>{boxScore.home.teamStats.batting.strikeOuts || 0}</td>
-                      <td className="table-column">
-                        {boxScore.home.teamStats.batting.stolenBases || 0}
-                      </td>
-                      <td className="table-column">
-                        {boxScore.home.teamStats.batting.doubles +
-                          boxScore.home.teamStats.batting.triples +
-                          boxScore.home.teamStats.batting.homeRuns || 0}
-                      </td>
-                      <td className="table-column">
-                        {boxScore.home.teamStats.batting.homeRuns || 0}
-                      </td>
-                      <td>{boxScore.home.teamStats.batting.ops || "-"}</td>
-                    </>
-                  )}
-                </tr>
-              </tbody>
-            </Table>
+                    ))}
+                    <td className="table-column">
+                      <strong>{leftOnBase?.home?.runs || 0}</strong>
+                    </td>
+                    <td className="table-column">
+                      <strong>{leftOnBase?.home?.hits || 0}</strong>
+                    </td>
+                    <td className="table-column">
+                      <strong>{leftOnBase?.home?.errors || 0}</strong>
+                    </td>
+                    {showDetailedStats && (
+                      <>
+                        <td className="table-column">
+                          {leftOnBase?.home?.leftOnBase || 0}
+                        </td>
+                        <td className="table-column">
+                          {boxScore.home.teamStats.batting.baseOnBalls || 0}
+                        </td>
+                        <td>
+                          {boxScore.home.teamStats.batting.strikeOuts || 0}
+                        </td>
+                        <td className="table-column">
+                          {boxScore.home.teamStats.batting.stolenBases || 0}
+                        </td>
+                        <td className="table-column">
+                          {boxScore.home.teamStats.batting.doubles +
+                            boxScore.home.teamStats.batting.triples +
+                            boxScore.home.teamStats.batting.homeRuns || 0}
+                        </td>
+                        <td className="table-column">
+                          {boxScore.home.teamStats.batting.homeRuns || 0}
+                        </td>
+                        <td>{boxScore.home.teamStats.batting.ops || "-"}</td>
+                      </>
+                    )}
+                  </tr>
+                </tbody>
+              </Table>
+            </div>
           ) : (
             <>
               <Table
