@@ -263,7 +263,19 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
           <Card.Text className="mb-3">
             {isInProgress || isRainDelay ? (
               <div className="text-center">
-                <strong>Score:</strong> {away.score} - {home.score}
+                <span style={{ marginRight: "10px" }}>
+                  {getTeamLogo(away.team.abbreviation)}
+                </span>
+                <span>
+                  <strong>{away.score}</strong>
+                </span>{" "}
+                -{" "}
+                <span>
+                  <strong>{home.score}</strong>
+                </span>
+                <span style={{ marginLeft: "10px" }}>
+                  {getTeamLogo(home.team.abbreviation)}
+                </span>
               </div>
             ) : (
               !isFinal && (
@@ -381,9 +393,12 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 <thead>
                   <tr>
                     <th></th>
-                    {linescore.map((inning, index) => (
-                      <th key={index}>{inning.num}</th>
-                    ))}
+                    {[...Array(Math.max(9, linescore.length))].map(
+                      (_, index) => (
+                        <th key={index}>{index + 1}</th>
+                      )
+                    )}
+
                     <th>
                       <strong>R</strong>
                     </th>
@@ -410,9 +425,19 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   {/* Away Team */}
                   <tr>
                     <td>{getTeamLogo(away.team.abbreviation)}</td>
-                    {linescore.map((inning, index) => (
-                      <td key={index}>{inning.away?.runs || 0}</td>
-                    ))}
+
+                    {[...Array(Math.max(9, linescore.length))].map(
+                      (_, index) => {
+                        const inning = linescore[index]; // Get inning if available
+                        return (
+                          <td key={index}>
+                            {inning ? inning.away?.runs || 0 : "-"}{" "}
+                            {/* Display score if available, else "-" */}
+                          </td>
+                        );
+                      }
+                    )}
+
                     <td>
                       <strong>{leftOnBase?.away?.runs || 0}</strong>
                     </td>
@@ -447,11 +472,18 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   {/* Home Team */}
                   <tr>
                     <td>{getTeamLogo(home.team.abbreviation)}</td>
-                    {linescore.map((inning, index) => (
-                      <td className="table-column" key={index}>
-                        {inning.home?.runs || 0}
-                      </td>
-                    ))}
+                    {[...Array(Math.max(9, linescore.length))].map(
+                      (_, index) => {
+                        const inning = linescore[index]; // Get inning if available
+                        return (
+                          <td key={index}>
+                            {inning ? inning.home?.runs || 0 : "-"}{" "}
+                            {/* Display score if available, else "-" */}
+                          </td>
+                        );
+                      }
+                    )}
+
                     <td className="table-column">
                       <strong>{leftOnBase?.home?.runs || 0}</strong>
                     </td>
@@ -617,7 +649,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
             </div>
           )}
 
-          {isFinal && topPerformers && (
+          {(isFinal || isInProgress) && topPerformers && (
             <div
               className="text-center mt-3 mb-3"
               style={{ fontSize: "0.75rem" }}
@@ -733,7 +765,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 )}
 
                 {gamePk && (
-                  <Card.Text className="text-center mb-3 mx-3">
+                  <div className="text-center w-100 mb-3">
                     <a
                       href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
                       target="_blank"
@@ -741,7 +773,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     >
                       Baseball Savant
                     </a>
-                  </Card.Text>
+                  </div>
                 )}
               </div>
 
