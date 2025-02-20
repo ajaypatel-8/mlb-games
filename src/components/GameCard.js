@@ -249,29 +249,74 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
           >
             {away.team.name} @ {home.team.name}
           </Card.Title>
-
           <div
             className="text-center"
             style={{ fontSize: "0.9rem", marginBottom: "1rem" }}
           >
-            <div>
-              ({away.leagueRecord.wins}-{away.leagueRecord.losses}) (
-              {home.leagueRecord.wins}-{home.leagueRecord.losses})
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginRight: "10px",
+                }}
+              >
+                {isFinal && (
+                  <span style={{ color: "green", marginRight: "1px" }}>
+                    <i
+                      className="bi bi-check-circle"
+                      style={{ fontSize: "1rem" }}
+                    ></i>
+                  </span>
+                )}
+                {isInProgress && (
+                  <span style={{ color: "blue", marginRight: "1px" }}>
+                    <i
+                      className="bi bi-play-circle"
+                      style={{ fontSize: "1rem" }}
+                    ></i>
+                  </span>
+                )}
+                {isRainDelay && (
+                  <span style={{ color: "orange", marginRight: "1px" }}>
+                    <i
+                      className="bi bi-cloud-rain"
+                      style={{ fontSize: "1rem" }}
+                    ></i>
+                  </span>
+                )}
+                {isScheduled && (
+                  <span style={{ color: "orange", marginRight: "1px" }}>
+                    <i className="bi bi-clock" style={{ fontSize: "1rem" }}></i>
+                  </span>
+                )}{" "}
+              </div>
+
+              <div style={{ textAlign: "center" }}>
+                ({away.leagueRecord.wins}-{away.leagueRecord.losses}) (
+                {home.leagueRecord.wins}-{home.leagueRecord.losses})
+              </div>
             </div>
           </div>
 
           <Card.Text className="mb-3">
-            {isInProgress || isRainDelay ? (
+            {isFinal || isInProgress || isRainDelay ? (
               <div className="text-center">
                 <span style={{ marginRight: "10px" }}>
                   {getTeamLogo(away.team.abbreviation)}
                 </span>
-                <span>
-                  <strong>{away.score}</strong>
+                <span style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+                  {away.score}
                 </span>{" "}
                 -{" "}
-                <span>
-                  <strong>{home.score}</strong>
+                <span style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+                  {home.score}
                 </span>
                 <span style={{ marginLeft: "10px" }}>
                   {getTeamLogo(home.team.abbreviation)}
@@ -734,7 +779,6 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
               })}
             </div>
           )}
-
           {(isFinal ||
             isInProgress ||
             isRainDelay ||
@@ -751,9 +795,10 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   <strong>Game Postponed</strong>
                 </div>
               )}
+
               <div className="d-flex justify-content-between w-100 mb-3">
                 {isFinal && recapLink && (
-                  <Card.Text className="text-center mb-3 mx-3">
+                  <Card.Text className="text-left mb-3 mx-3">
                     <a
                       href={recapLink}
                       target="_blank"
@@ -764,8 +809,20 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   </Card.Text>
                 )}
 
-                {gamePk && (
-                  <div className="text-center w-100 mb-3">
+                {isInProgress && gamePk && (
+                  <div className="text-center mb-3 mx-3 w-100">
+                    <a
+                      href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Baseball Savant
+                    </a>
+                  </div>
+                )}
+
+                {isFinal && gamePk && (
+                  <div className="text-right mb-3 mx-3">
                     <a
                       href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
                       target="_blank"
