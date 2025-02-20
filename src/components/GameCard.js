@@ -250,58 +250,59 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
             {away.team.name} @ {home.team.name}
           </Card.Title>
           <div
-            className="text-center"
-            style={{ fontSize: "0.9rem", marginBottom: "1rem" }}
+            style={{
+              display: "flex",
+              justifyContent: "center", // Ensures everything is centered
+              alignItems: "center",
+              marginBottom: "10px", // Padding below to create space for the next row
+              width: "100%",
+            }}
           >
+            <div style={{ marginRight: "10px" }}>
+              ({away.leagueRecord.wins}-{away.leagueRecord.losses})
+            </div>
+
             <div
               style={{
                 display: "flex",
-                justifyContent: "center",
                 alignItems: "center",
+                justifyContent: "center",
+                marginRight: "5px",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginRight: "10px",
-                }}
-              >
-                {isFinal && (
-                  <span style={{ color: "green", marginRight: "1px" }}>
-                    <i
-                      className="bi bi-check-circle"
-                      style={{ fontSize: "1rem" }}
-                    ></i>
-                  </span>
-                )}
-                {isInProgress && (
-                  <span style={{ color: "blue", marginRight: "1px" }}>
-                    <i
-                      className="bi bi-play-circle"
-                      style={{ fontSize: "1rem" }}
-                    ></i>
-                  </span>
-                )}
-                {isRainDelay && (
-                  <span style={{ color: "orange", marginRight: "1px" }}>
-                    <i
-                      className="bi bi-cloud-rain"
-                      style={{ fontSize: "1rem" }}
-                    ></i>
-                  </span>
-                )}
-                {isScheduled && (
-                  <span style={{ color: "orange", marginRight: "1px" }}>
-                    <i className="bi bi-clock" style={{ fontSize: "1rem" }}></i>
-                  </span>
-                )}{" "}
-              </div>
+              {isFinal && (
+                <span style={{ color: "green", marginRight: "0px" }}>
+                  <i
+                    className="bi bi-check-circle"
+                    style={{ fontSize: "1rem" }}
+                  ></i>
+                </span>
+              )}
+              {isInProgress && (
+                <span style={{ color: "blue", marginRight: "0px" }}>
+                  <i
+                    className="bi bi-play-circle"
+                    style={{ fontSize: "1rem" }}
+                  ></i>
+                </span>
+              )}
+              {isRainDelay && (
+                <span style={{ color: "orange", marginRight: "0px" }}>
+                  <i
+                    className="bi bi-cloud-rain"
+                    style={{ fontSize: "1rem" }}
+                  ></i>
+                </span>
+              )}
+              {isScheduled && (
+                <span style={{ color: "orange", marginRight: "0px" }}>
+                  <i className="bi bi-clock" style={{ fontSize: "1rem" }}></i>
+                </span>
+              )}
+            </div>
 
-              <div style={{ textAlign: "center" }}>
-                ({away.leagueRecord.wins}-{away.leagueRecord.losses}) (
-                {home.leagueRecord.wins}-{home.leagueRecord.losses})
-              </div>
+            <div style={{ marginLeft: "5px" }}>
+              ({home.leagueRecord.wins}-{home.leagueRecord.losses})
             </div>
           </div>
 
