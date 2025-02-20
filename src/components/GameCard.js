@@ -807,6 +807,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                       href={recapLink}
                       target="_blank"
                       rel="noopener noreferrer"
+                      className="recap-link"
                     >
                       Game Recap
                     </a>
