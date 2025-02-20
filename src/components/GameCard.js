@@ -11,6 +11,9 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
   const isFinal = game.status.detailedState === "Final";
   const isInProgress = game.status.detailedState === "In Progress";
   const isRainDelay = game.status.detailedState === "Rain Delay";
+  const isScheduled = game.status.detailedState === "Scheduled";
+  const isPregame = game.status.detailedState === "Pre-Game";
+  const isWarmup = game.status.detailedState === "Warmup";
   const gamePk = game.gamePk;
 
   const [boxScore, setBoxScore] = useState([]);
@@ -56,7 +59,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
         setDecisions(decisionsData);
         setTopPerformers(topPerformersData);
 
-        if (game.status.detailedState === "Scheduled") {
+        if (isScheduled || isPregame || isWarmup) {
           const startTimeData = await mlbService.getStartTime(gamePk);
           const { time, ampm } = startTimeData;
           setStartTime(`${time} ${ampm}`);
@@ -81,7 +84,9 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
     fetchGameContent();
   }, [
     gamePk,
-    game.status.detailedState,
+    isScheduled,
+    isPregame,
+    isWarmup,
     boxScore.away?.players,
     boxScore.home?.players,
   ]);
@@ -235,13 +240,13 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
             ) : (
               !isFinal && (
                 <div className="text-center">
-                  {game.status.detailedState === "Scheduled" && startTime && (
+                  {(isScheduled || isPregame || isWarmup) && startTime && (
                     <>
                       <br />
                       <strong>Start Time:</strong> {startTime} ET
                     </>
                   )}
-                  {game.status.detailedState === "Scheduled" &&
+                  {(isScheduled || isPregame || isWarmup) &&
                     probablePitchers && (
                       <>
                         <div
@@ -258,6 +263,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
+                            {console.log(probablePitchers)}
                             {getPlayerHeadshot(probablePitchers.away?.id) ? (
                               <img
                                 src={getPlayerHeadshot(
@@ -448,33 +454,67 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
               </tbody>
             </Table>
           ) : (
-            <Table
-              striped
-              bordered
-              hover
-              responsive
-              className="table-sm"
-              style={{ fontSize: "0.85rem", marginBottom: "0.5rem" }}
-            >
-              <thead>
-                <tr>
-                  <th></th>
-                  {linescore.map((inning, index) => (
-                    <th key={index}>{inning.num}</th>
-                  ))}
-                  <th>
-                    <strong>R</strong>
-                  </th>
-                  <th>
-                    <strong>H</strong>
-                  </th>
-                  <th>
-                    <strong>E</strong>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>{renderEmptyBoxScore()}</tbody>
-            </Table>
+            <>
+              <Table
+                striped
+                bordered
+                hover
+                responsive
+                className="table-sm"
+                style={{ fontSize: "0.85rem", marginBottom: "0.5rem" }}
+              >
+                <thead>
+                  <tr>
+                    <th></th>
+                    {linescore.map((inning, index) => (
+                      <th key={index}>{inning.num}</th>
+                    ))}
+                    <th>
+                      <strong>R</strong>
+                    </th>
+                    <th>
+                      <strong>H</strong>
+                    </th>
+                    <th>
+                      <strong>E</strong>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>{renderEmptyBoxScore()}</tbody>
+              </Table>
+              {gamePk && (
+                <Card.Text className="text-center mb-3 mx-3">
+                  <a
+                    href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Baseball Savant
+                  </a>
+                </Card.Text>
+              )}
+              <div className="d-flex justify-content-between w-100">
+                <div className="lineup-modal-container">
+                  <LineupModal
+                    team={away.team}
+                    players={sortedAwayLineup || []}
+                    toggleLineup={toggleAwayLineup}
+                    showLineup={showAwayLineup}
+                    gameDate={gameDate}
+                  />
+                </div>
+
+                <div className="lineup-modal-container">
+                  <LineupModal
+                    team={home.team}
+                    players={sortedHomeLineup || []}
+                    toggleLineup={toggleHomeLineup}
+                    showLineup={showHomeLineup}
+                    gameDate={gameDate}
+                  />
+                </div>
+              </div>
+            </>
           )}
 
           {decisions && Object.entries(decisions).length > 0 && (
