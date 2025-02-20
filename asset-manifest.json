@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/mlb-games/static/css/main.9cc0de05.css",
-    "main.js": "/mlb-games/static/js/main.12ad8fa6.js",
+    "main.css": "/mlb-games/static/css/main.9857b259.css",
+    "main.js": "/mlb-games/static/js/main.25b3662c.js",
     "static/js/488.46c85a02.chunk.js": "/mlb-games/static/js/488.46c85a02.chunk.js",
     "index.html": "/mlb-games/index.html",
-    "main.9cc0de05.css.map": "/mlb-games/static/css/main.9cc0de05.css.map",
-    "main.12ad8fa6.js.map": "/mlb-games/static/js/main.12ad8fa6.js.map",
+    "main.9857b259.css.map": "/mlb-games/static/css/main.9857b259.css.map",
+    "main.25b3662c.js.map": "/mlb-games/static/js/main.25b3662c.js.map",
     "488.46c85a02.chunk.js.map": "/mlb-games/static/js/488.46c85a02.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.9cc0de05.css",
-    "static/js/main.12ad8fa6.js"
+    "static/css/main.9857b259.css",
+    "static/js/main.25b3662c.js"
   ]
 }
