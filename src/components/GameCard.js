@@ -7,6 +7,7 @@ import mlbTeams from "./mlbTeams.json";
 import LineupModal from "./PlayersModal";
 
 const GameCard = ({ game, gameDate, showDetailedStats }) => {
+  // Defining constants that will be used in rendering a game card
   const { away, home } = game.teams;
   const isFinal = game.status.detailedState === "Final";
   const isInProgress = game.status.detailedState === "In Progress";
@@ -108,6 +109,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
     boxScore.home?.players,
   ]);
 
+  // Functionality for popping up respective lineups
   const toggleAwayLineup = () => setShowAwayLineup((prev) => !prev);
   const toggleHomeLineup = () => setShowHomeLineup((prev) => !prev);
 
@@ -280,7 +282,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                       >
                         <div
                           className="d-flex justify-content-center align-items-center mb-2"
-                          style={{ gap: "20px" }} // Adds space between the pitchers
+                          style={{ gap: "20px" }}
                         >
                           {/* Away Pitcher */}
                           <div
