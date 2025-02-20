@@ -246,19 +246,78 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                       <>
                         <div
                           className="d-flex justify-content-center"
-                          style={{ gap: "0px" }}
+                          style={{
+                            gap: "10px",
+                            width: "100%",
+                            padding: "0 10px",
+                          }}
                         >
-                          <div>
-                            <strong>Away: </strong>
-                            {probablePitchers.away?.fullName || "TBD"}
-                          </div>
+                          <strong>Away: </strong>
+                          <a
+                            href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.away?.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {getPlayerHeadshot(probablePitchers.away?.id) ? (
+                              <img
+                                src={getPlayerHeadshot(
+                                  probablePitchers.away?.id
+                                )}
+                                alt={probablePitchers.away?.fullName}
+                                style={{
+                                  width: "30px",
+                                  height: "30px",
+                                  borderRadius: "50%",
+                                }}
+                              />
+                            ) : (
+                              <FontAwesomeIcon
+                                icon={faUserCircle}
+                                style={{ color: "#6c757d", fontSize: "25px" }}
+                              />
+                            )}
+                          </a>
+
+                          <div>{probablePitchers.away?.fullName || "TBD"}</div>
                         </div>
+
                         <div
-                          className="d-flex justify-content-center"
-                          style={{ gap: "0px" }}
+                          className="d-flex justify-content-center align-items-center"
+                          style={{
+                            gap: "10px",
+                            width: "100%",
+                            padding: "0 10px",
+                          }}
                         >
-                          <div>
+                          <div
+                            className="d-flex align-items-center text-center"
+                            style={{ gap: "5px" }}
+                          >
                             <strong>Home: </strong>
+                            <a
+                              href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.home?.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {getPlayerHeadshot(probablePitchers.home?.id) ? (
+                                <img
+                                  src={getPlayerHeadshot(
+                                    probablePitchers.home?.id
+                                  )}
+                                  alt={probablePitchers.home?.fullName}
+                                  style={{
+                                    width: "30px",
+                                    height: "30px",
+                                    borderRadius: "50%",
+                                  }}
+                                />
+                              ) : (
+                                <FontAwesomeIcon
+                                  icon={faUserCircle}
+                                  style={{ color: "#6c757d", fontSize: "25px" }}
+                                />
+                              )}
+                            </a>
                             {probablePitchers.home?.fullName || "TBD"}
                           </div>
                         </div>
