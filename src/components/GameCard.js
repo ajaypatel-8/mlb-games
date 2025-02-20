@@ -78,7 +78,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
 
         if (isScheduled || isPregame || isWarmup) {
           const startTimeData = await mlbService.getStartTime(gamePk);
-          const localTime = convertToLocalTime(startTimeData.dateTime); // Convert to local time
+          const localTime = convertToLocalTime(startTimeData.dateTime);
           setStartTime(localTime);
 
           const probablePitchersData = await mlbService.getProbablePitchers(
@@ -130,6 +130,15 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
       );
     }
     return teamAbbreviation;
+  };
+
+  const formatPlayerName = (fullName) => {
+    if (!fullName) return "TBD";
+
+    const nameParts = fullName.split(" ");
+    return nameParts.length > 1
+      ? `${nameParts[0][0]}. ${nameParts.slice(1).join(" ")}`
+      : fullName;
   };
 
   const getPlayerHeadshot = (playerId) => {
@@ -265,58 +274,57 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   )}
                   {(isScheduled || isPregame || isWarmup) &&
                     probablePitchers && (
-                      <>
+                      <div
+                        className="text-center mt-3 mb-3"
+                        style={{ fontSize: "0.85rem" }}
+                      >
                         <div
-                          className="d-flex justify-content-center"
-                          style={{
-                            gap: "10px",
-                            width: "100%",
-                            padding: "0 10px",
-                          }}
+                          className="d-flex justify-content-center align-items-center mb-2"
+                          style={{ gap: "20px" }} // Adds space between the pitchers
                         >
-                          <strong>Away: </strong>
-                          <a
-                            href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.away?.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {console.log(probablePitchers)}
-                            {getPlayerHeadshot(probablePitchers.away?.id) ? (
-                              <img
-                                src={getPlayerHeadshot(
-                                  probablePitchers.away?.id
-                                )}
-                                alt={probablePitchers.away?.fullName}
-                                style={{
-                                  width: "30px",
-                                  height: "30px",
-                                  borderRadius: "50%",
-                                }}
-                              />
-                            ) : (
-                              <FontAwesomeIcon
-                                icon={faUserCircle}
-                                style={{ color: "#6c757d", fontSize: "25px" }}
-                              />
-                            )}
-                          </a>
-
-                          <div>{probablePitchers.away?.fullName || "TBD"}</div>
-                        </div>
-
-                        <div
-                          className="d-flex justify-content-center align-items-center"
-                          style={{
-                            gap: "10px",
-                            width: "100%",
-                            padding: "0 10px",
-                          }}
-                        >
+                          {/* Away Pitcher */}
                           <div
-                            className="d-flex align-items-center text-center"
-                            style={{ gap: "5px" }}
+                            className="d-flex align-items-center"
+                            style={{ gap: "10px" }}
                           >
-                            <strong>Home: </strong>
+                            <strong>{away.team.abbreviation}: </strong>
+                            <a
+                              href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.away?.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {getPlayerHeadshot(probablePitchers.away?.id) ? (
+                                <img
+                                  src={getPlayerHeadshot(
+                                    probablePitchers.away?.id
+                                  )}
+                                  alt={probablePitchers.away?.fullName}
+                                  style={{
+                                    width: "30px",
+                                    height: "30px",
+                                    borderRadius: "50%",
+                                  }}
+                                />
+                              ) : (
+                                <FontAwesomeIcon
+                                  icon={faUserCircle}
+                                  style={{ color: "#6c757d", fontSize: "25px" }}
+                                />
+                              )}
+                            </a>
+                            <div>
+                              {formatPlayerName(
+                                probablePitchers.away?.fullName
+                              ) || "TBD"}
+                            </div>
+                          </div>
+
+                          {/* Home Pitcher */}
+                          <div
+                            className="d-flex align-items-center"
+                            style={{ gap: "10px" }}
+                          >
+                            <strong>{home.team.abbreviation}: </strong>
                             <a
                               href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.home?.id}`}
                               target="_blank"
@@ -341,10 +349,14 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                                 />
                               )}
                             </a>
-                            {probablePitchers.home?.fullName || "TBD"}
+                            <div>
+                              {formatPlayerName(
+                                probablePitchers.home?.fullName
+                              ) || "TBD"}
+                            </div>
                           </div>
                         </div>
-                      </>
+                      </div>
                     )}
                 </div>
               )
@@ -543,56 +555,56 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 className="d-flex justify-content-center align-items-center mb-2"
                 style={{ gap: "15px" }}
               >
-                {Object.entries(decisions).map(
-                  ([role, player]) =>
-                    player && (
-                      <div
-                        key={role}
-                        className="d-flex align-items-center"
-                        style={{ gap: "10px" }}
+                {Object.entries(decisions).map(([role, player]) => {
+                  if (!player) return null;
+
+                  const playerUrl = `https://baseballsavant.mlb.com/savant-player/${player.id}`;
+                  const headshotUrl = getPlayerHeadshot(player.id);
+                  const formattedName = formatPlayerName(player.fullName);
+
+                  return (
+                    <div
+                      key={role}
+                      className="d-flex align-items-center"
+                      style={{ gap: "10px" }}
+                    >
+                      <strong>{role.charAt(0).toUpperCase()}:</strong>
+                      <a
+                        href={playerUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
                       >
-                        <strong>{role.charAt(0).toUpperCase()}:</strong>
-                        <a
-                          href={`https://baseballsavant.mlb.com/savant-player/${player.id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {getPlayerHeadshot(player.id) ? (
-                            <img
-                              src={getPlayerHeadshot(player.id)}
-                              alt={role.toUpperCase()}
-                              style={{
-                                width: "30px",
-                                height: "30px",
-                                borderRadius: "50%",
-                              }}
-                            />
-                          ) : (
-                            <FontAwesomeIcon
-                              icon={faUserCircle}
-                              style={{ color: "white", fontSize: "25px" }}
-                            />
-                          )}
-                        </a>
-                        <a
-                          href={`https://baseballsavant.mlb.com/savant-player/${player.id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            textDecoration: "none",
-                            color: "inherit",
-                          }}
-                        >
-                          {`${
-                            player.fullName.split(" ")[0][0]
-                          }. ${player.fullName
-                            .split(" ")
-                            .slice(1)
-                            .join(" ")}`}{" "}
-                        </a>
-                      </div>
-                    )
-                )}
+                        {headshotUrl ? (
+                          <img
+                            src={headshotUrl}
+                            alt={role.toUpperCase()}
+                            style={{
+                              width: "30px",
+                              height: "30px",
+                              borderRadius: "50%",
+                            }}
+                          />
+                        ) : (
+                          <FontAwesomeIcon
+                            icon={faUserCircle}
+                            style={{ color: "white", fontSize: "25px" }}
+                          />
+                        )}
+                      </a>
+                      <a
+                        href={playerUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          textDecoration: "none",
+                          color: "inherit",
+                        }}
+                      >
+                        {formattedName}
+                      </a>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
