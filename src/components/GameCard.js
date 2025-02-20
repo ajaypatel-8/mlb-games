@@ -31,6 +31,23 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
   const [probablePitchers, setProbablePitchers] = useState(null);
   const [topPerformers, setTopPerformers] = useState([]);
 
+  // Function to convert time to user's local time zone
+  const convertToLocalTime = (utcDateTime) => {
+    const date = new Date(utcDateTime);
+
+    const timeString = date.toLocaleString(undefined, {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+      timeZoneName: "short",
+    });
+
+    const timeParts = timeString.split(" ");
+    const time = timeParts.slice(0, -1).join(" ");
+
+    return `${time}`;
+  };
+
   useEffect(() => {
     const fetchGameContent = async () => {
       try {
@@ -61,8 +78,8 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
 
         if (isScheduled || isPregame || isWarmup) {
           const startTimeData = await mlbService.getStartTime(gamePk);
-          const { time, ampm } = startTimeData;
-          setStartTime(`${time} ${ampm}`);
+          const localTime = convertToLocalTime(startTimeData.dateTime); // Convert to local time
+          setStartTime(localTime);
 
           const probablePitchersData = await mlbService.getProbablePitchers(
             gamePk
