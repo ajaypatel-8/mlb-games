@@ -294,11 +294,12 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   ></i>
                 </span>
               )}
-              {isScheduled && (
-                <span style={{ color: "orange", marginRight: "0px" }}>
-                  <i className="bi bi-clock" style={{ fontSize: "1rem" }}></i>
-                </span>
-              )}
+              {isScheduled ||
+                (isWarmup && (
+                  <span style={{ color: "orange", marginRight: "0px" }}>
+                    <i className="bi bi-clock" style={{ fontSize: "1rem" }}></i>
+                  </span>
+                ))}
             </div>
 
             <div style={{ marginLeft: "5px" }}>
