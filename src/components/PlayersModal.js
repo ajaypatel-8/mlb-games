@@ -57,12 +57,14 @@ const LineupModal = ({ team, players, gameDate }) => {
         onClick={() => setShowModal(true)}
         className="d-flex align-items-center gap-2"
       >
-        {getTeamLogo(team.abbreviation) && (
+        {getTeamLogo(team.abbreviation) ? (
           <img
             src={getTeamLogo(team.abbreviation)}
             alt={`${team.teamName} logo`}
             style={{ width: "24px", height: "24px" }}
           />
+        ) : (
+          <span>{team.abbreviation}</span>
         )}
         Players
       </Button>

@@ -480,7 +480,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
 
                     {[...Array(Math.max(9, linescore.length))].map(
                       (_, index) => {
-                        const inning = linescore[index]; // Get inning if available
+                        const inning = linescore[index];
                         return (
                           <td key={index}>
                             {inning ? inning.away?.runs || 0 : "-"}{" "}
