@@ -342,7 +342,11 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                       >
                         <div
                           className="d-flex justify-content-center align-items-center mb-2"
-                          style={{ gap: "15px" }} // Same gap as in decisions section
+                          style={{
+                            gap: "15px",
+                            flexWrap: "nowrap", // Prevent wrapping into two rows
+                            overflow: "hidden", // Prevent any content from overflowing
+                          }}
                         >
                           {/* Away Pitcher */}
                           <div
