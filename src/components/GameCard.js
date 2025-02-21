@@ -345,77 +345,67 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                           style={{ gap: "10px" }}
                         >
                           {/* Away Pitcher */}
-                          <div
-                            className="d-flex align-items-center"
-                            style={{ gap: "10px" }}
+                          <strong>{away.team.abbreviation}: </strong>
+                          <a
+                            href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.away?.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                           >
-                            <strong>{away.team.abbreviation}: </strong>
-                            <a
-                              href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.away?.id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {getPlayerHeadshot(probablePitchers.away?.id) ? (
-                                <img
-                                  src={getPlayerHeadshot(
-                                    probablePitchers.away?.id
-                                  )}
-                                  alt={probablePitchers.away?.fullName}
-                                  style={{
-                                    width: "30px",
-                                    height: "30px",
-                                    borderRadius: "50%",
-                                  }}
-                                />
-                              ) : (
-                                <FontAwesomeIcon
-                                  icon={faUserCircle}
-                                  style={{ color: "#6c757d", fontSize: "25px" }}
-                                />
-                              )}
-                            </a>
-                            <div>
-                              {formatPlayerName(
-                                probablePitchers.away?.fullName
-                              ) || "TBD"}
-                            </div>
+                            {getPlayerHeadshot(probablePitchers.away?.id) ? (
+                              <img
+                                src={getPlayerHeadshot(
+                                  probablePitchers.away?.id
+                                )}
+                                alt={probablePitchers.away?.fullName}
+                                style={{
+                                  width: "30px",
+                                  height: "30px",
+                                  borderRadius: "50%",
+                                }}
+                              />
+                            ) : (
+                              <FontAwesomeIcon
+                                icon={faUserCircle}
+                                style={{ color: "#6c757d", fontSize: "25px" }}
+                              />
+                            )}
+                          </a>
+                          <div>
+                            {formatPlayerName(
+                              probablePitchers.away?.fullName
+                            ) || "TBD"}
                           </div>
 
                           {/* Home Pitcher */}
-                          <div
-                            className="d-flex align-items-center"
-                            style={{ gap: "10px" }}
+                          <strong>{home.team.abbreviation}: </strong>
+                          <a
+                            href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.home?.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                           >
-                            <strong>{home.team.abbreviation}: </strong>
-                            <a
-                              href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.home?.id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {getPlayerHeadshot(probablePitchers.home?.id) ? (
-                                <img
-                                  src={getPlayerHeadshot(
-                                    probablePitchers.home?.id
-                                  )}
-                                  alt={probablePitchers.home?.fullName}
-                                  style={{
-                                    width: "30px",
-                                    height: "30px",
-                                    borderRadius: "50%",
-                                  }}
-                                />
-                              ) : (
-                                <FontAwesomeIcon
-                                  icon={faUserCircle}
-                                  style={{ color: "#6c757d", fontSize: "25px" }}
-                                />
-                              )}
-                            </a>
-                            <div>
-                              {formatPlayerName(
-                                probablePitchers.home?.fullName
-                              ) || "TBD"}
-                            </div>
+                            {getPlayerHeadshot(probablePitchers.home?.id) ? (
+                              <img
+                                src={getPlayerHeadshot(
+                                  probablePitchers.home?.id
+                                )}
+                                alt={probablePitchers.home?.fullName}
+                                style={{
+                                  width: "30px",
+                                  height: "30px",
+                                  borderRadius: "50%",
+                                }}
+                              />
+                            ) : (
+                              <FontAwesomeIcon
+                                icon={faUserCircle}
+                                style={{ color: "#6c757d", fontSize: "25px" }}
+                              />
+                            )}
+                          </a>
+                          <div>
+                            {formatPlayerName(
+                              probablePitchers.home?.fullName
+                            ) || "TBD"}
                           </div>
                         </div>
                       </div>
