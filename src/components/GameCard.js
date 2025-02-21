@@ -807,7 +807,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   <strong>Game Cancelled</strong>
                 </div>
               )}
-              {isPostponed(
+              {isPostponed && (
                 <div className="text-center mb-3">
                   <strong>Game Postponed</strong>
                 </div>
