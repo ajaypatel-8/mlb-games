@@ -133,10 +133,6 @@ button svg:hover {
 }
 
 @media (max-width: 768px) {
-    .d-flex.keep-inline {
-      flex-wrap: nowrap;
-      justify-content: center; /* Ensure items stay in a single row */
-    }
   
   .recap-link {
     font-size: 1rem !important;
