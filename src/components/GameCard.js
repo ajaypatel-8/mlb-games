@@ -295,7 +295,8 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 </span>
               )}
               {isScheduled ||
-                (isWarmup && (
+                isWarmup ||
+                (isPregame && (
                   <span style={{ color: "orange", marginRight: "0px" }}>
                     <i className="bi bi-clock" style={{ fontSize: "1rem" }}></i>
                   </span>
