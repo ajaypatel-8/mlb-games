@@ -342,7 +342,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                       >
                         <div
                           className="d-flex justify-content-center align-items-center mb-2"
-                          style={{ gap: "15px" }}
+                          style={{ gap: "20px" }}
                         >
                           {/* Away Pitcher */}
                           <div
