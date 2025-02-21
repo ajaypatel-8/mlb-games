@@ -10,11 +10,16 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
   // Defining constants that will be used in rendering a game card
   const { away, home } = game.teams;
   const isFinal = game.status.detailedState === "Final";
+  const isCompleted = ["Completed", "Completed Early"].includes(
+    game.status.detailedState
+  );
   const isInProgress = game.status.detailedState === "In Progress";
   const isRainDelay = game.status.detailedState === "Rain Delay";
   const isScheduled = game.status.detailedState === "Scheduled";
   const isPregame = game.status.detailedState === "Pre-Game";
   const isWarmup = game.status.detailedState === "Warmup";
+  const isCancelled = game.status.detailedState === "Cancelled";
+  const isPostponed = game.status.detailedState === "Postponed";
   const gamePk = game.gamePk;
 
   const [boxScore, setBoxScore] = useState([]);
@@ -105,6 +110,8 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
     isScheduled,
     isPregame,
     isWarmup,
+    isCancelled,
+    isPostponed,
     boxScore.away?.players,
     boxScore.home?.players,
   ]);
@@ -270,7 +277,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 marginRight: "5px",
               }}
             >
-              {isFinal && (
+              {(isFinal || isCompleted) && (
                 <span style={{ color: "green", marginRight: "0px" }}>
                   <i
                     className="bi bi-check-circle"
@@ -309,7 +316,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
           </div>
 
           <Card.Text className="mb-3">
-            {isFinal || isInProgress || isRainDelay ? (
+            {isFinal || isCompleted || isInProgress || isRainDelay ? (
               <div className="text-center">
                 <span style={{ marginRight: "10px" }}>
                   {getTeamLogo(away.team.abbreviation)}
@@ -326,7 +333,8 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 </span>
               </div>
             ) : (
-              !isFinal && (
+              !isFinal ||
+              (isCompleted && (
                 <div className="text-center">
                   {(isScheduled || isPregame || isWarmup) && startTime && (
                     <>
@@ -425,11 +433,12 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                       </div>
                     )}
                 </div>
-              )
+              ))
             )}
           </Card.Text>
 
-          {linescore.length > 0 && (isFinal || isInProgress || isRainDelay) ? (
+          {linescore.length > 0 &&
+          (isFinal || isCompleted || isInProgress || isRainDelay) ? (
             <div className="scrollable-table-container">
               <Table
                 striped
@@ -701,7 +710,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
             </div>
           )}
 
-          {(isFinal || isInProgress) && topPerformers && (
+          {(isFinal || isCompleted || isInProgress) && topPerformers && (
             <div
               className="text-center mt-3 mb-3"
               style={{ fontSize: "0.75rem" }}
@@ -787,38 +796,40 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
             </div>
           )}
           {(isFinal ||
+            isCompleted ||
             isInProgress ||
             isRainDelay ||
-            game.status.detailedState === "Cancelled" ||
-            game.status.detailedState === "Postponed") && (
+            isCancelled ||
+            isPostponed) && (
             <div className="d-flex flex-column align-items-center w-100">
-              {game.status.detailedState === "Cancelled" && (
+              {isCancelled && (
                 <div className="text-center mb-3">
                   <strong>Game Cancelled</strong>
                 </div>
               )}
-              {game.status.detailedState === "Postponed" && (
+              {isPostponed(
                 <div className="text-center mb-3">
                   <strong>Game Postponed</strong>
                 </div>
               )}
 
               <div className="d-flex justify-content-between w-100 mb-3">
-                {isFinal && recapLink && (
-                  <Card.Text
-                    className="text-left mb-3 mx-3"
-                    style={{ fontSize: "1rem" }}
-                  >
-                    <a
-                      href={recapLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="recap-link"
+                {isFinal ||
+                  (isCompleted && recapLink && (
+                    <Card.Text
+                      className="text-left mb-3 mx-3"
+                      style={{ fontSize: "1rem" }}
                     >
-                      Game Recap
-                    </a>
-                  </Card.Text>
-                )}
+                      <a
+                        href={recapLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="recap-link"
+                      >
+                        Game Recap
+                      </a>
+                    </Card.Text>
+                  ))}
 
                 {((isInProgress && gamePk) || !recapLink) && (
                   <div
@@ -835,20 +846,21 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   </div>
                 )}
 
-                {isFinal && gamePk && recapLink && (
-                  <div
-                    className="text-right mb-3 mx-3"
-                    style={{ fontSize: "1rem" }}
-                  >
-                    <a
-                      href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                {isFinal ||
+                  (isCompleted && gamePk && recapLink && (
+                    <div
+                      className="text-right mb-3 mx-3"
+                      style={{ fontSize: "1rem" }}
                     >
-                      Baseball Savant
-                    </a>
-                  </div>
-                )}
+                      <a
+                        href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Baseball Savant
+                      </a>
+                    </div>
+                  ))}
               </div>
 
               <div className="d-flex justify-content-between w-100">
