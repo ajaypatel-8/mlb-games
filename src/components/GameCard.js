@@ -264,9 +264,9 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
           <div
             style={{
               display: "flex",
-              justifyContent: "center", // Ensures everything is centered
+              justifyContent: "center",
               alignItems: "center",
-              marginBottom: "10px", // Padding below to create space for the next row
+              marginBottom: "10px",
               width: "100%",
             }}
           >
@@ -352,8 +352,8 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                         className="d-flex justify-content-center align-items-center mb-2"
                         style={{
                           gap: "15px",
-                          flexWrap: "nowrap", // Prevent wrapping into two rows
-                          overflow: "hidden", // Prevent any content from overflowing
+                          flexWrap: "nowrap",
+                          overflow: "hidden",
                         }}
                       >
                         {/* Away Pitcher */}
@@ -534,11 +534,10 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     <td>{getTeamLogo(home.team.abbreviation)}</td>
                     {[...Array(Math.max(9, linescore.length))].map(
                       (_, index) => {
-                        const inning = linescore[index]; // Get inning if available
+                        const inning = linescore[index];
                         return (
                           <td key={index}>
                             {inning ? inning.home?.runs || 0 : "-"}{" "}
-                            {/* Display score if available, else "-" */}
                           </td>
                         );
                       }
@@ -812,41 +811,27 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
               )}
 
               <div className="d-flex justify-content-between w-100 mb-1">
-                {isFinal && recapLink && (
-                  <Card.Text
-                    className="text-left mb-3 mx-3"
-                    style={{ fontSize: "1rem" }}
-                  >
-                    <a
-                      href={recapLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="recap-link"
+                {/*For games that are finished with a recap */}
+                {isFinal && recapLink ? (
+                  <>
+                    {/* Recap link to the left*/}
+                    <Card.Text
+                      className="text-left mb-3 mx-3"
+                      style={{ fontSize: "1rem" }}
                     >
-                      Game Recap
-                    </a>
-                  </Card.Text>
-                )}
-                {isFinal && gamePk && (
-                  <div
-                    className={`text-${
-                      isInProgress ? "center" : "right"
-                    } mb-3 mx-3`}
-                    style={{ fontSize: "1rem" }}
-                  >
-                    <a
-                      href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Baseball Savant
-                    </a>
-                  </div>
-                )}
-                <div className="d-flex justify-content-center w-100 mb-1">
-                  {isInProgress && gamePk && (
+                      <a
+                        href={recapLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="recap-link"
+                      >
+                        Game Recap
+                      </a>
+                    </Card.Text>
+
+                    {/* Savant link to the right */}
                     <div
-                      className={`text- mb-3 mx-3`}
+                      className="d-flex justify-content-end mb-3 mx-3"
                       style={{ fontSize: "1rem" }}
                     >
                       <a
@@ -857,8 +842,23 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                         Baseball Savant
                       </a>
                     </div>
-                  )}
-                </div>
+                  </>
+                ) : (
+                  /* Centered Savant Link for In-Progress Games or Final Games Without Recap */
+                  <div className="d-flex justify-content-center w-100 mb-1">
+                    {gamePk && (
+                      <div className="mb-3 mx-3" style={{ fontSize: "1rem" }}>
+                        <a
+                          href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Baseball Savant
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="d-flex justify-content-between w-100">
