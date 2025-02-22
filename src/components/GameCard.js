@@ -812,26 +812,27 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
               )}
 
               <div className="d-flex justify-content-between w-100 mb-3">
-                {isFinal ||
-                  (isCompleted && recapLink && (
-                    <Card.Text
-                      className="text-left mb-3 mx-3"
-                      style={{ fontSize: "1rem" }}
+                {(isFinal || isCompleted) && recapLink && (
+                  <Card.Text
+                    className="text-left mb-3 mx-3"
+                    style={{ fontSize: "1rem" }}
+                  >
+                    <a
+                      href={recapLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="recap-link"
                     >
-                      <a
-                        href={recapLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="recap-link"
-                      >
-                        Game Recap
-                      </a>
-                    </Card.Text>
-                  ))}
-
-                {((isInProgress && gamePk) || !recapLink) && (
+                      Game Recap
+                    </a>
+                  </Card.Text>
+                )}
+                {/* Show Baseball Savant for in-progress games, or for completed/final games */}
+                {(isInProgress || isFinal || isCompleted) && gamePk && (
                   <div
-                    className="text-center mb-3 mx-3 w-100"
+                    className={`text-${
+                      isInProgress ? "center" : "right"
+                    } mb-3 mx-3`}
                     style={{ fontSize: "1rem" }}
                   >
                     <a
@@ -843,22 +844,6 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     </a>
                   </div>
                 )}
-
-                {isFinal ||
-                  (isCompleted && gamePk && recapLink && (
-                    <div
-                      className="text-right mb-3 mx-3"
-                      style={{ fontSize: "1rem" }}
-                    >
-                      <a
-                        href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Baseball Savant
-                      </a>
-                    </div>
-                  ))}
               </div>
 
               <div className="d-flex justify-content-between w-100">
