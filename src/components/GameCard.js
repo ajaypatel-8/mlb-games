@@ -109,7 +109,17 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
       }
     };
 
+    // Polling interval so we re-render everything every 15 seconds
+    if (isPregame || isCancelled || isPostponed) return;
+    const interval = setInterval(() => {
+      fetchGameContent();
+    }, 15000);
+
     fetchGameContent();
+
+    return () => {
+      clearInterval(interval);
+    };
   }, [
     gamePk,
     isPregame,
