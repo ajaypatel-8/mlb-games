@@ -828,7 +828,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   </Card.Text>
                 )}
                 {/* Show Baseball Savant for in-progress games, or for completed/final games */}
-                {(isInProgress || isFinal || isCompleted) && gamePk && (
+                {(isFinal || isCompleted) && gamePk && (
                   <div
                     className={`text-${
                       isInProgress ? "center" : "right"
@@ -844,6 +844,24 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     </a>
                   </div>
                 )}
+                <div className="d-flex justify-content-center w-100 mb-3">
+                  {isInProgress && gamePk && (
+                    <div
+                      className={`text-${
+                        isInProgress ? "center" : "right"
+                      } mb-3 mx-3`}
+                      style={{ fontSize: "1rem" }}
+                    >
+                      <a
+                        href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Baseball Savant
+                      </a>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="d-flex justify-content-between w-100">
