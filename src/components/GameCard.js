@@ -801,17 +801,17 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
             isPostponed) && (
             <div className="d-flex flex-column align-items-center w-100">
               {isCancelled && (
-                <div className="text-center mb-3">
+                <div className="text-center mb-1">
                   <strong>Game Cancelled</strong>
                 </div>
               )}
               {isPostponed && (
-                <div className="text-center mb-3">
+                <div className="text-center mb-1">
                   <strong>Game Postponed</strong>
                 </div>
               )}
 
-              <div className="d-flex justify-content-between w-100 mb-3">
+              <div className="d-flex justify-content-between w-100 mb-1">
                 {(isFinal || isCompleted) && recapLink && (
                   <Card.Text
                     className="text-left mb-3 mx-3"
@@ -827,7 +827,6 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     </a>
                   </Card.Text>
                 )}
-                {/* Show Baseball Savant for in-progress games, or for completed/final games */}
                 {(isFinal || isCompleted) && gamePk && (
                   <div
                     className={`text-${
@@ -844,7 +843,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     </a>
                   </div>
                 )}
-                <div className="d-flex justify-content-center w-100 mb-3">
+                <div className="d-flex justify-content-center w-100 mb-1">
                   {isInProgress && gamePk && (
                     <div
                       className={`text- mb-3 mx-3`}
