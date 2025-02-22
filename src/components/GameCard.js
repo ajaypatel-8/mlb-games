@@ -234,6 +234,8 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
     </>
   );
 
+  console.log(startTime);
+
   return (
     <Col key={game.gamePk} md={4} className="mb-4">
       <Card
@@ -301,20 +303,17 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   ></i>
                 </span>
               )}
-              {isScheduled ||
-                isWarmup ||
-                (isPregame && (
-                  <span style={{ color: "orange", marginRight: "0px" }}>
-                    <i className="bi bi-clock" style={{ fontSize: "1rem" }}></i>
-                  </span>
-                ))}
+              {(isScheduled || isWarmup || isPregame) && (
+                <span style={{ color: "orange", marginRight: "0px" }}>
+                  <i className="bi bi-clock" style={{ fontSize: "1rem" }}></i>
+                </span>
+              )}
             </div>
 
             <div style={{ marginLeft: "5px" }}>
               ({home.leagueRecord.wins}-{home.leagueRecord.losses})
             </div>
           </div>
-
           <Card.Text className="mb-3">
             {isFinal || isCompleted || isInProgress || isRainDelay ? (
               <div className="text-center">
@@ -333,10 +332,9 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 </span>
               </div>
             ) : (
-              !isFinal ||
-              (isCompleted && (
+              (isScheduled || isPregame || isWarmup) && (
                 <div className="text-center">
-                  {(isScheduled || isPregame || isWarmup) && startTime && (
+                  {startTime && (
                     <>
                       <br />
                       <strong>Start Time:</strong> {startTime} ET
@@ -433,7 +431,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                       </div>
                     )}
                 </div>
-              ))
+              )
             )}
           </Card.Text>
 
