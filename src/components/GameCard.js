@@ -9,15 +9,20 @@ import LineupModal from "./PlayersModal";
 const GameCard = ({ game, gameDate, showDetailedStats }) => {
   // Defining constants that will be used in rendering a game card
   const { away, home } = game.teams;
-  const isFinal = game.status.detailedState === "Final";
-  const isCompleted = ["Completed", "Completed Early"].includes(
+  const isFinal = [
+    "Final",
+    "Completed",
+    "Completed Early",
+    "Game Over",
+  ].includes(game.status.detailedState);
+
+  const isInProgress = game.status.detailedState === "In Progress";
+  const isRainDelay = ["Delayed", "Rain Delay"].includes(
     game.status.detailedState
   );
-  const isInProgress = game.status.detailedState === "In Progress";
-  const isRainDelay = game.status.detailedState === "Rain Delay";
-  const isScheduled = game.status.detailedState === "Scheduled";
-  const isPregame = game.status.detailedState === "Pre-Game";
-  const isWarmup = game.status.detailedState === "Warmup";
+  const isPregame = ["Scheduled", "Pre-Game", "Warmup"].includes(
+    game.status.detailedState
+  );
   const isCancelled = game.status.detailedState === "Cancelled";
   const isPostponed = game.status.detailedState === "Postponed";
   const gamePk = game.gamePk;
@@ -82,7 +87,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
         setDecisions(decisionsData);
         setTopPerformers(topPerformersData);
 
-        if (isScheduled || isPregame || isWarmup) {
+        if (isPregame) {
           const startTimeData = await mlbService.getStartTime(gamePk);
           const localTime = convertToLocalTime(startTimeData.dateTime);
           setStartTime(localTime);
@@ -107,9 +112,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
     fetchGameContent();
   }, [
     gamePk,
-    isScheduled,
     isPregame,
-    isWarmup,
     isCancelled,
     isPostponed,
     boxScore.away?.players,
@@ -279,7 +282,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 marginRight: "5px",
               }}
             >
-              {(isFinal || isCompleted) && (
+              {isFinal && (
                 <span style={{ color: "green", marginRight: "0px" }}>
                   <i
                     className="bi bi-check-circle"
@@ -303,7 +306,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   ></i>
                 </span>
               )}
-              {(isScheduled || isWarmup || isPregame) && (
+              {isPregame && (
                 <span style={{ color: "orange", marginRight: "0px" }}>
                   <i className="bi bi-clock" style={{ fontSize: "1rem" }}></i>
                 </span>
@@ -315,7 +318,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
             </div>
           </div>
           <Card.Text className="mb-3">
-            {isFinal || isCompleted || isInProgress || isRainDelay ? (
+            {isFinal || isInProgress || isRainDelay ? (
               <div className="text-center">
                 <span style={{ marginRight: "10px" }}>
                   {getTeamLogo(away.team.abbreviation)}
@@ -332,7 +335,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 </span>
               </div>
             ) : (
-              (isScheduled || isPregame || isWarmup) && (
+              isPregame && (
                 <div className="text-center">
                   {startTime && (
                     <>
@@ -340,103 +343,101 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                       <strong>Start Time:</strong> {startTime} ET
                     </>
                   )}
-                  {(isScheduled || isPregame || isWarmup) &&
-                    probablePitchers && (
+                  {isPregame && probablePitchers && (
+                    <div
+                      className="text-center mt-3 mb-3"
+                      style={{ fontSize: "0.85rem" }}
+                    >
                       <div
-                        className="text-center mt-3 mb-3"
-                        style={{ fontSize: "0.85rem" }}
+                        className="d-flex justify-content-center align-items-center mb-2"
+                        style={{
+                          gap: "15px",
+                          flexWrap: "nowrap", // Prevent wrapping into two rows
+                          overflow: "hidden", // Prevent any content from overflowing
+                        }}
                       >
+                        {/* Away Pitcher */}
                         <div
-                          className="d-flex justify-content-center align-items-center mb-2"
-                          style={{
-                            gap: "15px",
-                            flexWrap: "nowrap", // Prevent wrapping into two rows
-                            overflow: "hidden", // Prevent any content from overflowing
-                          }}
+                          className="d-flex align-items-center"
+                          style={{ gap: "10px" }}
                         >
-                          {/* Away Pitcher */}
-                          <div
-                            className="d-flex align-items-center"
-                            style={{ gap: "10px" }}
+                          <strong>{away.team.abbreviation}: </strong>
+                          <a
+                            href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.away?.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                           >
-                            <strong>{away.team.abbreviation}: </strong>
-                            <a
-                              href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.away?.id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {getPlayerHeadshot(probablePitchers.away?.id) ? (
-                                <img
-                                  src={getPlayerHeadshot(
-                                    probablePitchers.away?.id
-                                  )}
-                                  alt={probablePitchers.away?.fullName}
-                                  style={{
-                                    width: "30px",
-                                    height: "30px",
-                                    borderRadius: "50%",
-                                  }}
-                                />
-                              ) : (
-                                <FontAwesomeIcon
-                                  icon={faUserCircle}
-                                  style={{ color: "white", fontSize: "25px" }}
-                                />
-                              )}
-                            </a>
-                            <div>
-                              {formatPlayerName(
-                                probablePitchers.away?.fullName
-                              ) || "TBD"}
-                            </div>
+                            {getPlayerHeadshot(probablePitchers.away?.id) ? (
+                              <img
+                                src={getPlayerHeadshot(
+                                  probablePitchers.away?.id
+                                )}
+                                alt={probablePitchers.away?.fullName}
+                                style={{
+                                  width: "30px",
+                                  height: "30px",
+                                  borderRadius: "50%",
+                                }}
+                              />
+                            ) : (
+                              <FontAwesomeIcon
+                                icon={faUserCircle}
+                                style={{ color: "white", fontSize: "25px" }}
+                              />
+                            )}
+                          </a>
+                          <div>
+                            {formatPlayerName(
+                              probablePitchers.away?.fullName
+                            ) || "TBD"}
                           </div>
+                        </div>
 
-                          {/* Home Pitcher */}
-                          <div
-                            className="d-flex align-items-center"
-                            style={{ gap: "10px" }}
+                        {/* Home Pitcher */}
+                        <div
+                          className="d-flex align-items-center"
+                          style={{ gap: "10px" }}
+                        >
+                          <strong>{home.team.abbreviation}: </strong>
+                          <a
+                            href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.home?.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                           >
-                            <strong>{home.team.abbreviation}: </strong>
-                            <a
-                              href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.home?.id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {getPlayerHeadshot(probablePitchers.home?.id) ? (
-                                <img
-                                  src={getPlayerHeadshot(
-                                    probablePitchers.home?.id
-                                  )}
-                                  alt={probablePitchers.home?.fullName}
-                                  style={{
-                                    width: "30px",
-                                    height: "30px",
-                                    borderRadius: "50%",
-                                  }}
-                                />
-                              ) : (
-                                <FontAwesomeIcon
-                                  icon={faUserCircle}
-                                  style={{ color: "white", fontSize: "25px" }}
-                                />
-                              )}
-                            </a>
-                            <div>
-                              {formatPlayerName(
-                                probablePitchers.home?.fullName
-                              ) || "TBD"}
-                            </div>
+                            {getPlayerHeadshot(probablePitchers.home?.id) ? (
+                              <img
+                                src={getPlayerHeadshot(
+                                  probablePitchers.home?.id
+                                )}
+                                alt={probablePitchers.home?.fullName}
+                                style={{
+                                  width: "30px",
+                                  height: "30px",
+                                  borderRadius: "50%",
+                                }}
+                              />
+                            ) : (
+                              <FontAwesomeIcon
+                                icon={faUserCircle}
+                                style={{ color: "white", fontSize: "25px" }}
+                              />
+                            )}
+                          </a>
+                          <div>
+                            {formatPlayerName(
+                              probablePitchers.home?.fullName
+                            ) || "TBD"}
                           </div>
                         </div>
                       </div>
-                    )}
+                    </div>
+                  )}
                 </div>
               )
             )}
           </Card.Text>
 
-          {linescore.length > 0 &&
-          (isFinal || isCompleted || isInProgress || isRainDelay) ? (
+          {linescore.length > 0 && (isFinal || isInProgress || isRainDelay) ? (
             <div className="scrollable-table-container">
               <Table
                 striped
@@ -708,7 +709,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
             </div>
           )}
 
-          {(isFinal || isCompleted || isInProgress) && topPerformers && (
+          {(isFinal || isInProgress) && topPerformers && (
             <div
               className="text-center mt-3 mb-3"
               style={{ fontSize: "0.75rem" }}
@@ -794,7 +795,6 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
             </div>
           )}
           {(isFinal ||
-            isCompleted ||
             isInProgress ||
             isRainDelay ||
             isCancelled ||
@@ -812,7 +812,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
               )}
 
               <div className="d-flex justify-content-between w-100 mb-1">
-                {(isFinal || isCompleted) && recapLink && (
+                {isFinal && recapLink && (
                   <Card.Text
                     className="text-left mb-3 mx-3"
                     style={{ fontSize: "1rem" }}
@@ -827,7 +827,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     </a>
                   </Card.Text>
                 )}
-                {(isFinal || isCompleted) && gamePk && (
+                {isFinal && gamePk && (
                   <div
                     className={`text-${
                       isInProgress ? "center" : "right"
