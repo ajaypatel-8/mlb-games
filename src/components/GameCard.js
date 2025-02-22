@@ -847,9 +847,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 <div className="d-flex justify-content-center w-100 mb-3">
                   {isInProgress && gamePk && (
                     <div
-                      className={`text-${
-                        isInProgress ? "center" : "right"
-                      } mb-3 mx-3`}
+                      className={`text- mb-3 mx-3`}
                       style={{ fontSize: "1rem" }}
                     >
                       <a
