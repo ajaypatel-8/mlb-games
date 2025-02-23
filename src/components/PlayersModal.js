@@ -22,6 +22,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
           mlbService.getHitData(gamePk),
           mlbService.getPitchData(gamePk),
         ]);
+
         setHitData(hitDataResponse);
         setPitchData(pitchDataResponse);
       } catch (error) {
@@ -79,7 +80,6 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const processPitchData = (pitchData) => {
     const groupedData = {};
 
-    // Group data by pitcherName, pitchType
     pitchData.forEach((pitch) => {
       const {
         pitcherName,
@@ -92,10 +92,8 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         isWhiff,
       } = pitch;
 
-      // Create a unique key for each grouping
       const groupKey = `${pitcherName}-${pitchType}`;
 
-      // Initialize the group if not already created
       if (!groupedData[groupKey]) {
         groupedData[groupKey] = {
           pitcherName,
@@ -110,7 +108,6 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         };
       }
 
-      // Accumulate data for the group
       const group = groupedData[groupKey];
       group.totalPitches++;
       group.totalStartSpeed += startSpeed;
@@ -120,7 +117,6 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
       group.totalWhiff += isWhiff ? 1 : 0;
     });
 
-    // Prepare the final result with averages, rates, and modified pitchType
     return Object.values(groupedData).map((group) => {
       const numPitches = group.totalPitches;
       const avgStartSpeed = (group.totalStartSpeed / numPitches).toFixed(1);
@@ -137,7 +133,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
       return {
         pitcherName: group.pitcherName,
         pitcherId: group.pitcherId,
-        pitchType: `${group.pitchType} (${numPitches})`, // Combine pitchType with numPitches
+        pitchType: `${group.pitchType} (${numPitches})`,
         avgStartSpeed,
         avgVerticalBreak,
         avgHorizontalBreak,
@@ -337,12 +333,13 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                 columns={columns}
                 data={filteredHitters
                   .map((player) => {
-                    const hitInfo = hitData.find(
+                    const playerHitData = hitData.filter(
                       (hit) => hit.batterId === player.person.id
                     );
-                    if (!hitInfo) return null;
 
-                    return {
+                    if (playerHitData.length === 0) return null;
+
+                    const playerData = playerHitData.map((hitInfo) => ({
                       playerName: (
                         <div>
                           <a
@@ -368,8 +365,11 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                       launchSpeed: hitInfo.hitData.launchSpeed,
                       launchAngle: hitInfo.hitData.launchAngle,
                       hitDistance: hitInfo.hitData.totalDistance,
-                    };
+                    }));
+
+                    return playerData;
                   })
+                  .flat()
                   .filter(Boolean)
                   .sort((a, b) => b.launchSpeed - a.launchSpeed)}
               />
