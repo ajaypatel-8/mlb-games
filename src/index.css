@@ -123,7 +123,7 @@ button svg:hover {
 
 .d-flex .lineup-modal-container {
   flex-shrink: 1;
-  max-width: 45%;  /* Adjust width for mobile to avoid overflow */
+  max-width: 45%;  
   padding: 0 1rem;
 }
 
@@ -134,6 +134,16 @@ button svg:hover {
 
 @media (max-width: 768px) {
   
+
+  .d-flex {
+    display: flex;  /* Make sure the flexbox is enabled */
+    justify-content: space-between; /* Distribute space evenly */
+    flex-wrap: nowrap;  /* Force no wrapping of the buttons */
+  }
+
+  .lineup-modal-container {
+    max-width: 48%;  /* Ensure that the containers are a bit smaller, forcing them to fit */
+  }
   .recap-link {
     font-size: 1rem !important;
   }
