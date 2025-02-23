@@ -614,16 +614,21 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 <tbody>{renderEmptyBoxScore()}</tbody>
               </Table>
               {gamePk && (
-                <Card.Text className="text-center mb-3 mx-3">
+                <div
+                  className="text-center mb-3 mx-3"
+                  style={{ fontSize: "1rem" }}
+                >
                   <a
                     href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    style={{ fontSize: "1rem" }}
                   >
                     Baseball Savant
                   </a>
-                </Card.Text>
+                </div>
               )}
+
               <div className="d-flex justify-content-between w-100">
                 <div className="lineup-modal-container">
                   <LineupModal
