@@ -123,24 +123,29 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
   const toggleAwayLineup = () => setShowAwayLineup((prev) => !prev);
   const toggleHomeLineup = () => setShowHomeLineup((prev) => !prev);
 
-  const teamLogos = useMemo(() => {
+  const teamMap = useMemo(() => {
     return mlbTeams.reduce((acc, team) => {
-      acc[team.team_abbr] = team.team_scoreboard_logo_espn;
+      acc[team.team_abbr] = team;
       return acc;
     }, {});
   }, []);
 
   const getTeamLogo = (teamAbbreviation) => {
-    const logo = teamLogos[teamAbbreviation];
-    if (logo) {
+    const team = teamMap[teamAbbreviation];
+
+    if (team) {
+      const teamUrl = `https://www.mlb.com/${team.team_mascot.toLowerCase()}`;
       return (
-        <img
-          src={logo}
-          alt={teamAbbreviation}
-          style={{ width: "25px", height: "25px" }}
-        />
+        <a href={teamUrl} target="_blank" rel="noopener noreferrer">
+          <img
+            src={team.team_scoreboard_logo_espn}
+            alt={team.team_mascot}
+            style={{ width: "25px", height: "25px" }}
+          />
+        </a>
       );
     }
+
     return teamAbbreviation;
   };
 
