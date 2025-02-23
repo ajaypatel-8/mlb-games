@@ -866,7 +866,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 )}
               </div>
 
-              <div className="d-flex justify-content-between w-100">
+              <div className="lineup-flex-container">
                 <div className="lineup-modal-container">
                   <LineupModal
                     team={away.team}

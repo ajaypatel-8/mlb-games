@@ -121,12 +121,6 @@ button svg:hover {
   padding: 0.1rem 0.4rem;
 }
 
-.d-flex .lineup-modal-container {
-  flex-shrink: 1;
-  max-width: 45%;  
-  padding: 0 1rem;
-}
-
 .recap-link {
   font-size: 1rem !important;  
   padding: 0.1rem 0.4rem;
@@ -135,15 +129,16 @@ button svg:hover {
 @media (max-width: 768px) {
   
 
-  .d-flex {
-    display: flex;  /* Make sure the flexbox is enabled */
-    justify-content: space-between; /* Distribute space evenly */
-    flex-wrap: nowrap;  /* Force no wrapping of the buttons */
+  .lineup-flex-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: nowrap;
   }
 
   .lineup-modal-container {
-    max-width: 48%;  /* Ensure that the containers are a bit smaller, forcing them to fit */
+    max-width: 48%; /* Adjust width for mobile */
   }
+
   .recap-link {
     font-size: 1rem !important;
   }
