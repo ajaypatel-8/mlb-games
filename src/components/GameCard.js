@@ -866,8 +866,8 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 )}
               </div>
 
-              <div className="d-flex justify-content-between w-100 flex-wrap">
-                <div className="lineup-modal-container">
+              <div className="d-flex justify-content-between w-100">
+                <div className="lineup-modal-container" style={{ flex: 1 }}>
                   <LineupModal
                     team={away.team}
                     players={sortedAwayLineup || []}
@@ -878,7 +878,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   />
                 </div>
 
-                <div className="lineup-modal-container">
+                <div className="lineup-modal-container" style={{ flex: 1 }}>
                   <LineupModal
                     team={home.team}
                     players={sortedHomeLineup || []}
