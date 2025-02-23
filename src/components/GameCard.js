@@ -821,7 +821,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   <>
                     {/* Recap link to the left*/}
                     <Card.Text
-                      className="text-left mb-3 mx-3"
+                      className="text-left mb-3"
                       style={{ fontSize: "1rem" }}
                     >
                       <a
@@ -836,7 +836,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
 
                     {/* Savant link to the right */}
                     <div
-                      className="d-flex justify-content-end mb-3 mx-3"
+                      className="d-flex justify-content-end mb-3"
                       style={{ fontSize: "1rem" }}
                     >
                       <a
@@ -857,6 +857,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                           href={`https://baseballsavant.mlb.com/gamefeed?gamePk=${gamePk}`}
                           target="_blank"
                           rel="noopener noreferrer"
+                          style={{ fontSize: "1rem" }}
                         >
                           Baseball Savant
                         </a>
