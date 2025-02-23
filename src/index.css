@@ -123,7 +123,7 @@ button svg:hover {
 
 .d-flex .lineup-modal-container {
   flex-shrink: 1;
-  max-width: 100%;
+  max-width: 45%;  /* Adjust width for mobile to avoid overflow */
   padding: 0 1rem;
 }
 
@@ -134,15 +134,6 @@ button svg:hover {
 
 @media (max-width: 768px) {
   
-  .lineup-modal-container {
-    flex: 1 1 50%;  
-    margin-right: 10px; 
-  }
-
-  .lineup-modal-container button {
-    width: 100%;
-  }
-
   .recap-link {
     font-size: 1rem !important;
   }

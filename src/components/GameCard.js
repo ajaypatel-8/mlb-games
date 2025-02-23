@@ -867,31 +867,26 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
               </div>
 
               <div className="d-flex justify-content-between w-100">
-                <div
-                  className="d-flex justify-content-between w-100"
-                  style={{ flexWrap: "nowrap" }}
-                >
-                  <div className="lineup-modal-container" style={{ flex: 1 }}>
-                    <LineupModal
-                      team={away.team}
-                      players={sortedAwayLineup || []}
-                      toggleLineup={toggleAwayLineup}
-                      showLineup={showAwayLineup}
-                      gameDate={gameDate}
-                      gamePk={gamePk}
-                    />
-                  </div>
+                <div className="lineup-modal-container">
+                  <LineupModal
+                    team={away.team}
+                    players={sortedAwayLineup || []}
+                    toggleLineup={toggleAwayLineup}
+                    showLineup={showAwayLineup}
+                    gameDate={gameDate}
+                    gamePk={gamePk}
+                  />
+                </div>
 
-                  <div className="lineup-modal-container" style={{ flex: 1 }}>
-                    <LineupModal
-                      team={home.team}
-                      players={sortedHomeLineup || []}
-                      toggleLineup={toggleHomeLineup}
-                      showLineup={showHomeLineup}
-                      gameDate={gameDate}
-                      gamePk={gamePk}
-                    />
-                  </div>
+                <div className="lineup-modal-container">
+                  <LineupModal
+                    team={home.team}
+                    players={sortedHomeLineup || []}
+                    toggleLineup={toggleHomeLineup}
+                    showLineup={showHomeLineup}
+                    gameDate={gameDate}
+                    gamePk={gamePk}
+                  />
                 </div>
               </div>
             </div>
