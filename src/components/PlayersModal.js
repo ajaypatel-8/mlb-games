@@ -5,22 +5,30 @@ import { faArrowRight, faChartBar } from "@fortawesome/free-solid-svg-icons";
 import mlbTeams from "./mlbTeams.json";
 import { mlbService } from "../services/mlbService";
 import { useTable } from "react-table";
+import { Dropdown } from "react-bootstrap";
 
 const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const [showModal, setShowModal] = useState(false);
-  const [showExitVelo, setShowExitVelo] = useState(false);
+  const [currentView, setCurrentView] = useState("players");
   const [hitData, setHitData] = useState([]);
+  const [pitchData, setPitchData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    const fetchHitData = async () => {
+    const fetchData = async () => {
       try {
-        const data = await mlbService.getHitData(gamePk);
-        setHitData(data);
-      } catch (error) {}
+        const [hitDataResponse, pitchDataResponse] = await Promise.all([
+          mlbService.getHitData(gamePk),
+          mlbService.getPitchData(gamePk),
+        ]);
+        setHitData(hitDataResponse);
+        setPitchData(pitchDataResponse);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
     };
 
-    fetchHitData();
+    fetchData();
   }, [gamePk]);
 
   const teamMap = useMemo(() => {
@@ -34,6 +42,8 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     const team = teamMap[teamAbbreviation];
     return team ? team.team_scoreboard_logo_espn : null;
   };
+
+  const teamLogo = getTeamLogoButton(team.abbreviation);
 
   const getPlayerSavantLink = (id) => {
     return `https://baseballsavant.mlb.com/savant-player/${id}`;
@@ -64,6 +74,81 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     const ipB = b.stats.pitching?.inningsPitched || 0;
     return ipB - ipA;
   });
+
+  const processPitchData = (pitchData) => {
+    const groupedData = {};
+
+    // Group data by pitcherName, pitchType
+    pitchData.forEach((pitch) => {
+      const {
+        pitcherName,
+        pitcherId,
+        pitchType,
+        startSpeed,
+        inducedVerticalBreak,
+        horizontalBreak,
+        isCalledStrike,
+        isWhiff,
+      } = pitch;
+
+      // Create a unique key for each grouping
+      const groupKey = `${pitcherName}-${pitchType}`;
+
+      // Initialize the group if not already created
+      if (!groupedData[groupKey]) {
+        groupedData[groupKey] = {
+          pitcherName,
+          pitcherId,
+          pitchType,
+          totalPitches: 0,
+          totalStartSpeed: 0,
+          totalVerticalBreak: 0,
+          totalHorizontalBreak: 0,
+          totalCalledStrike: 0,
+          totalWhiff: 0,
+        };
+      }
+
+      // Accumulate data for the group
+      const group = groupedData[groupKey];
+      group.totalPitches++;
+      group.totalStartSpeed += startSpeed;
+      group.totalVerticalBreak += inducedVerticalBreak;
+      group.totalHorizontalBreak += horizontalBreak;
+      group.totalCalledStrike += isCalledStrike ? 1 : 0;
+      group.totalWhiff += isWhiff ? 1 : 0;
+    });
+
+    // Prepare the final result with averages and rates
+    return Object.values(groupedData).map((group) => {
+      const numPitches = group.totalPitches;
+      const avgStartSpeed = (group.totalStartSpeed / numPitches).toFixed(1);
+      const avgVerticalBreak = (group.totalVerticalBreak / numPitches).toFixed(
+        1
+      );
+      const avgHorizontalBreak = (
+        group.totalHorizontalBreak / numPitches
+      ).toFixed(1);
+      const calledStrikeWhiffRate = Math.round(
+        ((group.totalCalledStrike + group.totalWhiff) / numPitches) * 100
+      );
+
+      return {
+        pitcherName: group.pitcherName,
+        pitcherId: group.pitcherId,
+        pitchType: group.pitchType,
+        numPitches,
+        avgStartSpeed,
+        avgVerticalBreak,
+        avgHorizontalBreak,
+        calledStrikeWhiffRate: `${calledStrikeWhiffRate}%`,
+      };
+    });
+  };
+
+  const processedData = processPitchData(pitchData).filter((data) =>
+    pitchers.some((pitcher) => pitcher.person.id === data.pitcherId)
+  );
 
   const formattedDate = new Date(gameDate).toLocaleDateString();
 
@@ -143,8 +228,20 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     );
   };
 
-  const filteredHitters = hitters.filter((player) =>
-    player.person.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredHitters = useMemo(
+    () =>
+      hitters.filter((player) =>
+        player.person.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    [hitters, searchTerm]
+  );
+
+  const filteredPitchers = useMemo(
+    () =>
+      processedData.filter((item) =>
+        item.pitcherName.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    [processedData, searchTerm]
   );
 
   const MemoizedTable = React.memo(Table);
@@ -156,9 +253,9 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         onClick={() => setShowModal(true)}
         className="d-flex align-items-center gap-2 w-100"
       >
-        {getTeamLogoButton(team.abbreviation) ? (
+        {teamLogo ? (
           <img
-            src={getTeamLogoButton(team.abbreviation)}
+            src={teamLogo}
             alt={`${team.teamName} logo`}
             style={{ width: "24px", height: "24px" }}
           />
@@ -178,9 +275,9 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         <Modal.Header closeButton>
           <div className="d-flex w-100 justify-content-between align-items-center">
             <div className="d-flex align-items-center">
-              {getTeamLogoButton(team.abbreviation) && (
+              {teamLogo && (
                 <img
-                  src={getTeamLogoButton(team.abbreviation)}
+                  src={teamLogo}
                   alt={team.teamName}
                   style={{ width: "30px", height: "30px", marginRight: "10px" }}
                 />
@@ -189,21 +286,44 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
             </div>
 
             <div className="d-flex align-items-center gap-2">
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={() => setShowExitVelo(!showExitVelo)}
-              >
-                <FontAwesomeIcon icon={faChartBar} className="me-1" />
-                {showExitVelo ? "Show Players" : "Exit Velocities"}
-              </Button>
+              <Dropdown>
+                <Dropdown.Toggle variant="outline-secondary" size="sm">
+                  <FontAwesomeIcon icon={faChartBar} className="me-1" />
+                  {currentView === "players"
+                    ? "Players"
+                    : currentView === "exitVelo"
+                    ? "Exit Velocities"
+                    : "Pitch Data"}
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu>
+                  <Dropdown.Item
+                    onClick={() => setCurrentView("players")}
+                    active={currentView === "players"}
+                  >
+                    All Players
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => setCurrentView("exitVelo")}
+                    active={currentView === "exitVelo"}
+                  >
+                    Exit Velocities
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => setCurrentView("pitchData")}
+                    active={currentView === "pitchData"}
+                  >
+                    Pitch Data
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+
               <span className="text-muted">{formattedDate}</span>
             </div>
           </div>
         </Modal.Header>
-
         <Modal.Body>
-          {showExitVelo ? (
+          {currentView === "exitVelo" ? (
             <div>
               <h5>Batted Ball Metrics</h5>
               <input
@@ -213,7 +333,6 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="mb-3 form-control"
               />
-
               <MemoizedTable
                 columns={columns}
                 data={filteredHitters
@@ -253,6 +372,62 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                   })
                   .filter(Boolean)
                   .sort((a, b) => b.launchSpeed - a.launchSpeed)}
+              />
+            </div>
+          ) : currentView === "pitchData" ? (
+            <div>
+              <h5>Pitch Data</h5>
+              <input
+                type="text"
+                placeholder="Search Pitchers"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="mb-3 form-control"
+              />
+              <MemoizedTable
+                columns={[
+                  {
+                    Header: "Pitcher",
+                    accessor: "pitcherName",
+                    Cell: ({ row }) => (
+                      <div>
+                        <a
+                          href={getPlayerSavantLink(row.original.pitcherId)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <img
+                            src={getPlayerHeadshot(row.original.pitcherId)}
+                            alt={row.original.pitcherName}
+                            style={{
+                              width: "30px",
+                              height: "30px",
+                              borderRadius: "50%",
+                              marginRight: "10px",
+                            }}
+                          />
+                        </a>
+                        <span>{row.original.pitcherName}</span>{" "}
+                      </div>
+                    ),
+                  },
+                  { Header: "Pitch", accessor: "pitchType" },
+                  { Header: "#", accessor: "numPitches" },
+                  { Header: "Velo", accessor: "avgStartSpeed" },
+                  {
+                    Header: "Induced Vert. Break",
+                    accessor: "avgVerticalBreak",
+                  },
+                  {
+                    Header: "Horz. Break",
+                    accessor: "avgHorizontalBreak",
+                  },
+                  {
+                    Header: "CSW%",
+                    accessor: "calledStrikeWhiffRate",
+                  },
+                ]}
+                data={filteredPitchers}
               />
             </div>
           ) : (

@@ -83,4 +83,48 @@ export const mlbService = {
       return [];
     }
   },
+  getPitchData: async (gamePk) => {
+    try {
+      const response = await fetchLiveData(gamePk);
+      const plays = response.liveData.plays.allPlays;
+      const pitchData = [];
+
+      plays.forEach((play) => {
+        play.playEvents.forEach((event) => {
+          if (event.details?.type?.description) {
+            const pitcher = play.matchup.pitcher;
+            const batterHand = play.matchup.batSide.description;
+            const pitchType = event.details.type.code;
+            const startSpeed = event.pitchData?.startSpeed;
+            const inducedVerticalBreak =
+              event.pitchData?.breaks?.breakVerticalInduced;
+            const horizontalBreak = event.pitchData?.breaks?.breakHorizontal;
+            const description = event.details.description;
+
+            const isWhiff =
+              description === "Swinging Strike" ||
+              description === "Swinging Strike (Blocked)";
+            const isCalledStrike = description === "Called Strike";
+
+            pitchData.push({
+              pitcherId: pitcher.id,
+              pitcherName: pitcher.fullName,
+              batterHand,
+              pitchType,
+              startSpeed,
+              inducedVerticalBreak,
+              horizontalBreak,
+              isCalledStrike,
+              isWhiff,
+            });
+          }
+        });
+      });
+
+      return pitchData;
+    } catch (error) {
+      console.error("Error fetching pitch data:", error);
+      return [];
+    }
+  },
 };
