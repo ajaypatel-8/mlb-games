@@ -6,6 +6,7 @@ import mlbTeams from "./mlbTeams.json";
 import { mlbService } from "../services/mlbService";
 import { useTable } from "react-table";
 import { Dropdown } from "react-bootstrap";
+import { FaArrowsAltV, FaArrowsAltH } from "react-icons/fa";
 
 const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const [showModal, setShowModal] = useState(false);
@@ -415,11 +416,19 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                   { Header: "#", accessor: "numPitches" },
                   { Header: "Velo", accessor: "avgStartSpeed" },
                   {
-                    Header: "Induced Vert. Break",
+                    Header: (
+                      <div>
+                        IVB <FaArrowsAltV />
+                      </div>
+                    ),
                     accessor: "avgVerticalBreak",
                   },
                   {
-                    Header: "Horz. Break",
+                    Header: (
+                      <div>
+                        Horz. Break <FaArrowsAltH />
+                      </div>
+                    ),
                     accessor: "avgHorizontalBreak",
                   },
                   {
