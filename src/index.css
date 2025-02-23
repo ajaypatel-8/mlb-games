@@ -126,17 +126,16 @@ button svg:hover {
   padding: 0.1rem 0.4rem;
 }
 
-@media (max-width: 768px) {
-  
 
+@media (max-width: 768px) {
   .lineup-flex-container {
     display: flex;
     justify-content: space-between;
-    flex-wrap: nowrap;
+    flex-wrap: nowrap; 
   }
-
+  
   .lineup-modal-container {
-    max-width: 48%; /* Adjust width for mobile */
+    max-width: 48%; 
   }
 
   .recap-link {
