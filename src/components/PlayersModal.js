@@ -120,7 +120,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
       group.totalWhiff += isWhiff ? 1 : 0;
     });
 
-    // Prepare the final result with averages and rates
+    // Prepare the final result with averages, rates, and modified pitchType
     return Object.values(groupedData).map((group) => {
       const numPitches = group.totalPitches;
       const avgStartSpeed = (group.totalStartSpeed / numPitches).toFixed(1);
@@ -137,8 +137,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
       return {
         pitcherName: group.pitcherName,
         pitcherId: group.pitcherId,
-        pitchType: group.pitchType,
-        numPitches,
+        pitchType: `${group.pitchType} (${numPitches})`, // Combine pitchType with numPitches
         avgStartSpeed,
         avgVerticalBreak,
         avgHorizontalBreak,
@@ -413,7 +412,6 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                     ),
                   },
                   { Header: "Pitch", accessor: "pitchType" },
-                  { Header: "#", accessor: "numPitches" },
                   { Header: "Velo", accessor: "avgStartSpeed" },
                   {
                     Header: (
