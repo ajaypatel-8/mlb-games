@@ -134,6 +134,15 @@ button svg:hover {
 
 @media (max-width: 768px) {
   
+  .lineup-modal-container {
+    flex: 1 1 50%;  
+    margin-right: 10px; 
+  }
+
+  .lineup-modal-container button {
+    width: 100%;
+  }
+
   .recap-link {
     font-size: 1rem !important;
   }
