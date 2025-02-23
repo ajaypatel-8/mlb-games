@@ -1,17 +1,32 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserCircle, faArrowRight } from "@fortawesome/free-solid-svg-icons"; // Add the arrow icon
+import { faArrowRight, faChartBar } from "@fortawesome/free-solid-svg-icons";
 import mlbTeams from "./mlbTeams.json";
+import { mlbService } from "../services/mlbService";
+import { useTable } from "react-table";
 
-const LineupModal = ({ team, players, gameDate }) => {
+const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const [showModal, setShowModal] = useState(false);
+  const [showExitVelo, setShowExitVelo] = useState(false);
+  const [hitData, setHitData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    const fetchHitData = async () => {
+      try {
+        const data = await mlbService.getHitData(gamePk);
+        setHitData(data);
+      } catch (error) {}
+    };
+
+    fetchHitData();
+  }, [gamePk]);
 
   const teamLogos = useMemo(() => {
-    return mlbTeams.reduce((acc, team) => {
-      acc[team.team_abbr] = team.team_scoreboard_logo_espn;
-      return acc;
-    }, {});
+    return new Map(
+      mlbTeams.map((team) => [team.team_abbr, team.team_scoreboard_logo_espn])
+    );
   }, []);
 
   const getTeamLogo = (teamAbbreviation) => {
@@ -49,6 +64,88 @@ const LineupModal = ({ team, players, gameDate }) => {
   });
 
   const formattedDate = new Date(gameDate).toLocaleDateString();
+
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Batter",
+        accessor: "playerName",
+      },
+      {
+        Header: "Result",
+        accessor: "event",
+      },
+      {
+        Header: "Exit Velo",
+        accessor: "launchSpeed",
+      },
+      {
+        Header: "LA",
+        accessor: "launchAngle",
+      },
+      {
+        Header: "Hit Dist.",
+        accessor: "hitDistance",
+      },
+    ],
+    []
+  );
+  const Table = ({ columns, data }) => {
+    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+      useTable({ columns, data });
+
+    return (
+      <table {...getTableProps()} className="table table-bordered">
+        <thead>
+          {headerGroups.map((headerGroup) => (
+            <tr {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map((column) => (
+                <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody {...getTableBodyProps()}>
+          {rows.map((row) => {
+            prepareRow(row);
+            return (
+              <tr {...row.getRowProps()}>
+                {row.cells.map((cell) => {
+                  if (cell.column.id === "launchSpeed") {
+                    const exitVelo = cell.value;
+                    return (
+                      <td {...cell.getCellProps()}>
+                        {exitVelo} {exitVelo >= 95 ? "🔥" : ""}
+                      </td>
+                    );
+                  }
+
+                  if (cell.column.id === "event") {
+                    const result = cell.value;
+                    return (
+                      <td {...cell.getCellProps()}>
+                        {result} {result === "Home Run" ? "🚀" : ""}
+                      </td>
+                    );
+                  }
+
+                  return (
+                    <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    );
+  };
+
+  const filteredHitters = hitters.filter((player) =>
+    player.person.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const MemoizedTable = React.memo(Table);
 
   return (
     <div>
@@ -89,192 +186,200 @@ const LineupModal = ({ team, players, gameDate }) => {
               <Modal.Title>{`${team.teamName} Players`}</Modal.Title>
             </div>
 
-            <span className="text-muted">{formattedDate}</span>
+            <div className="d-flex align-items-center gap-2">
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => setShowExitVelo(!showExitVelo)}
+              >
+                <FontAwesomeIcon icon={faChartBar} className="me-1" />
+                {showExitVelo ? "Show Players" : "Exit Velocities"}
+              </Button>
+              <span className="text-muted">{formattedDate}</span>
+            </div>
           </div>
         </Modal.Header>
 
         <Modal.Body>
-          <div className="row">
-            {hitters.length > 0 && (
-              <div className="col-md-6">
-                <h5>Hitters</h5>
-                {hitters.map((player) => {
-                  const { person } = player;
-                  const playerName = person.fullName;
-                  const playerId = person.id;
-                  const abbreviatedName = `${
-                    playerName.split(" ")[0][0]
-                  }. ${playerName.split(" ").slice(1).join(" ")}`;
+          {showExitVelo ? (
+            <div>
+              <h5>Batted Ball Metrics</h5>
+              <input
+                type="text"
+                placeholder="Search Players"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="mb-3 form-control"
+              />
 
-                  const headshot = (
-                    <a
-                      href={getPlayerSavantLink(playerId)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {getPlayerHeadshot(playerId) ? (
-                        <img
-                          src={getPlayerHeadshot(playerId)}
-                          alt={playerName}
-                          style={{
-                            width: "30px",
-                            height: "30px",
-                            borderRadius: "50%",
-                          }}
-                        />
-                      ) : (
-                        <FontAwesomeIcon
-                          icon={faUserCircle}
-                          style={{ color: "#6c757d", fontSize: "25px" }}
-                        />
-                      )}
-                    </a>
-                  );
+              <MemoizedTable
+                columns={columns}
+                data={filteredHitters
+                  .map((player) => {
+                    const hitInfo = hitData.find(
+                      (hit) => hit.batterId === player.person.id
+                    );
+                    if (!hitInfo) return null;
 
-                  let statSummary = [];
-                  if (player.stats.batting && player.stats.batting.summary) {
-                    statSummary.push(player.stats.batting.summary);
-                  }
+                    return {
+                      playerName: (
+                        <div>
+                          <a
+                            href={getPlayerSavantLink(player.person.id)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <img
+                              src={getPlayerHeadshot(player.person.id)}
+                              alt={player.person.fullName}
+                              style={{
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "50%",
+                                marginRight: "10px",
+                              }}
+                            />
+                          </a>
+                          <span>{player.person.fullName}</span>
+                        </div>
+                      ),
+                      event: hitInfo.result,
+                      launchSpeed: hitInfo.hitData.launchSpeed,
+                      launchAngle: hitInfo.hitData.launchAngle,
+                      hitDistance: hitInfo.hitData.totalDistance,
+                    };
+                  })
+                  .filter(Boolean)
+                  .sort((a, b) => b.launchSpeed - a.launchSpeed)}
+              />
+            </div>
+          ) : (
+            <div className="row">
+              {hitters.length > 0 && (
+                <div className="col-md-6">
+                  <h5>Hitters</h5>
+                  {hitters.map((player) => {
+                    const { person } = player;
+                    const playerName = person.fullName;
+                    const playerId = person.id;
+                    const abbreviatedName = `${
+                      playerName.split(" ")[0][0]
+                    }. ${playerName.split(" ").slice(1).join(" ")}`;
 
-                  return (
-                    <div
-                      key={playerId}
-                      className="d-flex justify-content-start align-items-center mb-3"
-                    >
-                      {player.battingOrder >= 100 &&
-                        player.battingOrder < 1000 &&
-                        player.battingOrder % 10 !== 0 && (
-                          <FontAwesomeIcon
-                            icon={faArrowRight}
+                    return (
+                      <div
+                        key={playerId}
+                        className="d-flex justify-content-start align-items-center mb-3"
+                      >
+                        {player.battingOrder >= 100 &&
+                          player.battingOrder < 1000 &&
+                          player.battingOrder % 10 !== 0 && (
+                            <FontAwesomeIcon
+                              icon={faArrowRight}
+                              style={{
+                                color: "#6c757d",
+                                fontSize: "20px",
+                                marginRight: "10px",
+                              }}
+                            />
+                          )}
+                        <a
+                          href={getPlayerSavantLink(playerId)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <img
+                            src={getPlayerHeadshot(playerId)}
+                            alt={playerName}
                             style={{
-                              color: "#6c757d",
-                              fontSize: "20px",
-                              marginRight: "10px",
+                              width: "30px",
+                              height: "30px",
+                              borderRadius: "50%",
                             }}
                           />
-                        )}
-                      {headshot}
-                      <span
-                        style={{
-                          flex: 1,
-                          marginLeft: "10px",
-                          fontWeight: "bold",
-                          cursor: "pointer",
-                        }}
-                        onClick={() =>
-                          window.open(getPlayerSavantLink(playerId), "_blank")
-                        }
-                      >
-                        {abbreviatedName} - {player.position.abbreviation}
-                      </span>
-                      {statSummary.length > 0 && (
-                        <div
-                          className="text-muted"
+                        </a>
+                        <span
                           style={{
-                            fontSize: "0.75rem",
-                            textAlign: "right",
+                            flex: 1,
                             marginLeft: "10px",
+                            fontWeight: "bold",
+                            cursor: "pointer",
                           }}
+                          onClick={() =>
+                            window.open(getPlayerSavantLink(playerId), "_blank")
+                          }
                         >
-                          {statSummary.join(" | ")}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                          {abbreviatedName} - {player.position.abbreviation}
+                        </span>
+                        <span
+                          className="text-muted"
+                          style={{ fontSize: "0.75rem", marginLeft: "10px" }}
+                        >
+                          {player.stats.batting?.summary || "N/A"}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
-            {sortedPitchers.length > 0 && (
-              <div className="col-md-6">
-                <h5>Pitchers</h5>
-                {sortedPitchers.map((player) => {
-                  const { person } = player;
-                  const playerName = person.fullName;
-                  const playerId = person.id;
-                  const abbreviatedName = `${
-                    playerName.split(" ")[0][0]
-                  }. ${playerName.split(" ").slice(1).join(" ")}`;
+              {sortedPitchers.length > 0 && (
+                <div className="col-md-6">
+                  <h5>Pitchers</h5>
+                  {sortedPitchers.map((player) => {
+                    const { person } = player;
+                    const playerName = person.fullName;
+                    const playerId = person.id;
+                    const abbreviatedName = `${
+                      playerName.split(" ")[0][0]
+                    }. ${playerName.split(" ").slice(1).join(" ")}`;
 
-                  const headshot = (
-                    <a
-                      href={getPlayerSavantLink(playerId)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {getPlayerHeadshot(playerId) ? (
-                        <img
-                          src={getPlayerHeadshot(playerId)}
-                          alt={playerName}
-                          style={{
-                            width: "30px",
-                            height: "30px",
-                            borderRadius: "50%",
-                          }}
-                        />
-                      ) : (
-                        <FontAwesomeIcon
-                          icon={faUserCircle}
-                          style={{ color: "#6c757d", fontSize: "25px" }}
-                        />
-                      )}
-                    </a>
-                  );
-
-                  let statSummary = [];
-                  if (player.stats.pitching && player.stats.pitching.summary) {
-                    statSummary.push(player.stats.pitching.summary);
-                  }
-
-                  return (
-                    <div
-                      key={playerId}
-                      className="d-flex justify-content-start align-items-center mb-3"
-                    >
-                      {player.battingOrder >= 100 &&
-                        player.battingOrder < 1000 &&
-                        player.battingOrder % 10 !== 0 && (
-                          <FontAwesomeIcon
-                            icon={faArrowRight}
+                    return (
+                      <div
+                        key={playerId}
+                        className="d-flex justify-content-start align-items-center mb-3"
+                      >
+                        <a
+                          href={getPlayerSavantLink(playerId)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <img
+                            src={getPlayerHeadshot(playerId)}
+                            alt={playerName}
                             style={{
-                              color: "#6c757d",
-                              fontSize: "20px",
-                              marginRight: "10px",
+                              width: "30px",
+                              height: "30px",
+                              borderRadius: "50%",
                             }}
                           />
-                        )}
-                      {headshot}
-                      <span
-                        style={{
-                          flex: 1,
-                          marginLeft: "10px",
-                          fontWeight: "bold",
-                          cursor: "pointer",
-                        }}
-                        onClick={() =>
-                          window.open(getPlayerSavantLink(playerId), "_blank")
-                        }
-                      >
-                        {abbreviatedName} - {player.position.abbreviation}
-                      </span>
-                      {statSummary.length > 0 && (
-                        <div
-                          className="text-muted"
+                        </a>
+                        <span
                           style={{
-                            fontSize: "0.75rem",
-                            textAlign: "right",
+                            flex: 1,
                             marginLeft: "10px",
+                            fontWeight: "bold",
+                            cursor: "pointer",
                           }}
+                          onClick={() =>
+                            window.open(getPlayerSavantLink(playerId), "_blank")
+                          }
                         >
-                          {statSummary.join(" | ")}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                          {abbreviatedName} - {player.position.abbreviation}
+                        </span>
+                        <span
+                          className="text-muted"
+                          style={{ fontSize: "0.75rem", marginLeft: "10px" }}
+                        >
+                          {player.stats.pitching?.summary || "N/A"}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </Modal.Body>
       </Modal>
     </div>

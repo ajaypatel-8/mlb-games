@@ -242,8 +242,6 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
     </>
   );
 
-  console.log(startTime);
-
   return (
     <Col key={game.gamePk} md={4} className="mb-4">
       <Card
@@ -634,6 +632,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     toggleLineup={toggleAwayLineup}
                     showLineup={showAwayLineup}
                     gameDate={gameDate}
+                    gamePk={gamePk}
                   />
                 </div>
 
@@ -644,6 +643,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     toggleLineup={toggleHomeLineup}
                     showLineup={showHomeLineup}
                     gameDate={gameDate}
+                    gamePk={gamePk}
                   />
                 </div>
               </div>
@@ -874,6 +874,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     toggleLineup={toggleAwayLineup}
                     showLineup={showAwayLineup}
                     gameDate={gameDate}
+                    gamePk={gamePk}
                   />
                 </div>
 
@@ -884,6 +885,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     toggleLineup={toggleHomeLineup}
                     showLineup={showHomeLineup}
                     gameDate={gameDate}
+                    gamePk={gamePk}
                   />
                 </div>
               </div>

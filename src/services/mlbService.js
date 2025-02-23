@@ -52,4 +52,35 @@ export const mlbService = {
 
   getTopPerformers: (gamePk) =>
     fetchLiveData(gamePk).then((data) => data.liveData.boxscore.topPerformers),
+
+  getHitData: async (gamePk) => {
+    try {
+      const response = await fetchLiveData(gamePk);
+      const plays = response.liveData.plays.allPlays;
+      const hitData = [];
+
+      plays.forEach((play, playIndex) => {
+        play.playEvents.forEach((event, eventIndex) => {
+          if (event.hitData) {
+            const batter = play.matchup.batter;
+            const result = play.result.event;
+
+            hitData.push({
+              playIndex,
+              eventIndex,
+              batterId: batter.id,
+              result,
+              batterName: batter.fullName,
+              hitData: event.hitData,
+            });
+          }
+        });
+      });
+
+      return hitData;
+    } catch (error) {
+      console.error("Error fetching hit data:", error);
+      return [];
+    }
+  },
 };
