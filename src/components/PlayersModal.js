@@ -23,14 +23,16 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     fetchHitData();
   }, [gamePk]);
 
-  const teamLogos = useMemo(() => {
-    return new Map(
-      mlbTeams.map((team) => [team.team_abbr, team.team_scoreboard_logo_espn])
-    );
+  const teamMap = useMemo(() => {
+    return mlbTeams.reduce((acc, team) => {
+      acc[team.team_abbr] = team;
+      return acc;
+    }, {});
   }, []);
 
-  const getTeamLogo = (teamAbbreviation) => {
-    return teamLogos[teamAbbreviation] || null;
+  const getTeamLogoButton = (teamAbbreviation) => {
+    const team = teamMap[teamAbbreviation];
+    return team ? team.team_scoreboard_logo_espn : null;
   };
 
   const getPlayerSavantLink = (id) => {
@@ -154,9 +156,9 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         onClick={() => setShowModal(true)}
         className="d-flex align-items-center gap-2 w-100"
       >
-        {getTeamLogo(team.abbreviation) ? (
+        {getTeamLogoButton(team.abbreviation) ? (
           <img
-            src={getTeamLogo(team.abbreviation)}
+            src={getTeamLogoButton(team.abbreviation)}
             alt={`${team.teamName} logo`}
             style={{ width: "24px", height: "24px" }}
           />
@@ -176,9 +178,9 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         <Modal.Header closeButton>
           <div className="d-flex w-100 justify-content-between align-items-center">
             <div className="d-flex align-items-center">
-              {getTeamLogo(team.abbreviation) && (
+              {getTeamLogoButton(team.abbreviation) && (
                 <img
-                  src={getTeamLogo(team.abbreviation)}
+                  src={getTeamLogoButton(team.abbreviation)}
                   alt={team.teamName}
                   style={{ width: "30px", height: "30px", marginRight: "10px" }}
                 />
