@@ -7,6 +7,7 @@ import { mlbService } from "../services/mlbService";
 import { useTable } from "react-table";
 import { Dropdown } from "react-bootstrap";
 import { FaArrowsAltV, FaArrowsAltH } from "react-icons/fa";
+import * as d3 from "d3";
 
 const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const [showModal, setShowModal] = useState(false);
@@ -14,6 +15,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const [hitData, setHitData] = useState([]);
   const [pitchData, setPitchData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPitcher, setSelectedPitcher] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,6 +34,140 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
 
     fetchData();
   }, [gamePk]);
+  useEffect(() => {
+    if (currentView === "pitchPlot" && pitchData.length > 0) {
+      const pitcherName = selectedPitcher || pitchData[0].pitcherName; // Default to first pitcher if none selected
+      const pitcherData = pitchData.filter(
+        (pitch) => pitch.pitcherName === pitcherName
+      );
+
+      d3.select("#pitch-plot-container").html(""); // Clear previous plot
+
+      const margin = { top: 20, right: 60, bottom: 60, left: 60 };
+      const width = 500 - margin.left - margin.right;
+      const height = 400 - margin.top - margin.bottom;
+
+      const svg = d3
+        .select("#pitch-plot-container")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const x = d3.scaleLinear().domain([-25, 25]).range([0, width]);
+      const y = d3.scaleLinear().domain([-25, 25]).range([height, 0]);
+
+      svg
+        .append("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).ticks(5));
+      svg.append("g").attr("class", "y-axis").call(d3.axisLeft(y).ticks(5));
+
+      svg
+        .append("text")
+        .attr("x", width / 2)
+        .attr("y", height + 50)
+        .style("text-anchor", "middle")
+        .style("font-size", "14px")
+        .style("font-weight", "bold")
+        .text("Horizontal Break (inches)");
+
+      svg
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -height / 2)
+        .attr("y", -40)
+        .style("text-anchor", "middle")
+        .style("font-size", "14px")
+        .style("font-weight", "bold")
+        .text("Induced Vertical Break (inches)");
+
+      svg
+        .append("line")
+        .attr("x1", x(0))
+        .attr("x2", x(0))
+        .attr("y1", 0)
+        .attr("y2", height)
+        .attr("stroke", "#bbb")
+        .attr("stroke-dasharray", "5,5");
+
+      svg
+        .append("line")
+        .attr("x1", 0)
+        .attr("x2", width)
+        .attr("y1", y(0))
+        .attr("y2", y(0))
+        .attr("stroke", "#bbb")
+        .attr("stroke-dasharray", "5,5");
+
+      const pitchTypes = Array.from(
+        new Set(pitcherData.map((d) => d.pitchType))
+      );
+      const colorScale = d3
+        .scaleOrdinal()
+        .domain(pitchTypes)
+        .range(d3.schemeCategory10);
+
+      svg
+        .append("g")
+        .selectAll("circle")
+        .data(pitcherData)
+        .join("circle")
+        .attr("cx", (d) => x(d.horizontalBreak))
+        .attr("cy", (d) => y(d.inducedVerticalBreak))
+        .attr("r", 5)
+        .style("fill", (d) => colorScale(d.pitchType))
+        .style("opacity", 0.8)
+        .style("stroke", "black")
+        .style("stroke-width", 0.5);
+
+      const legend = d3
+        .select("#pitch-plot-container")
+        .append("svg")
+        .attr("width", 150)
+        .attr("height", pitchTypes.length * 20 + 20)
+        .attr("transform", `translate(${width + margin.left + 20},0)`);
+
+      const legendGroup = legend.append("g");
+
+      pitchTypes.forEach((pitchType, i) => {
+        const legendItem = legendGroup
+          .append("g")
+          .attr("transform", `translate(0,${i * 20})`);
+        legendItem
+          .append("rect")
+          .attr("width", 15)
+          .attr("height", 15)
+          .style("fill", colorScale(pitchType));
+        legendItem
+          .append("text")
+          .attr("x", 20)
+          .attr("y", 12)
+          .style("font-size", "12px")
+          .text(pitchType);
+      });
+
+      svg
+        .append("text")
+        .attr("x", width - 20)
+        .attr("y", height + 45)
+        .style("font-size", "12px")
+        .style("text-anchor", "start")
+        .style("font-weight", "bold")
+        .text("R Arm Side ->");
+
+      svg
+        .append("text")
+        .attr("x", 20)
+        .attr("y", height + 45)
+        .style("font-size", "12px")
+        .style("text-anchor", "end")
+        .style("font-weight", "bold")
+        .text("<- L Arm Side");
+    }
+  }, [currentView, pitchData, selectedPitcher]);
 
   const teamMap = useMemo(() => {
     return mlbTeams.reduce((acc, team) => {
@@ -149,7 +285,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         const totalB = b.reduce((sum, p) => sum + p.totalPitches, 0);
         return totalB - totalA;
       })
-      .flat(); // Flatten back to a single array
+      .flat();
   };
 
   const processedData = processPitchData(pitchData).filter((data) =>
@@ -299,7 +435,9 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                     ? "Players"
                     : currentView === "exitVelo"
                     ? "Exit Velocities"
-                    : "Pitch Data"}
+                    : currentView === "pitchData"
+                    ? "Pitch Data"
+                    : "Pitch Plots"}{" "}
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
@@ -320,6 +458,12 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                     active={currentView === "pitchData"}
                   >
                     Pitch Data
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => setCurrentView("pitchPlot")}
+                    active={currentView === "pitchPlot"}
+                  >
+                    Pitch Plots {/* New item */}
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
@@ -447,6 +591,46 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                 data={filteredPitchers}
               />
             </div>
+          ) : currentView === "pitchPlot" ? (
+            <>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <h5 style={{ marginRight: "10px" }}>Pitch Plot</h5>
+                <Dropdown>
+                  <Dropdown.Toggle variant="outline-secondary" size="sm">
+                    {selectedPitcher ||
+                      (pitchData.length > 0 && pitchData[0].pitcherName) ||
+                      "Select Pitcher"}
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    {pitchData
+                      .filter((data) =>
+                        pitchers.some(
+                          (pitcher) => pitcher.person.id === data.pitcherId
+                        )
+                      )
+                      .filter(
+                        (value, index, self) =>
+                          self.findIndex(
+                            (v) => v.pitcherName === value.pitcherName
+                          ) === index
+                      )
+                      .map((pitch, index) => (
+                        <Dropdown.Item
+                          key={index}
+                          onClick={() => setSelectedPitcher(pitch.pitcherName)}
+                        >
+                          {pitch.pitcherName}
+                        </Dropdown.Item>
+                      ))}
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+              <div
+                id="pitch-plot-container"
+                style={{ width: "100%", height: "400px", marginTop: "20px" }}
+              ></div>
+            </>
           ) : (
             <div className="row">
               {hitters.length > 0 && (
