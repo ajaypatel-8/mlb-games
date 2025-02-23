@@ -36,12 +36,12 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
   }, [gamePk]);
   useEffect(() => {
     if (currentView === "pitchPlot" && pitchData.length > 0) {
-      const pitcherName = selectedPitcher || pitchData[0].pitcherName; // Default to first pitcher if none selected
+      const pitcherName = selectedPitcher || pitchData[0].pitcherName;
       const pitcherData = pitchData.filter(
         (pitch) => pitch.pitcherName === pitcherName
       );
 
-      d3.select("#pitch-plot-container").html(""); // Clear previous plot
+      d3.select("#pitch-plot-container").html("");
 
       const margin = { top: 20, right: 60, bottom: 60, left: 60 };
       const width = 500 - margin.left - margin.right;
@@ -463,7 +463,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                     onClick={() => setCurrentView("pitchPlot")}
                     active={currentView === "pitchPlot"}
                   >
-                    Pitch Plots {/* New item */}
+                    Pitch Plots
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
@@ -614,15 +614,32 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                           self.findIndex(
                             (v) => v.pitcherName === value.pitcherName
                           ) === index
-                      )
-                      .map((pitch, index) => (
-                        <Dropdown.Item
-                          key={index}
-                          onClick={() => setSelectedPitcher(pitch.pitcherName)}
-                        >
-                          {pitch.pitcherName}
-                        </Dropdown.Item>
-                      ))}
+                      ).length > 0 ? (
+                      pitchData
+                        .filter((data) =>
+                          pitchers.some(
+                            (pitcher) => pitcher.person.id === data.pitcherId
+                          )
+                        )
+                        .filter(
+                          (value, index, self) =>
+                            self.findIndex(
+                              (v) => v.pitcherName === value.pitcherName
+                            ) === index
+                        )
+                        .map((pitch, index) => (
+                          <Dropdown.Item
+                            key={index}
+                            onClick={() =>
+                              setSelectedPitcher(pitch.pitcherName)
+                            }
+                          >
+                            {pitch.pitcherName}
+                          </Dropdown.Item>
+                        ))
+                    ) : (
+                      <Dropdown.Item disabled>No Statcast Data</Dropdown.Item>
+                    )}
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
