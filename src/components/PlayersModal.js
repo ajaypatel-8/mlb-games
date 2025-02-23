@@ -152,7 +152,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
       <Button
         variant={team === "away" ? "outline-primary" : "outline-success"}
         onClick={() => setShowModal(true)}
-        className="d-flex align-items-center gap-2"
+        className="d-flex align-items-center gap-2 w-100"
       >
         {getTeamLogo(team.abbreviation) ? (
           <img
