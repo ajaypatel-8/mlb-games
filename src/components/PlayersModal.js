@@ -76,7 +76,6 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     const ipB = b.stats.pitching?.inningsPitched || 0;
     return ipB - ipA;
   });
-
   const processPitchData = (pitchData) => {
     const groupedData = {};
 
@@ -117,29 +116,40 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
       group.totalWhiff += isWhiff ? 1 : 0;
     });
 
-    return Object.values(groupedData).map((group) => {
+    const processedData = Object.values(groupedData).map((group) => {
       const numPitches = group.totalPitches;
-      const avgStartSpeed = (group.totalStartSpeed / numPitches).toFixed(1);
-      const avgVerticalBreak = (group.totalVerticalBreak / numPitches).toFixed(
-        1
-      );
-      const avgHorizontalBreak = (
-        group.totalHorizontalBreak / numPitches
-      ).toFixed(1);
-      const calledStrikeWhiffRate = Math.round(
-        ((group.totalCalledStrike + group.totalWhiff) / numPitches) * 100
-      );
-
       return {
         pitcherName: group.pitcherName,
         pitcherId: group.pitcherId,
-        pitchType: `${group.pitchType} (${numPitches})`,
-        avgStartSpeed,
-        avgVerticalBreak,
-        avgHorizontalBreak,
-        calledStrikeWhiffRate: `${calledStrikeWhiffRate}%`,
+        pitchType: group.pitchType,
+        pitchTypeLabel: `${group.pitchType} (${numPitches})`,
+        avgStartSpeed: (group.totalStartSpeed / numPitches).toFixed(1),
+        avgVerticalBreak: (group.totalVerticalBreak / numPitches).toFixed(1),
+        avgHorizontalBreak: (group.totalHorizontalBreak / numPitches).toFixed(
+          1
+        ),
+        calledStrikeWhiffRate: `${Math.round(
+          ((group.totalCalledStrike + group.totalWhiff) / numPitches) * 100
+        )}%`,
+        totalPitches: numPitches,
       };
     });
+
+    const groupedByPitcher = processedData.reduce((acc, pitch) => {
+      if (!acc[pitch.pitcherName]) {
+        acc[pitch.pitcherName] = [];
+      }
+      acc[pitch.pitcherName].push(pitch);
+      return acc;
+    }, {});
+
+    return Object.values(groupedByPitcher)
+      .sort((a, b) => {
+        const totalA = a.reduce((sum, p) => sum + p.totalPitches, 0);
+        const totalB = b.reduce((sum, p) => sum + p.totalPitches, 0);
+        return totalB - totalA;
+      })
+      .flat(); // Flatten back to a single array
   };
 
   const processedData = processPitchData(pitchData).filter((data) =>
@@ -411,7 +421,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                       </div>
                     ),
                   },
-                  { Header: "Pitch", accessor: "pitchType" },
+                  { Header: "Pitch", accessor: "pitchTypeLabel" },
                   { Header: "Velo", accessor: "avgStartSpeed" },
                   {
                     Header: (
