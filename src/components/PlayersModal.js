@@ -407,7 +407,6 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         Players
       </Button>
 
-      {/* Modal to display lineup */}
       <Modal
         show={showModal}
         onHide={() => setShowModal(false)}
