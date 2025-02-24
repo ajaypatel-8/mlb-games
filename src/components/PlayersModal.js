@@ -597,7 +597,12 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                 <Dropdown>
                   <Dropdown.Toggle variant="outline-secondary" size="sm">
                     {selectedPitcher ||
-                      (pitchData.length > 0 && pitchData[0].pitcherName) ||
+                      (pitchData.length > 0 &&
+                        pitchData.filter((data) =>
+                          pitchers.some(
+                            (pitcher) => pitcher.person.id === data.pitcherId
+                          )
+                        )[0].pitcherName) ||
                       "Select Pitcher"}
                   </Dropdown.Toggle>
 
