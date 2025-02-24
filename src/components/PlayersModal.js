@@ -320,10 +320,12 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
       {
         Header: "LA",
         accessor: "launchAngle",
+        Cell: ({ value }) => `${value}°`,
       },
       {
         Header: "Hit Dist.",
         accessor: "hitDistance",
+        Cell: ({ value }) => (value !== undefined ? `${value} ft.` : ""),
       },
     ],
     []
@@ -338,7 +340,14 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+                <th
+                  {...column.getHeaderProps()}
+                  style={{
+                    textAlign: column.id === "playerName" ? "left" : "center", // Left-align "Batter" header, center the others
+                  }}
+                >
+                  {column.render("Header")}
+                </th>
               ))}
             </tr>
           ))}
@@ -349,26 +358,26 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
             return (
               <tr {...row.getRowProps()}>
                 {row.cells.map((cell) => {
-                  if (cell.column.id === "launchSpeed") {
-                    const exitVelo = cell.value;
-                    return (
-                      <td {...cell.getCellProps()}>
-                        {exitVelo} {exitVelo >= 95 ? "🔥" : ""}
-                      </td>
-                    );
-                  }
-
-                  if (cell.column.id === "event") {
-                    const result = cell.value;
-                    return (
-                      <td {...cell.getCellProps()}>
-                        {result} {result === "Home Run" ? "🚀" : ""}
-                      </td>
-                    );
-                  }
-
+                  const isBatter = cell.column.id === "playerName"; // Check if the cell is for "Batter"
                   return (
-                    <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+                    <td
+                      {...cell.getCellProps()}
+                      style={{
+                        textAlign: isBatter ? "left" : "center", // Left-align Batter, center the others
+                      }}
+                    >
+                      {cell.column.id === "launchSpeed" ? (
+                        <>
+                          {cell.value} {cell.value >= 95 ? "🔥" : ""}
+                        </>
+                      ) : cell.column.id === "event" ? (
+                        <>
+                          {cell.value} {cell.value === "Home Run" ? "🚀" : ""}
+                        </>
+                      ) : (
+                        cell.render("Cell")
+                      )}
+                    </td>
                   );
                 })}
               </tr>
@@ -552,7 +561,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                     Header: "Pitcher",
                     accessor: "pitcherName",
                     Cell: ({ row }) => (
-                      <div>
+                      <div style={{ display: "flex", alignItems: "center" }}>
                         <a
                           href={getPlayerSavantLink(row.original.pitcherId)}
                           target="_blank"
@@ -569,31 +578,52 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                             }}
                           />
                         </a>
-                        <span>{row.original.pitcherName}</span>{" "}
+                        <span>{row.original.pitcherName}</span>
                       </div>
                     ),
                   },
-                  { Header: "Pitch", accessor: "pitchTypeLabel" },
-                  { Header: "Velo", accessor: "avgStartSpeed" },
+                  {
+                    Header: <div style={{ textAlign: "center" }}>Pitch</div>,
+                    accessor: "pitchTypeLabel",
+                    Cell: ({ value }) => (
+                      <div style={{ textAlign: "center" }}>{value}</div>
+                    ),
+                  },
+                  {
+                    Header: <div style={{ textAlign: "center" }}>Velo</div>,
+                    accessor: "avgStartSpeed",
+                    Cell: ({ value }) => (
+                      <div style={{ textAlign: "center" }}>{value}</div>
+                    ),
+                  },
                   {
                     Header: (
-                      <div>
+                      <div style={{ textAlign: "center" }}>
                         IVB <FaArrowsAltV />
                       </div>
                     ),
                     accessor: "avgVerticalBreak",
+                    Cell: ({ value }) => (
+                      <div style={{ textAlign: "center" }}>{value}"</div>
+                    ),
                   },
                   {
                     Header: (
-                      <div>
+                      <div style={{ textAlign: "center" }}>
                         Horz. Break <FaArrowsAltH />
                       </div>
                     ),
                     accessor: "avgHorizontalBreak",
+                    Cell: ({ value }) => (
+                      <div style={{ textAlign: "center" }}>{value}"</div>
+                    ),
                   },
                   {
-                    Header: "CSW%",
+                    Header: <div style={{ textAlign: "center" }}>CSW%</div>,
                     accessor: "calledStrikeWhiffRate",
+                    Cell: ({ value }) => (
+                      <div style={{ textAlign: "center" }}>{value}</div>
+                    ),
                   },
                 ]}
                 data={filteredPitchers}
