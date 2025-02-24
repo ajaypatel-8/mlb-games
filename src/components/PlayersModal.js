@@ -53,20 +53,23 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
   useEffect(() => {
     if (
       currentView === "pitchPlot" &&
-      pitchData.filter((data) =>
+      pitchData.some((data) =>
         pitchers.some((pitcher) => pitcher.person.id === data.pitcherId)
-      ).length > 0
+      )
     ) {
+      d3.select("#pitch-plot-container").selectAll("*").remove();
+
       const pitcherName =
-        selectedPitcher ||
-        pitchData.filter((data) =>
+        selectedPitcher ??
+        pitchData.find((data) =>
           pitchers.some((pitcher) => pitcher.person.id === data.pitcherId)
-        )[0].pitcherName;
+        )?.pitcherName;
+
+      if (!pitcherName) return;
+
       const pitcherData = pitchData.filter(
         (pitch) => pitch.pitcherName === pitcherName
       );
-
-      d3.select("#pitch-plot-container").html("");
 
       const margin = { top: 20, right: 60, bottom: 60, left: 60 };
       const width = 500 - margin.left - margin.right;
@@ -192,7 +195,8 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         .style("font-weight", "bold")
         .text("<- L Arm Side");
     }
-  }, [currentView, pitchData, pitchers, selectedPitcher]);
+    // eslint-disable-next-line
+  }, [pitchData, selectedPitcher]);
 
   const teamMap = useMemo(() => {
     return mlbTeams.reduce((acc, team) => {
@@ -343,7 +347,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                 <th
                   {...column.getHeaderProps()}
                   style={{
-                    textAlign: column.id === "playerName" ? "left" : "center", // Left-align "Batter" header, center the others
+                    textAlign: column.id === "playerName" ? "left" : "center",
                   }}
                 >
                   {column.render("Header")}
@@ -635,17 +639,11 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                 <h5 style={{ marginRight: "10px" }}>Movement Plot</h5>
                 <Dropdown>
                   <Dropdown.Toggle variant="outline-secondary" size="sm">
-                    {selectedPitcher ||
-                      (pitchData.length > 0 &&
-                        pitchData.filter((data) =>
-                          pitchers.some(
-                            (pitcher) => pitcher.person.id === data.pitcherId
-                          )
-                        )[0].pitcherName) ||
-                      "Select Pitcher"}
+                    {selectedPitcher || "Choose A Pitcher"}
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
+                    <Dropdown.Item disabled>Choose A Pitcher</Dropdown.Item>
                     {pitchData
                       .filter((data) =>
                         pitchers.some(
