@@ -17,6 +17,22 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPitcher, setSelectedPitcher] = useState(null);
 
+  const sortedPlayers = Array.isArray(players)
+    ? players
+        .map((player) => ({
+          ...player,
+          battingOrder: parseInt(player.battingOrder, 10),
+        }))
+        .sort((a, b) => a.battingOrder - b.battingOrder)
+    : [];
+
+  const hitters = sortedPlayers.filter(
+    (player) => player.position.type !== "Pitcher"
+  );
+  const pitchers = sortedPlayers.filter(
+    (player) => player.position.type === "Pitcher"
+  );
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -35,8 +51,17 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     fetchData();
   }, [gamePk]);
   useEffect(() => {
-    if (currentView === "pitchPlot" && pitchData.length > 0) {
-      const pitcherName = selectedPitcher || pitchData[0].pitcherName;
+    if (
+      currentView === "pitchPlot" &&
+      pitchData.filter((data) =>
+        pitchers.some((pitcher) => pitcher.person.id === data.pitcherId)
+      ).length > 0
+    ) {
+      const pitcherName =
+        selectedPitcher ||
+        pitchData.filter((data) =>
+          pitchers.some((pitcher) => pitcher.person.id === data.pitcherId)
+        )[0].pitcherName;
       const pitcherData = pitchData.filter(
         (pitch) => pitch.pitcherName === pitcherName
       );
@@ -167,7 +192,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         .style("font-weight", "bold")
         .text("<- L Arm Side");
     }
-  }, [currentView, pitchData, selectedPitcher]);
+  }, [currentView, pitchData, pitchers, selectedPitcher]);
 
   const teamMap = useMemo(() => {
     return mlbTeams.reduce((acc, team) => {
@@ -190,22 +215,6 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const getPlayerHeadshot = (playerId) => {
     return `https://img.mlbstatic.com/mlb-photos/image/upload/w_180,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${playerId}/headshot/silo/current`;
   };
-
-  const sortedPlayers = Array.isArray(players)
-    ? players
-        .map((player) => ({
-          ...player,
-          battingOrder: parseInt(player.battingOrder, 10),
-        }))
-        .sort((a, b) => a.battingOrder - b.battingOrder)
-    : [];
-
-  const hitters = sortedPlayers.filter(
-    (player) => player.position.type !== "Pitcher"
-  );
-  const pitchers = sortedPlayers.filter(
-    (player) => player.position.type === "Pitcher"
-  );
 
   const sortedPitchers = pitchers.sort((a, b) => {
     const ipA = a.stats.pitching?.inningsPitched || 0;
@@ -593,7 +602,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
           ) : currentView === "pitchPlot" ? (
             <>
               <div style={{ display: "flex", alignItems: "center" }}>
-                <h5 style={{ marginRight: "10px" }}>Pitch Plot</h5>
+                <h5 style={{ marginRight: "10px" }}>Movement Plot</h5>
                 <Dropdown>
                   <Dropdown.Toggle variant="outline-secondary" size="sm">
                     {selectedPitcher ||
