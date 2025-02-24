@@ -314,6 +314,22 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   <i className="bi bi-clock" style={{ fontSize: "1rem" }}></i>
                 </span>
               )}
+              {isCancelled && (
+                <span style={{ color: "red", marginRight: "0px" }}>
+                  <i
+                    className="bi bi-x-circle"
+                    style={{ fontSize: "1rem" }}
+                  ></i>
+                </span>
+              )}
+              {isPostponed && (
+                <span style={{ color: "orange", marginRight: "0px" }}>
+                  <i
+                    className="bi bi-pause-circle"
+                    style={{ fontSize: "1rem" }}
+                  ></i>
+                </span>
+              )}
             </div>
 
             <div style={{ marginLeft: "5px" }}>
@@ -613,7 +629,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 </thead>
                 <tbody>{renderEmptyBoxScore()}</tbody>
               </Table>
-              {gamePk && (
+              {gamePk && !isCancelled && !isPostponed && (
                 <div
                   className="text-center mb-3 mx-3"
                   style={{ fontSize: "1rem" }}
@@ -629,29 +645,31 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 </div>
               )}
 
-              <div className="d-flex justify-content-between w-100">
-                <div className="lineup-modal-container">
-                  <LineupModal
-                    team={away.team}
-                    players={sortedAwayLineup || []}
-                    toggleLineup={toggleAwayLineup}
-                    showLineup={showAwayLineup}
-                    gameDate={gameDate}
-                    gamePk={gamePk}
-                  />
-                </div>
+              {gamePk && !isCancelled && !isPostponed && (
+                <div className="d-flex justify-content-between w-100">
+                  <div className="lineup-modal-container">
+                    <LineupModal
+                      team={away.team}
+                      players={sortedAwayLineup || []}
+                      toggleLineup={toggleAwayLineup}
+                      showLineup={showAwayLineup}
+                      gameDate={gameDate}
+                      gamePk={gamePk}
+                    />
+                  </div>
 
-                <div className="lineup-modal-container">
-                  <LineupModal
-                    team={home.team}
-                    players={sortedHomeLineup || []}
-                    toggleLineup={toggleHomeLineup}
-                    showLineup={showHomeLineup}
-                    gameDate={gameDate}
-                    gamePk={gamePk}
-                  />
+                  <div className="lineup-modal-container">
+                    <LineupModal
+                      team={home.team}
+                      players={sortedHomeLineup || []}
+                      toggleLineup={toggleHomeLineup}
+                      showLineup={showHomeLineup}
+                      gameDate={gameDate}
+                      gamePk={gamePk}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </>
           )}
 
