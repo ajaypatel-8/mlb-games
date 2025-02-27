@@ -8,6 +8,7 @@ import { useTable } from "react-table";
 import { Dropdown } from "react-bootstrap";
 import { FaArrowsAltV, FaArrowsAltH } from "react-icons/fa";
 import * as d3 from "d3";
+import "../index.css";
 
 const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const [showModal, setShowModal] = useState(false);
@@ -166,28 +167,28 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         .style("stroke", "black")
         .style("stroke-width", 0.5);
 
-      const legend = d3
-        .select("#pitch-plot-container")
-        .append("svg")
-        .attr("width", 150)
-        .attr("height", pitchTypes.length * 20 + 20);
-
-      const legendGroup = legend.append("g");
+      const legendGroup = svg
+        .append("g")
+        .attr("transform", `translate(${width - 20}, 10)`);
 
       pitchTypes.forEach((pitchType, i) => {
         const legendItem = legendGroup
           .append("g")
-          .attr("transform", `translate(0,${i * 20})`);
+          .attr("transform", `translate(0, ${i * 20})`);
+
         legendItem
           .append("rect")
           .attr("width", 15)
           .attr("height", 15)
-          .style("fill", colorScale(pitchType));
+          .style("fill", colorScale(pitchType))
+          .style("stroke", "black");
+
         legendItem
           .append("text")
           .attr("x", 20)
           .attr("y", 12)
           .style("font-size", "12px")
+          .style("alignment-baseline", "middle")
           .text(pitchType);
       });
 
