@@ -130,6 +130,21 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         .attr("stroke", "#bbb")
         .attr("stroke-dasharray", "5,5");
 
+      const circleRadii = [1, 2, 3];
+      const pixelPerInch = 52;
+
+      circleRadii.forEach((r) => {
+        svg
+          .append("circle")
+          .attr("cx", x(0))
+          .attr("cy", y(0))
+          .attr("r", r * pixelPerInch)
+          .attr("fill", "none")
+          .attr("stroke", "#bbb")
+          .attr("stroke-width", 1)
+          .attr("stroke-dasharray", "4,4");
+      });
+
       const pitchTypes = Array.from(
         new Set(pitcherData.map((d) => d.pitchType))
       );
@@ -155,8 +170,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         .select("#pitch-plot-container")
         .append("svg")
         .attr("width", 150)
-        .attr("height", pitchTypes.length * 20 + 20)
-        .attr("transform", `translate(${width + margin.left + 20},0)`);
+        .attr("height", pitchTypes.length * 20 + 20);
 
       const legendGroup = legend.append("g");
 
