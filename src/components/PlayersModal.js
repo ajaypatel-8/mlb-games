@@ -182,7 +182,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         .on("mouseover", function (event, d) {
           d3.select(this).style("stroke-width", 2).style("stroke", "black");
           tooltip.style("display", "block").html(
-            `<strong>${d.pitchType}</strong><br>
+            `Pitch Type: <strong>${d.pitchType}</strong><br>
               Outcome: ${d.description}<br>
               Velo: ${d.startSpeed.toFixed(1)}<br>
               Horz Break: ${d.horizontalBreak.toFixed(1)}"<br>
