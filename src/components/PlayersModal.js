@@ -282,10 +282,12 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         pitcherId,
         pitchType,
         startSpeed,
+        extension,
         inducedVerticalBreak,
         horizontalBreak,
         isCalledStrike,
         isWhiff,
+        launchSpeed,
       } = pitch;
 
       const groupKey = `${pitcherName}-${pitchType}`;
@@ -296,21 +298,29 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
           pitcherId,
           pitchType,
           totalPitches: 0,
+          totalBBE: 0,
           totalStartSpeed: 0,
+          totalExtension: 0,
           totalVerticalBreak: 0,
           totalHorizontalBreak: 0,
           totalCalledStrike: 0,
           totalWhiff: 0,
+          totalLaunchSpeed: 0,
         };
       }
 
       const group = groupedData[groupKey];
       group.totalPitches++;
       group.totalStartSpeed += startSpeed;
+      group.totalExtension += extension;
       group.totalVerticalBreak += inducedVerticalBreak;
       group.totalHorizontalBreak += horizontalBreak;
       group.totalCalledStrike += isCalledStrike ? 1 : 0;
       group.totalWhiff += isWhiff ? 1 : 0;
+      if (launchSpeed != null) {
+        group.totalBBE++;
+        group.totalLaunchSpeed += launchSpeed;
+      }
     });
 
     const processedData = Object.values(groupedData).map((group) => {
@@ -321,6 +331,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         pitchType: group.pitchType,
         pitchTypeLabel: `${group.pitchType} (${numPitches})`,
         avgStartSpeed: (group.totalStartSpeed / numPitches).toFixed(1),
+        avgExtension: (group.totalExtension / numPitches).toFixed(1),
         avgVerticalBreak: (group.totalVerticalBreak / numPitches).toFixed(1),
         avgHorizontalBreak: (group.totalHorizontalBreak / numPitches).toFixed(
           1
@@ -328,6 +339,10 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         calledStrikeWhiffRate: `${Math.round(
           ((group.totalCalledStrike + group.totalWhiff) / numPitches) * 100
         )}%`,
+        averageEV:
+          group.totalBBE > 0
+            ? (group.totalLaunchSpeed / group.totalBBE).toFixed(1)
+            : "---",
         totalPitches: numPitches,
       };
     });
@@ -649,6 +664,13 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                     ),
                   },
                   {
+                    Header: <div style={{ textAlign: "center" }}>Ext.</div>,
+                    accessor: "avgExtension",
+                    Cell: ({ value }) => (
+                      <div style={{ textAlign: "center" }}>{value}</div>
+                    ),
+                  },
+                  {
                     Header: (
                       <div style={{ textAlign: "center" }}>
                         IVB <FaArrowsAltV />
@@ -673,6 +695,13 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                   {
                     Header: <div style={{ textAlign: "center" }}>CSW%</div>,
                     accessor: "calledStrikeWhiffRate",
+                    Cell: ({ value }) => (
+                      <div style={{ textAlign: "center" }}>{value}</div>
+                    ),
+                  },
+                  {
+                    Header: <div style={{ textAlign: "center" }}>Avg. EV</div>,
+                    accessor: "averageEV",
                     Cell: ({ value }) => (
                       <div style={{ textAlign: "center" }}>{value}</div>
                     ),

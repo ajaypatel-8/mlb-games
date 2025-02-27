@@ -96,6 +96,7 @@ export const mlbService = {
             const batterHand = play.matchup.batSide.description;
             const pitchType = event.details.type.code;
             const startSpeed = event.pitchData?.startSpeed;
+            const extension = event.pitchData?.extension;
             const inducedVerticalBreak =
               event.pitchData?.breaks?.breakVerticalInduced;
             const horizontalBreak = event.pitchData?.breaks?.breakHorizontal;
@@ -106,16 +107,20 @@ export const mlbService = {
               description === "Swinging Strike (Blocked)";
             const isCalledStrike = description === "Called Strike";
 
+            const launchSpeed = event.hitData?.launchSpeed;
+
             pitchData.push({
               pitcherId: pitcher.id,
               pitcherName: pitcher.fullName,
               batterHand,
               pitchType,
               startSpeed,
+              extension,
               inducedVerticalBreak,
               horizontalBreak,
               isCalledStrike,
               isWhiff,
+              launchSpeed,
               description,
             });
           }
