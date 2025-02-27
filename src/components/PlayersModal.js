@@ -154,6 +154,19 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         .domain(pitchTypes)
         .range(d3.schemeCategory10);
 
+      const tooltip = d3
+        .select("body")
+        .append("div")
+        .style("position", "absolute")
+        .style("background", "white")
+        .style("border", "1px solid black")
+        .style("padding", "5px")
+        .style("border-radius", "5px")
+        .style("font-size", "12px")
+        .style("pointer-events", "none")
+        .style("display", "none")
+        .style("z-index", "100001");
+
       svg
         .append("g")
         .selectAll("circle")
@@ -165,7 +178,27 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         .style("fill", (d) => colorScale(d.pitchType))
         .style("opacity", 0.8)
         .style("stroke", "black")
-        .style("stroke-width", 0.5);
+        .style("stroke-width", 0.5)
+        .on("mouseover", function (event, d) {
+          d3.select(this).style("stroke-width", 2).style("stroke", "black");
+          tooltip.style("display", "block").html(
+            `<strong>${d.pitchType}</strong><br>
+              Outcome: ${d.description}<br>
+              Velo: ${d.startSpeed.toFixed(1)}<br>
+              Horz Break: ${d.horizontalBreak.toFixed(1)}"<br>
+              IVB: ${d.inducedVerticalBreak.toFixed(1)}"`
+          );
+        })
+        .on("mousemove", (event) => {
+          tooltip
+            .style("left", event.pageX + 10 + "px")
+            .style("top", event.pageY - 20 + "px");
+        })
+        .on("mouseout", function () {
+          d3.select(this).style("stroke-width", 0.5).style("stroke", "black");
+
+          tooltip.style("display", "none");
+        });
 
       const legendGroup = svg
         .append("g")

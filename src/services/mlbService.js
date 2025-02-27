@@ -116,6 +116,7 @@ export const mlbService = {
               horizontalBreak,
               isCalledStrike,
               isWhiff,
+              description,
             });
           }
         });
