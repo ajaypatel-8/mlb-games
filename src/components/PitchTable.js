@@ -22,7 +22,7 @@ const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
         />
       </Form.Group>
 
-      <Table striped bordered hover responsive>
+      <Table striped bordered responsive>
         <thead>
           <tr>
             <th>Pitcher</th>

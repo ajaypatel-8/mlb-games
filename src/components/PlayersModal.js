@@ -217,7 +217,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     return (
       <table
         {...getTableProps()}
-        className="table table-bordered table-striped table-hover table-responsive"
+        className="table table-bordered table-striped table-responsive"
       >
         <thead>
           {headerGroups.map((headerGroup) => (
