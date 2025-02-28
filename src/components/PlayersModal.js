@@ -619,7 +619,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
             </>
           ) : currentView === "pitchByPitch" ? (
             <div className="container mt-4">
-              <h2>Pitch By Pitch Data</h2>
+              <h5>Pitch By Pitch Data</h5>
               <PitchTable
                 pitches={pitchData}
                 getPlayerHeadshot={getPlayerHeadshot}
