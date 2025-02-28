@@ -206,6 +206,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     ],
     []
   );
+
   const Table = ({ columns, data }) => {
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
       useTable({ columns, data });
@@ -279,6 +280,15 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
       ),
     [processedData, searchTerm]
   );
+
+  const filteredPitchersPlots = pitchData
+    .filter((data) =>
+      pitchers.some((pitcher) => pitcher.person.id === data.pitcherId)
+    )
+    .filter(
+      (value, index, self) =>
+        self.findIndex((v) => v.pitcherName === value.pitcherName) === index
+    );
 
   const MemoizedTable = React.memo(Table);
 
@@ -540,40 +550,15 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
 
                   <Dropdown.Menu>
                     <Dropdown.Item disabled>Choose A Pitcher</Dropdown.Item>
-                    {pitchData
-                      .filter((data) =>
-                        pitchers.some(
-                          (pitcher) => pitcher.person.id === data.pitcherId
-                        )
-                      )
-                      .filter(
-                        (value, index, self) =>
-                          self.findIndex(
-                            (v) => v.pitcherName === value.pitcherName
-                          ) === index
-                      ).length > 0 ? (
-                      pitchData
-                        .filter((data) =>
-                          pitchers.some(
-                            (pitcher) => pitcher.person.id === data.pitcherId
-                          )
-                        )
-                        .filter(
-                          (value, index, self) =>
-                            self.findIndex(
-                              (v) => v.pitcherName === value.pitcherName
-                            ) === index
-                        )
-                        .map((pitch, index) => (
-                          <Dropdown.Item
-                            key={index}
-                            onClick={() =>
-                              setSelectedPitcher(pitch.pitcherName)
-                            }
-                          >
-                            {pitch.pitcherName}
-                          </Dropdown.Item>
-                        ))
+                    {filteredPitchersPlots.length > 0 ? (
+                      filteredPitchersPlots.map((pitch, index) => (
+                        <Dropdown.Item
+                          key={index}
+                          onClick={() => setSelectedPitcher(pitch.pitcherName)}
+                        >
+                          {pitch.pitcherName}
+                        </Dropdown.Item>
+                      ))
                     ) : (
                       <Dropdown.Item disabled>No Statcast Data</Dropdown.Item>
                     )}
@@ -597,40 +582,15 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
 
                   <Dropdown.Menu>
                     <Dropdown.Item disabled>Choose A Pitcher</Dropdown.Item>
-                    {pitchData
-                      .filter((data) =>
-                        pitchers.some(
-                          (pitcher) => pitcher.person.id === data.pitcherId
-                        )
-                      )
-                      .filter(
-                        (value, index, self) =>
-                          self.findIndex(
-                            (v) => v.pitcherName === value.pitcherName
-                          ) === index
-                      ).length > 0 ? (
-                      pitchData
-                        .filter((data) =>
-                          pitchers.some(
-                            (pitcher) => pitcher.person.id === data.pitcherId
-                          )
-                        )
-                        .filter(
-                          (value, index, self) =>
-                            self.findIndex(
-                              (v) => v.pitcherName === value.pitcherName
-                            ) === index
-                        )
-                        .map((pitch, index) => (
-                          <Dropdown.Item
-                            key={index}
-                            onClick={() =>
-                              setSelectedPitcher(pitch.pitcherName)
-                            }
-                          >
-                            {pitch.pitcherName}
-                          </Dropdown.Item>
-                        ))
+                    {filteredPitchersPlots.length > 0 ? (
+                      filteredPitchersPlots.map((pitch, index) => (
+                        <Dropdown.Item
+                          key={index}
+                          onClick={() => setSelectedPitcher(pitch.pitcherName)}
+                        >
+                          {pitch.pitcherName}
+                        </Dropdown.Item>
+                      ))
                     ) : (
                       <Dropdown.Item disabled>No Statcast Data</Dropdown.Item>
                     )}
