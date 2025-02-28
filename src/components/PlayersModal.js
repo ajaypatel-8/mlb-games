@@ -9,6 +9,7 @@ import { Dropdown } from "react-bootstrap";
 import { FaArrowsAltV, FaArrowsAltH } from "react-icons/fa";
 import "../index.css";
 import MovementPlot from "./MovementPlot";
+import LocationPlot from "./LocationPlot";
 
 const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const [showModal, setShowModal] = useState(false);
@@ -51,6 +52,8 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
 
     fetchData();
   }, [gamePk]);
+
+  console.log(pitchData);
 
   const teamMap = useMemo(() => {
     return mlbTeams.reduce((acc, team) => {
@@ -327,7 +330,11 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                     ? "Exit Velocities"
                     : currentView === "pitchData"
                     ? "Pitch Data"
-                    : "Pitch Plots"}{" "}
+                    : currentView === "movementPlot"
+                    ? "Movement Plots"
+                    : currentView === "locationPlot"
+                    ? "Location Plots"
+                    : ""}{" "}
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
@@ -350,10 +357,16 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                     Pitch Data
                   </Dropdown.Item>
                   <Dropdown.Item
-                    onClick={() => setCurrentView("pitchPlot")}
-                    active={currentView === "pitchPlot"}
+                    onClick={() => setCurrentView("movementPlot")}
+                    active={currentView === "movementPlot"}
                   >
-                    Pitch Plots
+                    Movement Plots
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => setCurrentView("locationPlot")}
+                    active={currentView === "locationPlot"}
+                  >
+                    Location Plots
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
@@ -516,7 +529,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                 data={filteredPitchers}
               />
             </div>
-          ) : currentView === "pitchPlot" ? (
+          ) : currentView === "movementPlot" ? (
             <>
               <div style={{ display: "flex", alignItems: "center" }}>
                 <h5 style={{ marginRight: "10px" }}>Movement Plot</h5>
@@ -570,7 +583,63 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
               <MovementPlot
                 pitchData={pitchData}
                 selectedPitcher={selectedPitcher}
-                setSelectedPitcher={setSelectedPitcher}
+                pitchers={pitchers}
+              />
+            </>
+          ) : currentView === "locationPlot" ? (
+            <>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <h5 style={{ marginRight: "10px" }}>Location Plot</h5>
+                <Dropdown>
+                  <Dropdown.Toggle variant="outline-secondary" size="sm">
+                    {selectedPitcher || "Choose A Pitcher"}
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    <Dropdown.Item disabled>Choose A Pitcher</Dropdown.Item>
+                    {pitchData
+                      .filter((data) =>
+                        pitchers.some(
+                          (pitcher) => pitcher.person.id === data.pitcherId
+                        )
+                      )
+                      .filter(
+                        (value, index, self) =>
+                          self.findIndex(
+                            (v) => v.pitcherName === value.pitcherName
+                          ) === index
+                      ).length > 0 ? (
+                      pitchData
+                        .filter((data) =>
+                          pitchers.some(
+                            (pitcher) => pitcher.person.id === data.pitcherId
+                          )
+                        )
+                        .filter(
+                          (value, index, self) =>
+                            self.findIndex(
+                              (v) => v.pitcherName === value.pitcherName
+                            ) === index
+                        )
+                        .map((pitch, index) => (
+                          <Dropdown.Item
+                            key={index}
+                            onClick={() =>
+                              setSelectedPitcher(pitch.pitcherName)
+                            }
+                          >
+                            {pitch.pitcherName}
+                          </Dropdown.Item>
+                        ))
+                    ) : (
+                      <Dropdown.Item disabled>No Statcast Data</Dropdown.Item>
+                    )}
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+              <LocationPlot
+                pitchData={pitchData}
+                selectedPitcher={selectedPitcher}
                 pitchers={pitchers}
               />
             </>

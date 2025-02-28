@@ -1,12 +1,7 @@
 import React, { useEffect } from "react";
 import * as d3 from "d3";
 
-const MovementPlot = ({
-  pitchData,
-  selectedPitcher,
-  setSelectedPitcher,
-  pitchers,
-}) => {
+const MovementPlot = ({ pitchData, selectedPitcher, pitchers }) => {
   useEffect(() => {
     if (
       selectedPitcher &&
@@ -14,7 +9,7 @@ const MovementPlot = ({
         pitchers.some((pitcher) => pitcher.person.id === data.pitcherId)
       )
     ) {
-      d3.select("#pitch-plot-container").selectAll("*").remove();
+      d3.select("#movement-plot-container").selectAll("*").remove();
 
       const pitcherName =
         selectedPitcher ??
@@ -33,7 +28,7 @@ const MovementPlot = ({
       const height = 400 - margin.top - margin.bottom;
 
       const svg = d3
-        .select("#pitch-plot-container")
+        .select("#movement-plot-container")
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -192,7 +187,7 @@ const MovementPlot = ({
 
       svg
         .append("text")
-        .attr("x", 20)
+        .attr("x", 8)
         .attr("y", height + 45)
         .style("font-size", "12px")
         .style("text-anchor", "end")
@@ -204,7 +199,7 @@ const MovementPlot = ({
 
   return (
     <div
-      id="pitch-plot-container"
+      id="movement-plot-container"
       style={{ width: "100%", height: "400px", marginTop: "20px" }}
     ></div>
   );

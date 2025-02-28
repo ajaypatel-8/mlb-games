@@ -94,12 +94,15 @@ export const mlbService = {
           if (event.details?.type?.description) {
             const pitcher = play.matchup.pitcher;
             const batterHand = play.matchup.batSide.description;
+            const batter = play.matchup.batter;
             const pitchType = event.details.type.code;
             const startSpeed = event.pitchData?.startSpeed;
             const extension = event.pitchData?.extension;
             const inducedVerticalBreak =
               event.pitchData?.breaks?.breakVerticalInduced;
             const horizontalBreak = event.pitchData?.breaks?.breakHorizontal;
+            const plateX = event.pitchData?.coordinates?.pX;
+            const plateZ = event.pitchData?.coordinates?.pZ;
             const description = event.details.description;
 
             const isWhiff =
@@ -112,12 +115,16 @@ export const mlbService = {
             pitchData.push({
               pitcherId: pitcher.id,
               pitcherName: pitcher.fullName,
+              batterId: batter.id,
+              batterName: batter.fullName,
               batterHand,
               pitchType,
               startSpeed,
               extension,
               inducedVerticalBreak,
               horizontalBreak,
+              plateX,
+              plateZ,
               isCalledStrike,
               isWhiff,
               launchSpeed,
