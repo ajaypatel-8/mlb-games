@@ -92,9 +92,12 @@ export const mlbService = {
       plays.forEach((play) => {
         play.playEvents.forEach((event) => {
           if (event.details?.type?.description) {
+            const playId = event.playId;
+            const inning = play.about.inning;
             const pitcher = play.matchup.pitcher;
             const batterHand = play.matchup.batSide.description;
             const batter = play.matchup.batter;
+            const paPitchNumber = event.pitchNumber;
             const pitchType = event.details.type.code;
             const startSpeed = event.pitchData?.startSpeed;
             const extension = event.pitchData?.extension;
@@ -113,11 +116,14 @@ export const mlbService = {
             const launchSpeed = event.hitData?.launchSpeed;
 
             pitchData.push({
+              playId: playId,
+              inning,
               pitcherId: pitcher.id,
               pitcherName: pitcher.fullName,
               batterId: batter.id,
               batterName: batter.fullName,
               batterHand,
+              paPitchNumber,
               pitchType,
               startSpeed,
               extension,

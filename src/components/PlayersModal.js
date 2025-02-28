@@ -10,6 +10,7 @@ import { FaArrowsAltV, FaArrowsAltH } from "react-icons/fa";
 import "../index.css";
 import MovementPlot from "./MovementPlot";
 import LocationPlot from "./LocationPlot";
+import PitchTable from "./PitchTable";
 
 const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const [showModal, setShowModal] = useState(false);
@@ -18,6 +19,8 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const [pitchData, setPitchData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPitcher, setSelectedPitcher] = useState(null);
+
+  console.log(pitchData);
 
   const sortedPlayers = Array.isArray(players)
     ? players
@@ -212,7 +215,10 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
       useTable({ columns, data });
 
     return (
-      <table {...getTableProps()} className="table table-bordered">
+      <table
+        {...getTableProps()}
+        className="table table-bordered table-striped table-hover table-responsive"
+      >
         <thead>
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
@@ -235,12 +241,12 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
             return (
               <tr {...row.getRowProps()}>
                 {row.cells.map((cell) => {
-                  const isBatter = cell.column.id === "playerName"; // Check if the cell is for "Batter"
+                  const isBatter = cell.column.id === "playerName";
                   return (
                     <td
                       {...cell.getCellProps()}
                       style={{
-                        textAlign: isBatter ? "left" : "center", // Left-align Batter, center the others
+                        textAlign: isBatter ? "left" : "center",
                       }}
                     >
                       {cell.column.id === "launchSpeed" ? (
@@ -344,6 +350,8 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                     ? "Movement Plots"
                     : currentView === "locationPlot"
                     ? "Location Plots"
+                    : currentView === "pitchByPitch"
+                    ? "Pitch By Pitch"
                     : ""}{" "}
                 </Dropdown.Toggle>
 
@@ -377,6 +385,12 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                     active={currentView === "locationPlot"}
                   >
                     Location Plots
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => setCurrentView("pitchByPitch")}
+                    active={currentView === "pitchByPitch"}
+                  >
+                    Pitch By Pitch
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
@@ -603,6 +617,15 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                 pitchers={pitchers}
               />
             </>
+          ) : currentView === "pitchByPitch" ? (
+            <div className="container mt-4">
+              <h2>Pitch Data</h2>
+              <PitchTable
+                pitches={pitchData}
+                getPlayerHeadshot={getPlayerHeadshot}
+                getPlayerSavantLink={getPlayerSavantLink}
+              />
+            </div>
           ) : (
             <div className="row">
               {hitters.length > 0 && (
