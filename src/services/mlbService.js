@@ -32,6 +32,9 @@ export const mlbService = {
 
   getGameContent: (gamePk) => fetchData(`${BASE_URL}/game/${gamePk}/content`),
 
+  getTeams: (gamePk) =>
+    fetchLiveData(gamePk).then((data) => data.gameData.teams),
+
   getLinescore: (gamePk) =>
     fetchLiveData(gamePk).then((data) => data.liveData.linescore.innings),
 
@@ -52,6 +55,12 @@ export const mlbService = {
 
   getTopPerformers: (gamePk) =>
     fetchLiveData(gamePk).then((data) => data.liveData.boxscore.topPerformers),
+
+  getChallenges: (gamePk) =>
+    fetchLiveData(gamePk).then((data) => ({
+      review: data.gameData.reviews,
+      absChallenges: data.gameData.absChallenges,
+    })),
 
   getHitData: async (gamePk) => {
     try {

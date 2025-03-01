@@ -12,12 +12,14 @@ import MovementPlot from "./MovementPlot";
 import LocationPlot from "./LocationPlot";
 import RollingPlot from "./RollingPlot";
 import PitchTable from "./PitchTable";
+import ChallengeTable from "./ChallengeTable";
 
 const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const [showModal, setShowModal] = useState(false);
   const [currentView, setCurrentView] = useState("players");
   const [hitData, setHitData] = useState([]);
   const [pitchData, setPitchData] = useState([]);
+  const [challengeData, setChallengeData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPitcher, setSelectedPitcher] = useState(null);
 
@@ -28,11 +30,9 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     movementPlot: "Movement Plots",
     locationPlot: "Location Plots",
     rollingPlots: "Rolling Plots",
-
     pitchByPitch: "Pitch By Pitch",
+    challenges: "Challenge Data",
   };
-
-  console.log(pitchData);
 
   const sortedPlayers = Array.isArray(players)
     ? players
@@ -53,13 +53,16 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [hitDataResponse, pitchDataResponse] = await Promise.all([
-          mlbService.getHitData(gamePk),
-          mlbService.getPitchData(gamePk),
-        ]);
+        const [hitDataResponse, pitchDataResponse, challengeDataResponse] =
+          await Promise.all([
+            mlbService.getHitData(gamePk),
+            mlbService.getPitchData(gamePk),
+            mlbService.getChallenges(gamePk),
+          ]);
 
         setHitData(hitDataResponse);
         setPitchData(pitchDataResponse);
+        setChallengeData(challengeDataResponse);
       } catch (error) {
         console.error("Error fetching data", error);
       }
@@ -67,8 +70,6 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
 
     fetchData();
   }, [gamePk]);
-
-  console.log(pitchData);
 
   const teamMap = useMemo(() => {
     return mlbTeams.reduce((acc, team) => {
@@ -660,6 +661,11 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                 pitchers={pitchers}
               />
             </>
+          ) : currentView === "challenges" ? (
+            <div className="container">
+              <h5>Challenge Data</h5>
+              <ChallengeTable challengeData={challengeData} gamePk={gamePk} />
+            </div>
           ) : (
             <div className="row">
               {hitters.length > 0 && (
