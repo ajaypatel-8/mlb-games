@@ -215,7 +215,13 @@ const LocationPlot = ({ pitchData, selectedPitcher, pitchers }) => {
   return (
     <div
       id="location-plot-container"
-      style={{ width: "100%", height: "600px", marginTop: "20px" }}
+      style={{
+        flex: 1,
+        minHeight: "300px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
     ></div>
   );
 };
