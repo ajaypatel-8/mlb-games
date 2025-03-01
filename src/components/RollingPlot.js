@@ -243,18 +243,26 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
           <Dropdown.Item eventKey="relZ">Rel. Z</Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
-
       <div
-        id="rolling-plot-container"
         style={{
           flex: 1,
           minHeight: "300px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          overflowX: "auto",
+          overflow: "auto",
         }}
-      ></div>
+      >
+        <div
+          id="rolling-plot-container"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            overflowX: "auto",
+          }}
+        ></div>{" "}
+      </div>
     </div>
   );
 };

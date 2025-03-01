@@ -199,16 +199,26 @@ const MovementPlot = ({ pitchData, selectedPitcher, pitchers }) => {
 
   return (
     <div
-      id="movement-plot-container"
       style={{
         flex: 1,
         minHeight: "300px",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        overflowX: "auto",
+        overflow: "auto",
       }}
-    ></div>
+    >
+      <div
+        id="movement-plot-container"
+        style={{
+          display: "flex",
+
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+        }}
+      ></div>
+    </div>
   );
 };
 
