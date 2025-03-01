@@ -12,7 +12,7 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
   useEffect(() => {
     if (!selectedPitcher || pitchData.length === 0) return;
 
-    d3.select("#velocity-plot-container").selectAll("*").remove();
+    d3.select("#rolling-plot-container").selectAll("*").remove();
 
     const pitcherData = pitchData.filter(
       (pitch) => pitch.pitcherName === selectedPitcher
@@ -244,7 +244,10 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
         </Dropdown.Menu>
       </Dropdown>
 
-      <div id="velocity-plot-container"></div>
+      <div
+        id="rolling-plot-container"
+        style={{ width: "100%", height: "400px", marginTop: "20px" }}
+      ></div>
     </div>
   );
 };
