@@ -211,8 +211,6 @@ const MovementPlot = ({ pitchData, selectedPitcher, pitchers }) => {
       <div
         id="movement-plot-container"
         style={{
-          display: "flex",
-
           justifyContent: "center",
           alignItems: "center",
           width: "100%",

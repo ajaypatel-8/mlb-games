@@ -256,7 +256,6 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
         <div
           id="rolling-plot-container"
           style={{
-            display: "flex",
             justifyContent: "center",
             alignItems: "center",
             overflowX: "auto",
