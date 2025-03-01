@@ -221,6 +221,7 @@ const LocationPlot = ({ pitchData, selectedPitcher, pitchers }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        overflowX: "auto",
       }}
     ></div>
   );

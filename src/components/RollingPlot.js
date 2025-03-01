@@ -252,6 +252,7 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          overflowX: "auto",
         }}
       ></div>
     </div>
