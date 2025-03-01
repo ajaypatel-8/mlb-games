@@ -10,6 +10,7 @@ import { FaArrowsAltV, FaArrowsAltH } from "react-icons/fa";
 import "../index.css";
 import MovementPlot from "./MovementPlot";
 import LocationPlot from "./LocationPlot";
+import RollingPlot from "./RollingPlot";
 import PitchTable from "./PitchTable";
 
 const LineupModal = ({ team, players, gameDate, gamePk }) => {
@@ -19,6 +20,16 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
   const [pitchData, setPitchData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPitcher, setSelectedPitcher] = useState(null);
+
+  const viewOptions = {
+    players: "Players",
+    exitVelo: "Exit Velocities",
+    pitchData: "Pitch Data",
+    movementPlot: "Movement Plots",
+    locationPlot: "Location Plots",
+    pitchByPitch: "Pitch By Pitch",
+    rollingPlots: "Rolling Plots",
+  };
 
   console.log(pitchData);
 
@@ -137,24 +148,22 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
 
     const processedData = Object.values(groupedData).map((group) => {
       const numPitches = group.totalPitches;
+      const avg = (total, count) =>
+        count ? (total / count).toFixed(1) : "---";
+
       return {
         pitcherName: group.pitcherName,
         pitcherId: group.pitcherId,
         pitchType: group.pitchType,
         pitchTypeLabel: `${group.pitchType} (${numPitches})`,
-        avgStartSpeed: (group.totalStartSpeed / numPitches).toFixed(1),
-        avgExtension: (group.totalExtension / numPitches).toFixed(1),
-        avgVerticalBreak: (group.totalVerticalBreak / numPitches).toFixed(1),
-        avgHorizontalBreak: (group.totalHorizontalBreak / numPitches).toFixed(
-          1
-        ),
+        avgStartSpeed: avg(group.totalStartSpeed, numPitches),
+        avgExtension: avg(group.totalExtension, numPitches),
+        avgVerticalBreak: avg(group.totalVerticalBreak, numPitches),
+        avgHorizontalBreak: avg(group.totalHorizontalBreak, numPitches),
         calledStrikeWhiffRate: `${Math.round(
           ((group.totalCalledStrike + group.totalWhiff) / numPitches) * 100
         )}%`,
-        averageEV:
-          group.totalBBE > 0
-            ? (group.totalLaunchSpeed / group.totalBBE).toFixed(1)
-            : "---",
+        averageEV: avg(group.totalLaunchSpeed, group.totalBBE),
         totalPitches: numPitches,
       };
     });
@@ -168,11 +177,11 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     }, {});
 
     return Object.values(groupedByPitcher)
-      .sort((a, b) => {
-        const totalA = a.reduce((sum, p) => sum + p.totalPitches, 0);
-        const totalB = b.reduce((sum, p) => sum + p.totalPitches, 0);
-        return totalB - totalA;
-      })
+      .sort(
+        (a, b) =>
+          b.reduce((sum, p) => sum + p.totalPitches, 0) -
+          a.reduce((sum, p) => sum + p.totalPitches, 0)
+      )
       .flat();
   };
 
@@ -199,7 +208,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
       {
         Header: "LA",
         accessor: "launchAngle",
-        Cell: ({ value }) => `${value}°`,
+        Cell: ({ value }) => (value !== undefined ? `${value} ft.` : ""),
       },
       {
         Header: "Hit Dist.",
@@ -333,65 +342,26 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                   style={{ width: "30px", height: "30px", marginRight: "10px" }}
                 />
               )}
-              <Modal.Title>{`${team.teamName} Players`}</Modal.Title>
+              <Modal.Title>{`${team.teamName}`}</Modal.Title>
             </div>
 
             <div className="d-flex align-items-center gap-2">
               <Dropdown>
-                <Dropdown.Toggle variant="outline-secondary" size="sm">
+                <Dropdown.Toggle variant="outline-primary" size="sm">
                   <FontAwesomeIcon icon={faChartBar} className="me-1" />
-                  {currentView === "players"
-                    ? "Players"
-                    : currentView === "exitVelo"
-                    ? "Exit Velocities"
-                    : currentView === "pitchData"
-                    ? "Pitch Data"
-                    : currentView === "movementPlot"
-                    ? "Movement Plots"
-                    : currentView === "locationPlot"
-                    ? "Location Plots"
-                    : currentView === "pitchByPitch"
-                    ? "Pitch By Pitch"
-                    : ""}{" "}
+                  {viewOptions[currentView] || ""}
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
-                  <Dropdown.Item
-                    onClick={() => setCurrentView("players")}
-                    active={currentView === "players"}
-                  >
-                    All Players
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={() => setCurrentView("exitVelo")}
-                    active={currentView === "exitVelo"}
-                  >
-                    Exit Velocities
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={() => setCurrentView("pitchData")}
-                    active={currentView === "pitchData"}
-                  >
-                    Pitch Data
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={() => setCurrentView("movementPlot")}
-                    active={currentView === "movementPlot"}
-                  >
-                    Movement Plots
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={() => setCurrentView("locationPlot")}
-                    active={currentView === "locationPlot"}
-                  >
-                    Location Plots
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={() => setCurrentView("pitchByPitch")}
-                    active={currentView === "pitchByPitch"}
-                  >
-                    Pitch By Pitch
-                  </Dropdown.Item>
+                  {Object.entries(viewOptions).map(([key, label]) => (
+                    <Dropdown.Item
+                      key={key}
+                      onClick={() => setCurrentView(key)}
+                      active={currentView === key}
+                    >
+                      {label}
+                    </Dropdown.Item>
+                  ))}
                 </Dropdown.Menu>
               </Dropdown>
 
@@ -618,7 +588,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
               />
             </>
           ) : currentView === "pitchByPitch" ? (
-            <div className="container mt-4">
+            <div className="container">
               <h5>Pitch By Pitch Data</h5>
               <PitchTable
                 pitches={pitchData}
@@ -626,6 +596,38 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                 getPlayerSavantLink={getPlayerSavantLink}
               />
             </div>
+          ) : currentView === "rollingPlots" ? (
+            <>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <h5 style={{ marginRight: "10px" }}>Rolling Plots</h5>
+                <Dropdown>
+                  <Dropdown.Toggle variant="outline-secondary" size="sm">
+                    {selectedPitcher || "Choose A Pitcher"}
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    <Dropdown.Item disabled>Choose A Pitcher</Dropdown.Item>
+                    {filteredPitchersPlots.length > 0 ? (
+                      filteredPitchersPlots.map((pitch, index) => (
+                        <Dropdown.Item
+                          key={index}
+                          onClick={() => setSelectedPitcher(pitch.pitcherName)}
+                        >
+                          {pitch.pitcherName}
+                        </Dropdown.Item>
+                      ))
+                    ) : (
+                      <Dropdown.Item disabled>No Statcast Data</Dropdown.Item>
+                    )}
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+              <RollingPlot
+                pitchData={pitchData}
+                selectedPitcher={selectedPitcher}
+                pitchers={pitchers}
+              />
+            </>
           ) : (
             <div className="row">
               {hitters.length > 0 && (

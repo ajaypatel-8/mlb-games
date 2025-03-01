@@ -243,3 +243,15 @@ button svg:hover {
   background: white; 
   z-index: 2;
 }
+
+.player-cell {
+  display: flex;
+  align-items: center;
+}
+
+.player-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}

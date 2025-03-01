@@ -1,14 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Table, Form } from "react-bootstrap";
 import { FaArrowsAltV, FaArrowsAltH } from "react-icons/fa";
 
 const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredPitches = pitches.filter(
-    (pitch) =>
-      pitch.pitcherName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pitch.batterName.toLowerCase().includes(searchTerm.toLowerCase())
+  // Function to transform a First Last to F. Last for player names
+  const formatPlayerName = (name) => {
+    const parts = name.split(" ");
+    return parts.length > 1
+      ? `${parts[0][0]}. ${parts.slice(1).join(" ")}`
+      : name;
+  };
+
+  const filteredPitches = useMemo(
+    () =>
+      pitches.filter(
+        (pitch) =>
+          pitch.pitcherName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          pitch.batterName.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    [searchTerm, pitches]
+  );
+
+  const getPlayerCell = (id, name) => (
+    <div className="player-cell">
+      <a
+        href={getPlayerSavantLink(id)}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img src={getPlayerHeadshot(id)} alt={name} className="player-img" />
+      </a>
+      <span>{formatPlayerName(name)}</span>
+    </div>
   );
 
   return (
@@ -16,7 +41,7 @@ const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
       <Form.Group controlId="search" className="mb-3">
         <Form.Control
           type="text"
-          placeholder="Search by Pitcher or Batter"
+          placeholder="Search by Player"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -24,7 +49,7 @@ const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
 
       <Table striped bordered responsive>
         <thead>
-          <tr>
+          <tr className="text-center">
             <th>Pitcher</th>
             <th>Batter</th>
             <th>In.</th>
@@ -43,85 +68,28 @@ const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
         <tbody>
           {filteredPitches.length === 0 ? (
             <tr>
-              <td colSpan="10" className="text-center">
-                No matching results found.
+              <td colSpan="9" className="text-center">
+                No Statcast Data :(
               </td>
             </tr>
           ) : (
             filteredPitches.map((pitch) => (
               <tr key={pitch.playId}>
-                <td>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <a
-                      href={getPlayerSavantLink(pitch.pitcherId)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <img
-                        src={getPlayerHeadshot(pitch.pitcherId)}
-                        alt={pitch.pitcherName}
-                        style={{
-                          width: "30px",
-                          height: "30px",
-                          borderRadius: "50%",
-                          marginRight: "10px",
-                        }}
-                      />
-                    </a>
-                    <span>
-                      {pitch.pitcherName
-                        .split(" ")
-                        .map((part, index) =>
-                          index === 0 ? part[0] + "." : part
-                        )
-                        .join(" ")}
-                    </span>
-                  </div>
-                </td>
-
-                <td>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <a
-                      href={getPlayerSavantLink(pitch.batterId)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <img
-                        src={getPlayerHeadshot(pitch.batterId)}
-                        alt={pitch.batterName}
-                        style={{
-                          width: "30px",
-                          height: "30px",
-                          borderRadius: "50%",
-                          marginRight: "10px",
-                        }}
-                      />
-                    </a>
-                    <span>
-                      {pitch.batterName
-                        .split(" ")
-                        .map((part, index) =>
-                          index === 0 ? part[0] + "." : part
-                        )
-                        .join(" ")}
-                    </span>
-                  </div>
-                </td>
-
-                <td>{pitch.inning}</td>
-                <td>{pitch.paPitchNumber}</td>
-                <td>{pitch.pitchType}</td>
-                <td>{pitch.startSpeed.toFixed(1)}</td>
-                <td>{pitch.inducedVerticalBreak}"</td>
-                <td>{pitch.horizontalBreak}"</td>
-
-                <td>
+                <td>{getPlayerCell(pitch.pitcherId, pitch.pitcherName)}</td>
+                <td>{getPlayerCell(pitch.batterId, pitch.batterName)}</td>
+                <td className="text-center">{pitch.inning}</td>
+                <td className="text-center">{pitch.paPitchNumber}</td>
+                <td className="text-center">{pitch.pitchType}</td>
+                <td className="text-center">{pitch.startSpeed.toFixed(1)}</td>
+                <td className="text-center">{pitch.inducedVerticalBreak}"</td>
+                <td className="text-center">{pitch.horizontalBreak}"</td>
+                <td className="text-center">
                   <a
                     href={`https://baseballsavant.mlb.com/sporty-videos?playId=${pitch.playId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {pitch.description}{" "}
+                    {pitch.description}
                   </a>
                 </td>
               </tr>
