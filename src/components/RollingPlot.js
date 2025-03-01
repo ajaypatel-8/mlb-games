@@ -1,10 +1,9 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import * as d3 from "d3";
 import { Dropdown } from "react-bootstrap";
 
 const RollingPlot = ({ pitchData, selectedPitcher }) => {
   const [selectedMetric, setSelectedMetric] = useState("startSpeed");
-  const plotContainerRef = useRef(null);
 
   const handleMetricChange = (metric) => {
     setSelectedMetric(metric);
@@ -13,11 +12,6 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
   useEffect(() => {
     if (!selectedPitcher || pitchData.length === 0) return;
 
-    // Get the container's width for responsiveness
-    const containerWidth = plotContainerRef.current.clientWidth;
-    const containerHeight = 400; // You can adjust this if needed
-
-    // Remove any existing elements from the plot
     d3.select("#rolling-plot-container").selectAll("*").remove();
 
     const pitcherData = pitchData.filter(
@@ -34,8 +28,8 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
     });
 
     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
-    const width = containerWidth - margin.left - margin.right;
-    const height = containerHeight - margin.top - margin.bottom;
+    const width = 600 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
 
     const svg = d3
       .select("#rolling-plot-container")
@@ -218,7 +212,7 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
   }, [pitchData, selectedPitcher, selectedMetric]);
 
   return (
-    <div style={{ height: "100%" }} ref={plotContainerRef}>
+    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <Dropdown onSelect={handleMetricChange}>
         <Dropdown.Toggle
           variant="outline-secondary"
@@ -250,9 +244,24 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
         </Dropdown.Menu>
       </Dropdown>
       <div
-        id="rolling-plot-container"
-        style={{ width: "100%", height: "100%", paddingBottom: "20px" }}
-      />
+        style={{
+          flex: 1,
+          minHeight: "300px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          overflow: "auto",
+        }}
+      >
+        <div
+          id="rolling-plot-container"
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            overflowX: "auto",
+          }}
+        ></div>{" "}
+      </div>
     </div>
   );
 };
