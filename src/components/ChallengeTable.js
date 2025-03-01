@@ -48,8 +48,8 @@ const ChallengeTable = ({ gamePk, challengeData }) => {
           <tr>
             <th>Type</th>
             <th>Team</th>
-            <th>Successful</th>
-            <th>Failed</th>
+            <th>Successful ✅</th>
+            <th>Failed ❌</th>
             <th>Remaining</th>
           </tr>
         </thead>
