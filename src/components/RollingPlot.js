@@ -212,42 +212,44 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
   }, [pitchData, selectedPitcher, selectedMetric]);
 
   return (
-    <div>
-      <Dropdown onSelect={handleMetricChange}>
-        <Dropdown.Toggle
-          variant="outline-secondary"
-          id="dropdown-basic"
-          size="sm"
-        >
-          {selectedMetric === "startSpeed"
-            ? "Velocity"
-            : selectedMetric === "inducedVerticalBreak"
-            ? "IVB"
-            : selectedMetric === "horizontalBreak"
-            ? "Horz. Break"
-            : selectedMetric === "extension"
-            ? "Extension"
-            : selectedMetric === "relX"
-            ? "Rel. X"
-            : selectedMetric === "relZ"
-            ? "Rel. Z"
-            : ""}
-        </Dropdown.Toggle>
+    <div
+      id="rolling-plot-container"
+      style={{ width: "100%", height: "400px", marginTop: "20px" }}
+    >
+      <div>
+        <Dropdown onSelect={handleMetricChange}>
+          <Dropdown.Toggle
+            variant="outline-secondary"
+            id="dropdown-basic"
+            size="sm"
+          >
+            {selectedMetric === "startSpeed"
+              ? "Velocity"
+              : selectedMetric === "inducedVerticalBreak"
+              ? "IVB"
+              : selectedMetric === "horizontalBreak"
+              ? "Horz. Break"
+              : selectedMetric === "extension"
+              ? "Extension"
+              : selectedMetric === "relX"
+              ? "Rel. X"
+              : selectedMetric === "relZ"
+              ? "Rel. Z"
+              : ""}
+          </Dropdown.Toggle>
 
-        <Dropdown.Menu>
-          <Dropdown.Item eventKey="startSpeed">Velocity</Dropdown.Item>
-          <Dropdown.Item eventKey="inducedVerticalBreak">IVB</Dropdown.Item>
-          <Dropdown.Item eventKey="horizontalBreak">Horz. Break</Dropdown.Item>
-          <Dropdown.Item eventKey="extension">Extension</Dropdown.Item>
-          <Dropdown.Item eventKey="relX">Rel. X</Dropdown.Item>
-          <Dropdown.Item eventKey="relZ">Rel. Z</Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
-
-      <div
-        id="rolling-plot-container"
-        style={{ width: "100%", height: "400px", marginTop: "20px" }}
-      ></div>
+          <Dropdown.Menu>
+            <Dropdown.Item eventKey="startSpeed">Velocity</Dropdown.Item>
+            <Dropdown.Item eventKey="inducedVerticalBreak">IVB</Dropdown.Item>
+            <Dropdown.Item eventKey="horizontalBreak">
+              Horz. Break
+            </Dropdown.Item>
+            <Dropdown.Item eventKey="extension">Extension</Dropdown.Item>
+            <Dropdown.Item eventKey="relX">Rel. X</Dropdown.Item>
+            <Dropdown.Item eventKey="relZ">Rel. Z</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+      </div>
     </div>
   );
 };
