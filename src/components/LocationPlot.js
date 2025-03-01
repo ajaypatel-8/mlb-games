@@ -220,18 +220,15 @@ const LocationPlot = ({ pitchData, selectedPitcher, pitchers }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        overflowX: "auto",
+        overflow: "auto",
       }}
     >
       <div
         id="location-plot-container"
         style={{
-          flex: 1,
-          minHeight: "300px",
-          display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          overflowX: "auto",
+          width: "100%",
         }}
       ></div>
     </div>
