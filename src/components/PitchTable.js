@@ -71,7 +71,7 @@ const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
         <tbody>
           {filteredPitches.length === 0 ? (
             <tr>
-              <td colSpan="9" className="text-center">
+              <td colSpan="11" className="text-center">
                 No Statcast Data :(
               </td>
             </tr>
