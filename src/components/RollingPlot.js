@@ -42,7 +42,7 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
     const y = d3
       .scaleLinear()
       .domain(
-        selectedMetric === "extension"
+        selectedMetric === "extension" || "relX" || "relZ"
           ? [
               d3.min(pitcherData, (d) => d[selectedMetric]) - 0.1,
               d3.max(pitcherData, (d) => d[selectedMetric]) + 0.1,
@@ -56,7 +56,9 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
       .range([height, 0]);
 
     const tickFormat =
-      selectedMetric === "extension" ? d3.format(".1f") : d3.format(".0f");
+      selectedMetric === "extension" || "relX" || "relZ"
+        ? d3.format(".1f")
+        : d3.format(".0f");
 
     const yAxis = d3.axisLeft(y).ticks(5).tickFormat(tickFormat);
 
@@ -80,6 +82,10 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
           ? "Horizontal Break (in.)"
           : selectedMetric === "extension"
           ? "Extension (ft.)"
+          : selectedMetric === "relX"
+          ? "Release Point X (ft.)"
+          : selectedMetric === "relZ"
+          ? "Release Point Z (ft.)"
           : selectedMetric
       );
 
@@ -96,7 +102,7 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
       .attr("transform", `translate(0,${height})`)
       .call(xAxis)
       .append("text")
-      .attr("x", width / 2)
+      .attr("x", width / 12)
       .attr("y", 35)
       .attr("fill", "black")
       .style("text-anchor", "middle")
@@ -176,12 +182,16 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
         });
       const legendGroup = svg
         .append("g")
-        .attr("transform", `translate(${width - 20}, 200)`);
+        // Legend is positioned below the x-axis
+        .attr("transform", `translate(170, ${height + 21})`);
+
+      // Set the width for each legend item
+      const legendItemWidth = 40;
 
       pitchTypes.forEach((pitchType, i) => {
         const legendItem = legendGroup
           .append("g")
-          .attr("transform", `translate(0, ${i * 20})`);
+          .attr("transform", `translate(${i * legendItemWidth}, 0)`);
 
         legendItem
           .append("rect")
@@ -217,6 +227,10 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
             ? "Horz. Break"
             : selectedMetric === "extension"
             ? "Extension"
+            : selectedMetric === "relX"
+            ? "Rel. X"
+            : selectedMetric === "relZ"
+            ? "Rel. Z"
             : ""}
         </Dropdown.Toggle>
 
@@ -225,6 +239,8 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
           <Dropdown.Item eventKey="inducedVerticalBreak">IVB</Dropdown.Item>
           <Dropdown.Item eventKey="horizontalBreak">Horz. Break</Dropdown.Item>
           <Dropdown.Item eventKey="extension">Extension</Dropdown.Item>
+          <Dropdown.Item eventKey="relX">Rel. X</Dropdown.Item>
+          <Dropdown.Item eventKey="relZ">Rel. Z</Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
 

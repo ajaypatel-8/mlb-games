@@ -55,6 +55,8 @@ const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
             <th>In.</th>
             <th>#</th>
             <th>Type</th>
+            <th>Result</th>
+
             <th>Velo</th>
             <th>
               IVB <FaArrowsAltV />
@@ -62,7 +64,8 @@ const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
             <th>
               Horz. Break <FaArrowsAltH />
             </th>
-            <th>Result</th>
+            <th>Rel. X </th>
+            <th>Rel. Z</th>
           </tr>
         </thead>
         <tbody>
@@ -80,9 +83,6 @@ const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
                 <td className="text-center">{pitch.inning}</td>
                 <td className="text-center">{pitch.paPitchNumber}</td>
                 <td className="text-center">{pitch.pitchType}</td>
-                <td className="text-center">{pitch.startSpeed.toFixed(1)}</td>
-                <td className="text-center">{pitch.inducedVerticalBreak}"</td>
-                <td className="text-center">{pitch.horizontalBreak}"</td>
                 <td className="text-center">
                   <a
                     href={`https://baseballsavant.mlb.com/sporty-videos?playId=${pitch.playId}`}
@@ -92,6 +92,11 @@ const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
                     {pitch.description}
                   </a>
                 </td>
+                <td className="text-center">{pitch.startSpeed.toFixed(1)}</td>
+                <td className="text-center">{pitch.inducedVerticalBreak}"</td>
+                <td className="text-center">{pitch.horizontalBreak}"</td>
+                <td className="text-center">{pitch.relX.toFixed(1)}</td>
+                <td className="text-center">{pitch.relZ.toFixed(1)}</td>
               </tr>
             ))
           )}

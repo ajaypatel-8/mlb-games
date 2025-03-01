@@ -27,8 +27,9 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     pitchData: "Pitch Data",
     movementPlot: "Movement Plots",
     locationPlot: "Location Plots",
-    pitchByPitch: "Pitch By Pitch",
     rollingPlots: "Rolling Plots",
+
+    pitchByPitch: "Pitch By Pitch",
   };
 
   console.log(pitchData);
@@ -87,6 +88,13 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     return `https://baseballsavant.mlb.com/savant-player/${id}`;
   };
 
+  const formatPlayerName = (name) => {
+    const parts = name.split(" ");
+    return parts.length > 1
+      ? `${parts[0][0]}. ${parts.slice(1).join(" ")}`
+      : name;
+  };
+
   const getPlayerHeadshot = (playerId) => {
     return `https://img.mlbstatic.com/mlb-photos/image/upload/w_180,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${playerId}/headshot/silo/current`;
   };
@@ -108,6 +116,8 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         extension,
         inducedVerticalBreak,
         horizontalBreak,
+        relX,
+        relZ,
         isCalledStrike,
         isWhiff,
         launchSpeed,
@@ -126,6 +136,8 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
           totalExtension: 0,
           totalVerticalBreak: 0,
           totalHorizontalBreak: 0,
+          totalRelX: 0,
+          totalRelZ: 0,
           totalCalledStrike: 0,
           totalWhiff: 0,
           totalLaunchSpeed: 0,
@@ -138,6 +150,8 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
       group.totalExtension += extension;
       group.totalVerticalBreak += inducedVerticalBreak;
       group.totalHorizontalBreak += horizontalBreak;
+      group.totalRelX += relX;
+      group.totalRelZ += relZ;
       group.totalCalledStrike += isCalledStrike ? 1 : 0;
       group.totalWhiff += isWhiff ? 1 : 0;
       if (launchSpeed != null) {
@@ -160,6 +174,8 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
         avgExtension: avg(group.totalExtension, numPitches),
         avgVerticalBreak: avg(group.totalVerticalBreak, numPitches),
         avgHorizontalBreak: avg(group.totalHorizontalBreak, numPitches),
+        avgRelX: avg(group.totalRelX, numPitches),
+        avgRelZ: avg(group.totalRelZ, numPitches),
         calledStrikeWhiffRate: `${Math.round(
           ((group.totalCalledStrike + group.totalWhiff) / numPitches) * 100
         )}%`,
@@ -458,7 +474,9 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                             }}
                           />
                         </a>
-                        <span>{row.original.pitcherName}</span>
+                        <span>
+                          {formatPlayerName(row.original.pitcherName)}
+                        </span>
                       </div>
                     ),
                   },
@@ -479,6 +497,20 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                   {
                     Header: <div style={{ textAlign: "center" }}>Ext.</div>,
                     accessor: "avgExtension",
+                    Cell: ({ value }) => (
+                      <div style={{ textAlign: "center" }}>{value}</div>
+                    ),
+                  },
+                  {
+                    Header: <div style={{ textAlign: "center" }}>Rel. X</div>,
+                    accessor: "avgRelX",
+                    Cell: ({ value }) => (
+                      <div style={{ textAlign: "center" }}>{value}</div>
+                    ),
+                  },
+                  {
+                    Header: <div style={{ textAlign: "center" }}>Rel. Z</div>,
+                    accessor: "avgRelZ",
                     Cell: ({ value }) => (
                       <div style={{ textAlign: "center" }}>{value}</div>
                     ),

@@ -106,6 +106,8 @@ export const mlbService = {
             const horizontalBreak = event.pitchData?.breaks?.breakHorizontal;
             const plateX = event.pitchData?.coordinates?.pX;
             const plateZ = event.pitchData?.coordinates?.pZ;
+            const relX = event.pitchData?.coordinates.x0;
+            const relZ = event.pitchData?.coordinates.z0;
             const description = event.details.description;
 
             const isWhiff =
@@ -131,6 +133,8 @@ export const mlbService = {
               horizontalBreak,
               plateX,
               plateZ,
+              relX,
+              relZ,
               isCalledStrike,
               isWhiff,
               launchSpeed,
