@@ -359,7 +359,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   {startTime && (
                     <>
                       <br />
-                      <strong>Start Time:</strong> {startTime} ET
+                      <strong>Start Time:</strong> {startTime}
                     </>
                   )}
                   {isPregame && probablePitchers && (
