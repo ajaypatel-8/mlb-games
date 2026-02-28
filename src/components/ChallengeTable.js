@@ -2,6 +2,17 @@ import React, { useMemo } from "react";
 import { Table } from "react-bootstrap";
 import mlbTeams from "./mlbTeams.json";
 
+const TeamLogo = React.memo(function TeamLogo({ logoUrl, altText }) {
+  if (!logoUrl) return null;
+  return (
+    <img
+      src={logoUrl}
+      alt={altText}
+      style={{ width: "30px", height: "30px", marginRight: "10px" }}
+    />
+  );
+});
+
 const ChallengeTable = ({ challengeData }) => {
   const awayTeamAbb = challengeData?.teams?.away?.abbreviation ?? "";
   const homeTeamAbb = challengeData?.teams?.home?.abbreviation ?? "";
@@ -11,19 +22,8 @@ const ChallengeTable = ({ challengeData }) => {
     []
   );
 
-  const getTeamLogo = (teamAbbreviation) =>
-    teamMap[teamAbbreviation]?.team_scoreboard_logo_espn ?? null;
-
-  const TeamLogo = ({ teamAbbr }) => {
-    const logo = getTeamLogo(teamAbbr);
-    return logo ? (
-      <img
-        src={logo}
-        alt={teamAbbr}
-        style={{ width: "30px", height: "30px", marginRight: "10px" }}
-      />
-    ) : null;
-  };
+  const awayLogo = teamMap[awayTeamAbb]?.team_scoreboard_logo_espn ?? null;
+  const homeLogo = teamMap[homeTeamAbb]?.team_scoreboard_logo_espn ?? null;
 
   return (
     <div>
@@ -52,7 +52,7 @@ const ChallengeTable = ({ challengeData }) => {
               <tr>
                 <td rowSpan="2">{type}</td>
                 <td>
-                  <TeamLogo teamAbbr={awayTeamAbb} />
+                  <TeamLogo logoUrl={awayLogo} altText={awayTeamAbb} />
                 </td>
                 <td>{data?.away?.usedSuccessful ?? "-"}</td>
                 <td>{data?.away?.usedFailed ?? "-"}</td>
@@ -60,7 +60,7 @@ const ChallengeTable = ({ challengeData }) => {
               </tr>
               <tr>
                 <td>
-                  <TeamLogo teamAbbr={homeTeamAbb} />
+                  <TeamLogo logoUrl={homeLogo} altText={homeTeamAbb} />
                 </td>
                 <td>{data?.home?.usedSuccessful ?? "-"}</td>
                 <td>{data?.home?.usedFailed ?? "-"}</td>

@@ -2,6 +2,18 @@ import React, { useState, useMemo } from "react";
 import { Table, Form } from "react-bootstrap";
 import { FaArrowsAltV, FaArrowsAltH } from "react-icons/fa";
 
+const PlayerHeadshotLink = React.memo(function PlayerHeadshotLink({
+  playerUrl,
+  imageUrl,
+  altText,
+}) {
+  return (
+    <a href={playerUrl} target="_blank" rel="noopener noreferrer">
+      <img src={imageUrl} alt={altText} className="player-img" />
+    </a>
+  );
+});
+
 const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -25,13 +37,11 @@ const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
 
   const getPlayerCell = (id, name) => (
     <div className="player-cell">
-      <a
-        href={getPlayerSavantLink(id)}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <img src={getPlayerHeadshot(id)} alt={name} className="player-img" />
-      </a>
+      <PlayerHeadshotLink
+        playerUrl={getPlayerSavantLink(id)}
+        imageUrl={getPlayerHeadshot(id)}
+        altText={name}
+      />
       <span>{formatPlayerName(name)}</span>
     </div>
   );

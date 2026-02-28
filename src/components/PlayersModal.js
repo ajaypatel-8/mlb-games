@@ -14,6 +14,48 @@ import RollingPlot from "./RollingPlot";
 import PitchTable from "./PitchTable";
 import ChallengeTable from "./ChallengeTable";
 
+const TeamLogoImage = React.memo(function TeamLogoImage({
+  logoUrl,
+  altText,
+  size = 24,
+  marginRight = 0,
+}) {
+  return (
+    <img
+      src={logoUrl}
+      alt={altText}
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        marginRight: `${marginRight}px`,
+      }}
+    />
+  );
+});
+
+const PlayerHeadshotLink = React.memo(function PlayerHeadshotLink({
+  playerUrl,
+  imageUrl,
+  altText,
+  size = 30,
+  marginRight = 0,
+}) {
+  return (
+    <a href={playerUrl} target="_blank" rel="noopener noreferrer">
+      <img
+        src={imageUrl}
+        alt={altText}
+        style={{
+          width: `${size}px`,
+          height: `${size}px`,
+          borderRadius: "50%",
+          marginRight: `${marginRight}px`,
+        }}
+      />
+    </a>
+  );
+});
+
 const LineupModal = ({ team, players, gameDate, gamePk, gameStatus }) => {
   const liveRefreshMs = 10000;
   const [showModal, setShowModal] = useState(false);
@@ -433,10 +475,10 @@ const LineupModal = ({ team, players, gameDate, gamePk, gameStatus }) => {
         className="d-flex align-items-center gap-2 w-100"
       >
         {teamLogo ? (
-          <img
-            src={teamLogo}
-            alt={`${team.teamName} logo`}
-            style={{ width: "24px", height: "24px" }}
+          <TeamLogoImage
+            logoUrl={teamLogo}
+            altText={`${team.teamName} logo`}
+            size={24}
           />
         ) : (
           <span>{team.abbreviation}</span>
@@ -454,10 +496,11 @@ const LineupModal = ({ team, players, gameDate, gamePk, gameStatus }) => {
           <div className="d-flex w-100 justify-content-between align-items-center">
             <div className="d-flex align-items-center">
               {teamLogo && (
-                <img
-                  src={teamLogo}
-                  alt={team.teamName}
-                  style={{ width: "30px", height: "30px", marginRight: "10px" }}
+                <TeamLogoImage
+                  logoUrl={teamLogo}
+                  altText={team.teamName}
+                  size={30}
+                  marginRight={10}
                 />
               )}
               <Modal.Title>{`${team.teamName}`}</Modal.Title>
@@ -511,22 +554,12 @@ const LineupModal = ({ team, players, gameDate, gamePk, gameStatus }) => {
                     const playerData = playerHitData.map((hitInfo) => ({
                       playerName: (
                         <div>
-                          <a
-                            href={getPlayerSavantLink(player.person.id)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <img
-                              src={getPlayerHeadshot(player.person.id)}
-                              alt={player.person.fullName}
-                              style={{
-                                width: "30px",
-                                height: "30px",
-                                borderRadius: "50%",
-                                marginRight: "10px",
-                              }}
-                            />
-                          </a>
+                          <PlayerHeadshotLink
+                            playerUrl={getPlayerSavantLink(player.person.id)}
+                            imageUrl={getPlayerHeadshot(player.person.id)}
+                            altText={player.person.fullName}
+                            marginRight={10}
+                          />
                           <span>{player.person.fullName}</span>
                         </div>
                       ),
@@ -560,22 +593,12 @@ const LineupModal = ({ team, players, gameDate, gamePk, gameStatus }) => {
                     accessor: "pitcherName",
                     Cell: ({ row }) => (
                       <div style={{ display: "flex", alignItems: "center" }}>
-                        <a
-                          href={getPlayerSavantLink(row.original.pitcherId)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <img
-                            src={getPlayerHeadshot(row.original.pitcherId)}
-                            alt={row.original.pitcherName}
-                            style={{
-                              width: "30px",
-                              height: "30px",
-                              borderRadius: "50%",
-                              marginRight: "10px",
-                            }}
-                          />
-                        </a>
+                        <PlayerHeadshotLink
+                          playerUrl={getPlayerSavantLink(row.original.pitcherId)}
+                          imageUrl={getPlayerHeadshot(row.original.pitcherId)}
+                          altText={row.original.pitcherName}
+                          marginRight={10}
+                        />
                         <span>
                           {formatPlayerName(row.original.pitcherName)}
                         </span>
@@ -797,21 +820,11 @@ const LineupModal = ({ team, players, gameDate, gamePk, gameStatus }) => {
                               }}
                             />
                           )}
-                        <a
-                          href={getPlayerSavantLink(playerId)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <img
-                            src={getPlayerHeadshot(playerId)}
-                            alt={playerName}
-                            style={{
-                              width: "30px",
-                              height: "30px",
-                              borderRadius: "50%",
-                            }}
-                          />
-                        </a>
+                        <PlayerHeadshotLink
+                          playerUrl={getPlayerSavantLink(playerId)}
+                          imageUrl={getPlayerHeadshot(playerId)}
+                          altText={playerName}
+                        />
                         <span
                           style={{
                             flex: 1,
@@ -853,21 +866,11 @@ const LineupModal = ({ team, players, gameDate, gamePk, gameStatus }) => {
                         key={playerId}
                         className="d-flex justify-content-start align-items-center mb-3"
                       >
-                        <a
-                          href={getPlayerSavantLink(playerId)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <img
-                            src={getPlayerHeadshot(playerId)}
-                            alt={playerName}
-                            style={{
-                              width: "30px",
-                              height: "30px",
-                              borderRadius: "50%",
-                            }}
-                          />
-                        </a>
+                        <PlayerHeadshotLink
+                          playerUrl={getPlayerSavantLink(playerId)}
+                          imageUrl={getPlayerHeadshot(playerId)}
+                          altText={playerName}
+                        />
                         <span
                           style={{
                             flex: 1,
