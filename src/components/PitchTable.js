@@ -36,6 +36,9 @@ const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
     </div>
   );
 
+  const formatOneDecimal = (value) =>
+    Number.isFinite(value) ? value.toFixed(1) : "-";
+
   return (
     <div>
       <Form.Group controlId="search" className="mb-3">
@@ -92,11 +95,17 @@ const PitchTable = ({ pitches, getPlayerHeadshot, getPlayerSavantLink }) => {
                     {pitch.description}
                   </a>
                 </td>
-                <td className="text-center">{pitch.startSpeed.toFixed(1)}</td>
-                <td className="text-center">{pitch.inducedVerticalBreak}"</td>
-                <td className="text-center">{pitch.horizontalBreak}"</td>
-                <td className="text-center">{pitch.relX.toFixed(1)}</td>
-                <td className="text-center">{pitch.relZ.toFixed(1)}</td>
+                <td className="text-center">
+                  {formatOneDecimal(pitch.startSpeed)}
+                </td>
+                <td className="text-center">
+                  {formatOneDecimal(pitch.inducedVerticalBreak)}"
+                </td>
+                <td className="text-center">
+                  {formatOneDecimal(pitch.horizontalBreak)}"
+                </td>
+                <td className="text-center">{formatOneDecimal(pitch.relX)}</td>
+                <td className="text-center">{formatOneDecimal(pitch.relZ)}</td>
               </tr>
             ))
           )}

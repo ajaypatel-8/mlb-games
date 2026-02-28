@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, Col, Table } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
@@ -7,6 +7,7 @@ import mlbTeams from "./mlbTeams.json";
 import LineupModal from "./PlayersModal";
 
 const GameCard = ({ game, gameDate, showDetailedStats }) => {
+  const liveRefreshMs = 15000;
   // Defining constants that will be used in rendering a game card
   const { away, home } = game.teams;
   const isFinal = [
@@ -26,13 +27,14 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
   const isCancelled = game.status.detailedState === "Cancelled";
   const isPostponed = game.status.detailedState === "Postponed";
   const gamePk = game.gamePk;
+  const isSelectedDateToday =
+    new Date(gameDate).toDateString() === new Date().toDateString();
+  const shouldPollGameData =
+    isSelectedDateToday && (isPregame || isInProgress || isRainDelay);
 
-  const [boxScore, setBoxScore] = useState([]);
-
+  const [boxScore, setBoxScore] = useState({});
   const [awayLineup, setAwayLineup] = useState([]);
   const [homeLineup, setHomeLineup] = useState([]);
-  const [showAwayLineup, setShowAwayLineup] = useState(false);
-  const [showHomeLineup, setShowHomeLineup] = useState(false);
 
   const [recapLink, setRecapLink] = useState(null);
   const [linescore, setLinescore] = useState([]);
@@ -43,7 +45,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
   const [topPerformers, setTopPerformers] = useState([]);
 
   // Function to convert time to user's local time zone
-  const convertToLocalTime = (utcDateTime) => {
+  const convertToLocalTime = useCallback((utcDateTime) => {
     const date = new Date(utcDateTime);
 
     const timeString = date.toLocaleString(undefined, {
@@ -57,71 +59,58 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
     const time = timeParts.slice(0, -1).join(" ");
 
     return `${time}`;
-  };
+  }, []);
 
-  useEffect(() => {
-    const fetchGameContent = async () => {
+  const fetchGameContent = useCallback(
+    async (liveFeedOptions = {}) => {
       try {
-        const [
-          data,
-          linescoreData,
-          leftOnBaseData,
-          decisionsData,
-          topPerformersData,
-        ] = await Promise.all([
+        const [contentData, liveFeedData] = await Promise.all([
           mlbService.getGameContent(gamePk),
-          mlbService.getLinescore(gamePk),
-          mlbService.getLeftOnBase(gamePk),
-          mlbService.getDecisions(gamePk),
-          mlbService.getTopPerformers(gamePk),
+          mlbService.getLiveFeed(gamePk, liveFeedOptions),
         ]);
 
-        if (data.editorial?.recap?.mlb?.slug) {
-          setRecapLink(
-            `https://www.mlb.com/news/${data.editorial.recap.mlb.slug}`
-          );
-        }
+        const recapSlug = contentData?.editorial?.recap?.mlb?.slug;
+        setRecapLink(recapSlug ? `https://www.mlb.com/news/${recapSlug}` : null);
 
-        setLinescore(linescoreData);
-        setLeftOnBase(leftOnBaseData);
-        setDecisions(decisionsData);
-        setTopPerformers(topPerformersData);
+        setLinescore(liveFeedData?.liveData?.linescore?.innings || []);
+        setLeftOnBase(liveFeedData?.liveData?.linescore?.teams || null);
+        setDecisions(liveFeedData?.liveData?.decisions || {});
+        setTopPerformers(liveFeedData?.liveData?.boxscore?.topPerformers || []);
+
+        const boxScoreData = liveFeedData?.liveData?.boxscore?.teams || {};
+        setBoxScore(boxScoreData);
+        setAwayLineup(boxScoreData?.away?.players || []);
+        setHomeLineup(boxScoreData?.home?.players || []);
 
         if (isPregame) {
-          const startTimeData = await mlbService.getStartTime(gamePk);
-          const localTime = convertToLocalTime(startTimeData.dateTime);
-          setStartTime(localTime);
-
-          const probablePitchersData = await mlbService.getProbablePitchers(
-            gamePk
-          );
-          setProbablePitchers(probablePitchersData || null);
+          const startDateTime = liveFeedData?.gameData?.datetime?.dateTime;
+          setStartTime(startDateTime ? convertToLocalTime(startDateTime) : null);
+          setProbablePitchers(liveFeedData?.gameData?.probablePitchers || null);
+        } else {
+          setStartTime(null);
+          setProbablePitchers(null);
         }
-
-        const boxScoreData = await mlbService.getBoxScore(gamePk);
-
-        setBoxScore(boxScoreData);
-        setAwayLineup(boxScoreData.away?.players || []);
-        setHomeLineup(boxScoreData.home?.players || []);
       } catch (error) {
         console.error("Failed to fetch game content:", error);
         setProbablePitchers(null);
       }
-    };
+    },
+    [gamePk, isPregame, convertToLocalTime]
+  );
 
+  useEffect(() => {
     fetchGameContent();
-  }, [
-    gamePk,
-    isPregame,
-    isCancelled,
-    isPostponed,
-    boxScore.away?.players,
-    boxScore.home?.players,
-  ]);
+  }, [fetchGameContent]);
 
-  // Functionality for popping up respective lineups
-  const toggleAwayLineup = () => setShowAwayLineup((prev) => !prev);
-  const toggleHomeLineup = () => setShowHomeLineup((prev) => !prev);
+  useEffect(() => {
+    if (!shouldPollGameData) return;
+
+    const intervalId = setInterval(() => {
+      fetchGameContent({ maxAgeMs: 5000 });
+    }, liveRefreshMs);
+
+    return () => clearInterval(intervalId);
+  }, [shouldPollGameData, fetchGameContent]);
 
   const teamMap = useMemo(() => {
     return mlbTeams.reduce((acc, team) => {
@@ -161,15 +150,15 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
   const getPlayerHeadshot = (playerId) => {
     return `https://img.mlbstatic.com/mlb-photos/image/upload/w_180,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${playerId}/headshot/silo/current`;
   };
-  const filterPlayerStats = (player) => {
+  const filterPlayerStats = useCallback((player) => {
     return (
       (player.stats?.batting && Object.keys(player.stats.batting).length > 0) ||
       (player.stats?.pitching &&
         Object.keys(player.stats.pitching).length > 0) ||
       (player.stats?.fielding && Object.keys(player.stats.fielding).length > 0)
     );
-  };
-  const sortLineup = (lineup) => {
+  }, []);
+  const sortLineup = useCallback((lineup) => {
     const players = Object.values(lineup)
       .filter(filterPlayerStats)
       .map((player) => {
@@ -202,10 +191,18 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
     });
 
     return [...normalPlayers, ...subbedInPlayers, ...invalidPlayers];
-  };
+  }, [filterPlayerStats]);
 
-  const sortedAwayLineup = sortLineup(awayLineup);
-  const sortedHomeLineup = sortLineup(homeLineup);
+  const sortedAwayLineup = useMemo(
+    () => sortLineup(awayLineup),
+    [awayLineup, sortLineup]
+  );
+  const sortedHomeLineup = useMemo(
+    () => sortLineup(homeLineup),
+    [homeLineup, sortLineup]
+  );
+  const awayBattingStats = boxScore?.away?.teamStats?.batting || {};
+  const homeBattingStats = boxScore?.home?.teamStats?.batting || {};
 
   const renderEmptyBoxScore = () => (
     <>
@@ -530,21 +527,19 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                       <>
                         <td>{leftOnBase?.away?.leftOnBase || 0}</td>
                         <td>
-                          {boxScore.away.teamStats.batting.baseOnBalls || 0}
+                          {awayBattingStats.baseOnBalls || 0}
                         </td>
                         <td>
-                          {boxScore.away.teamStats.batting.strikeOuts || 0}
+                          {awayBattingStats.strikeOuts || 0}
                         </td>
+                        <td>{awayBattingStats.stolenBases || 0}</td>
                         <td>
-                          {boxScore.away.teamStats.batting.stolenBases || 0}
+                          {(awayBattingStats.doubles || 0) +
+                            (awayBattingStats.triples || 0) +
+                            (awayBattingStats.homeRuns || 0)}
                         </td>
-                        <td>
-                          {boxScore.away.teamStats.batting.doubles +
-                            boxScore.away.teamStats.batting.triples +
-                            boxScore.away.teamStats.batting.homeRuns || 0}
-                        </td>
-                        <td>{boxScore.away.teamStats.batting.homeRuns || 0}</td>
-                        <td>{boxScore.away.teamStats.batting.ops || "-"}</td>
+                        <td>{awayBattingStats.homeRuns || 0}</td>
+                        <td>{awayBattingStats.ops || "-"}</td>
                       </>
                     )}
                   </tr>
@@ -577,23 +572,23 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                           {leftOnBase?.home?.leftOnBase || 0}
                         </td>
                         <td className="table-column">
-                          {boxScore.home.teamStats.batting.baseOnBalls || 0}
+                          {homeBattingStats.baseOnBalls || 0}
                         </td>
                         <td>
-                          {boxScore.home.teamStats.batting.strikeOuts || 0}
+                          {homeBattingStats.strikeOuts || 0}
                         </td>
                         <td className="table-column">
-                          {boxScore.home.teamStats.batting.stolenBases || 0}
+                          {homeBattingStats.stolenBases || 0}
                         </td>
                         <td className="table-column">
-                          {boxScore.home.teamStats.batting.doubles +
-                            boxScore.home.teamStats.batting.triples +
-                            boxScore.home.teamStats.batting.homeRuns || 0}
+                          {(homeBattingStats.doubles || 0) +
+                            (homeBattingStats.triples || 0) +
+                            (homeBattingStats.homeRuns || 0)}
                         </td>
                         <td className="table-column">
-                          {boxScore.home.teamStats.batting.homeRuns || 0}
+                          {homeBattingStats.homeRuns || 0}
                         </td>
-                        <td>{boxScore.home.teamStats.batting.ops || "-"}</td>
+                        <td>{homeBattingStats.ops || "-"}</td>
                       </>
                     )}
                   </tr>
@@ -651,10 +646,9 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     <LineupModal
                       team={away.team}
                       players={sortedAwayLineup || []}
-                      toggleLineup={toggleAwayLineup}
-                      showLineup={showAwayLineup}
                       gameDate={gameDate}
                       gamePk={gamePk}
+                      gameStatus={game.status.detailedState}
                     />
                   </div>
 
@@ -662,10 +656,9 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     <LineupModal
                       team={home.team}
                       players={sortedHomeLineup || []}
-                      toggleLineup={toggleHomeLineup}
-                      showLineup={showHomeLineup}
                       gameDate={gameDate}
                       gamePk={gamePk}
+                      gameStatus={game.status.detailedState}
                     />
                   </div>
                 </div>
@@ -895,10 +888,9 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   <LineupModal
                     team={away.team}
                     players={sortedAwayLineup || []}
-                    toggleLineup={toggleAwayLineup}
-                    showLineup={showAwayLineup}
                     gameDate={gameDate}
                     gamePk={gamePk}
+                    gameStatus={game.status.detailedState}
                   />
                 </div>
 
@@ -906,10 +898,9 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   <LineupModal
                     team={home.team}
                     players={sortedHomeLineup || []}
-                    toggleLineup={toggleHomeLineup}
-                    showLineup={showHomeLineup}
                     gameDate={gameDate}
                     gamePk={gamePk}
+                    gameStatus={game.status.detailedState}
                   />
                 </div>
               </div>

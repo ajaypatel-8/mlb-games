@@ -1,26 +1,10 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useMemo } from "react";
 import { Table } from "react-bootstrap";
 import mlbTeams from "./mlbTeams.json";
-import { mlbService } from "../services/mlbService";
 
-const ChallengeTable = ({ gamePk, challengeData }) => {
-  const [teams, setTeams] = useState({});
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const teamsResponse = await mlbService.getTeams(gamePk);
-        setTeams(teamsResponse);
-      } catch (error) {
-        console.error("Error fetching data", error);
-      }
-    };
-
-    fetchData();
-  }, [gamePk]);
-
-  const awayTeamAbb = teams?.away?.abbreviation ?? "";
-  const homeTeamAbb = teams?.home?.abbreviation ?? "";
+const ChallengeTable = ({ challengeData }) => {
+  const awayTeamAbb = challengeData?.teams?.away?.abbreviation ?? "";
+  const homeTeamAbb = challengeData?.teams?.home?.abbreviation ?? "";
 
   const teamMap = useMemo(
     () => Object.fromEntries(mlbTeams.map((team) => [team.team_abbr, team])),
@@ -64,7 +48,7 @@ const ChallengeTable = ({ gamePk, challengeData }) => {
               data: challengeData?.review,
             },
           ].map(({ type, data }) => (
-            <>
+            <React.Fragment key={type}>
               <tr>
                 <td rowSpan="2">{type}</td>
                 <td>
@@ -82,7 +66,7 @@ const ChallengeTable = ({ gamePk, challengeData }) => {
                 <td>{data?.home?.usedFailed ?? "-"}</td>
                 <td>{data?.home?.remaining ?? "-"}</td>
               </tr>
-            </>
+            </React.Fragment>
           ))}
         </tbody>
       </Table>

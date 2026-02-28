@@ -3,6 +3,7 @@ import * as d3 from "d3";
 
 const MovementPlot = ({ pitchData, selectedPitcher, pitchers }) => {
   useEffect(() => {
+    let tooltip;
     if (
       selectedPitcher &&
       pitchData.some((data) =>
@@ -105,7 +106,7 @@ const MovementPlot = ({ pitchData, selectedPitcher, pitchers }) => {
         .domain(pitchTypes)
         .range(d3.schemeCategory10);
 
-      const tooltip = d3
+      tooltip = d3
         .select("body")
         .append("div")
         .style("position", "absolute")
@@ -194,6 +195,12 @@ const MovementPlot = ({ pitchData, selectedPitcher, pitchers }) => {
         .style("font-weight", "bold")
         .text("<- L Arm Side");
     }
+    return () => {
+      if (tooltip) {
+        tooltip.remove();
+      }
+      d3.select("#movement-plot-container").selectAll("*").remove();
+    };
     // eslint-disable-next-line
   }, [pitchData, selectedPitcher]);
 

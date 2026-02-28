@@ -1,6 +1,8 @@
 import axios from "axios";
 
 const BASE_URL = "https://statsapi.mlb.com/api/v1";
+const LIVE_FEED_CACHE_TTL_MS = 15000;
+const liveFeedCache = new Map();
 
 const fetchData = async (url, params = {}) => {
   try {
@@ -12,13 +14,66 @@ const fetchData = async (url, params = {}) => {
   }
 };
 
-const fetchLiveData = async (gamePk) => {
-  return fetchData(
+const getLiveFeedCacheKey = (gamePk) => String(gamePk);
+
+const fetchLiveData = async (gamePk, options = {}) => {
+  const { forceRefresh = false, maxAgeMs = LIVE_FEED_CACHE_TTL_MS } = options;
+  const cacheKey = getLiveFeedCacheKey(gamePk);
+  const cachedEntry = liveFeedCache.get(cacheKey);
+  const now = Date.now();
+
+  if (!forceRefresh && cachedEntry?.data && now - cachedEntry.ts < maxAgeMs) {
+    return cachedEntry.data;
+  }
+
+  if (!forceRefresh && cachedEntry?.promise) {
+    return cachedEntry.promise;
+  }
+
+  const requestPromise = fetchData(
     `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`
-  );
+  )
+    .then((data) => {
+      liveFeedCache.set(cacheKey, {
+        data,
+        ts: Date.now(),
+        promise: null,
+      });
+      return data;
+    })
+    .catch((error) => {
+      if (cachedEntry?.data) {
+        liveFeedCache.set(cacheKey, {
+          data: cachedEntry.data,
+          ts: cachedEntry.ts,
+          promise: null,
+        });
+      } else {
+        liveFeedCache.delete(cacheKey);
+      }
+      throw error;
+    });
+
+  liveFeedCache.set(cacheKey, {
+    data: cachedEntry?.data ?? null,
+    ts: cachedEntry?.ts ?? 0,
+    promise: requestPromise,
+  });
+
+  return requestPromise;
 };
 
 export const mlbService = {
+  getLiveFeed: (gamePk, options) => fetchLiveData(gamePk, options),
+
+  clearLiveFeedCache: (gamePk) => {
+    if (gamePk === undefined || gamePk === null) {
+      liveFeedCache.clear();
+      return;
+    }
+    liveFeedCache.delete(getLiveFeedCacheKey(gamePk));
+  },
+
   getSchedule: (startDate, endDate, teamId) => {
     const params = {
       hydrate: "team,lineups",
@@ -31,132 +86,4 @@ export const mlbService = {
   },
 
   getGameContent: (gamePk) => fetchData(`${BASE_URL}/game/${gamePk}/content`),
-
-  getTeams: (gamePk) =>
-    fetchLiveData(gamePk).then((data) => data.gameData.teams),
-
-  getLinescore: (gamePk) =>
-    fetchLiveData(gamePk).then((data) => data.liveData.linescore.innings),
-
-  getLeftOnBase: (gamePk) =>
-    fetchLiveData(gamePk).then((data) => data.liveData.linescore.teams),
-
-  getBoxScore: (gamePk) =>
-    fetchLiveData(gamePk).then((data) => data.liveData.boxscore.teams),
-
-  getDecisions: (gamePk) =>
-    fetchLiveData(gamePk).then((data) => data.liveData.decisions),
-
-  getStartTime: (gamePk) =>
-    fetchLiveData(gamePk).then((data) => data.gameData.datetime),
-
-  getProbablePitchers: (gamePk) =>
-    fetchLiveData(gamePk).then((data) => data.gameData.probablePitchers),
-
-  getTopPerformers: (gamePk) =>
-    fetchLiveData(gamePk).then((data) => data.liveData.boxscore.topPerformers),
-
-  getChallenges: (gamePk) =>
-    fetchLiveData(gamePk).then((data) => ({
-      review: data.gameData.reviews,
-      absChallenges: data.gameData.absChallenges,
-    })),
-
-  getHitData: async (gamePk) => {
-    try {
-      const response = await fetchLiveData(gamePk);
-      const plays = response.liveData.plays.allPlays;
-      const hitData = [];
-
-      plays.forEach((play, playIndex) => {
-        play.playEvents.forEach((event, eventIndex) => {
-          if (event.hitData) {
-            const batter = play.matchup.batter;
-            const result = play.result.event;
-
-            hitData.push({
-              playIndex,
-              eventIndex,
-              batterId: batter.id,
-              result,
-              batterName: batter.fullName,
-              hitData: event.hitData,
-            });
-          }
-        });
-      });
-
-      return hitData;
-    } catch (error) {
-      console.error("Error fetching hit data:", error);
-      return [];
-    }
-  },
-  getPitchData: async (gamePk) => {
-    try {
-      const response = await fetchLiveData(gamePk);
-      const plays = response.liveData.plays.allPlays;
-      const pitchData = [];
-
-      plays.forEach((play) => {
-        play.playEvents.forEach((event) => {
-          if (event.details?.type?.description) {
-            const playId = event.playId;
-            const inning = play.about.inning;
-            const pitcher = play.matchup.pitcher;
-            const batterHand = play.matchup.batSide.description;
-            const batter = play.matchup.batter;
-            const paPitchNumber = event.pitchNumber;
-            const pitchType = event.details.type.code;
-            const startSpeed = event.pitchData?.startSpeed;
-            const extension = event.pitchData?.extension;
-            const inducedVerticalBreak =
-              event.pitchData?.breaks?.breakVerticalInduced;
-            const horizontalBreak = event.pitchData?.breaks?.breakHorizontal;
-            const plateX = event.pitchData?.coordinates?.pX;
-            const plateZ = event.pitchData?.coordinates?.pZ;
-            const relX = event.pitchData?.coordinates.x0;
-            const relZ = event.pitchData?.coordinates.z0;
-            const description = event.details.description;
-
-            const isWhiff =
-              description === "Swinging Strike" ||
-              description === "Swinging Strike (Blocked)";
-            const isCalledStrike = description === "Called Strike";
-
-            const launchSpeed = event.hitData?.launchSpeed;
-
-            pitchData.push({
-              playId: playId,
-              inning,
-              pitcherId: pitcher.id,
-              pitcherName: pitcher.fullName,
-              batterId: batter.id,
-              batterName: batter.fullName,
-              batterHand,
-              paPitchNumber,
-              pitchType,
-              startSpeed,
-              extension,
-              inducedVerticalBreak,
-              horizontalBreak,
-              plateX,
-              plateZ,
-              relX,
-              relZ,
-              isCalledStrike,
-              isWhiff,
-              launchSpeed,
-              description,
-            });
-          }
-        });
-      });
-
-      return pitchData;
-    } catch (error) {
-      console.error("Error fetching pitch data:", error);
-      return [];
-    }
-  },
 };

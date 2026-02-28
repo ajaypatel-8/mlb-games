@@ -18,13 +18,14 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
       (pitch) => pitch.pitcherName === selectedPitcher
     );
 
-    const pitchTypeIndexes = {};
+    if (pitcherData.length === 0) return;
 
-    pitcherData.forEach((pitch, i) => {
+    const pitchTypeIndexes = {};
+    const indexedPitcherData = pitcherData.map((pitch) => {
       if (!pitchTypeIndexes[pitch.pitchType]) {
         pitchTypeIndexes[pitch.pitchType] = 0;
       }
-      pitch.index = ++pitchTypeIndexes[pitch.pitchType];
+      return { ...pitch, index: ++pitchTypeIndexes[pitch.pitchType] };
     });
 
     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
@@ -42,21 +43,21 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
     const y = d3
       .scaleLinear()
       .domain(
-        selectedMetric === "extension" || "relX" || "relZ"
+        ["extension", "relX", "relZ"].includes(selectedMetric)
           ? [
-              d3.min(pitcherData, (d) => d[selectedMetric]) - 0.1,
-              d3.max(pitcherData, (d) => d[selectedMetric]) + 0.1,
+              d3.min(indexedPitcherData, (d) => d[selectedMetric]) - 0.1,
+              d3.max(indexedPitcherData, (d) => d[selectedMetric]) + 0.1,
             ]
           : [
-              d3.min(pitcherData, (d) => d[selectedMetric]) - 5,
-              d3.max(pitcherData, (d) => d[selectedMetric]) + 5,
+              d3.min(indexedPitcherData, (d) => d[selectedMetric]) - 5,
+              d3.max(indexedPitcherData, (d) => d[selectedMetric]) + 5,
             ]
       )
       .nice()
       .range([height, 0]);
 
     const tickFormat =
-      selectedMetric === "extension" || "relX" || "relZ"
+      ["extension", "relX", "relZ"].includes(selectedMetric)
         ? d3.format(".1f")
         : d3.format(".0f");
 
@@ -110,15 +111,30 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
       .style("font-weight", "bold")
       .text("Pitch Number");
 
-    const pitchTypes = Array.from(new Set(pitcherData.map((d) => d.pitchType)));
+    const pitchTypes = Array.from(
+      new Set(indexedPitcherData.map((d) => d.pitchType))
+    );
 
     const colorScale = d3
       .scaleOrdinal()
       .domain(pitchTypes)
       .range(d3.schemeCategory10);
 
+    const tooltip = d3
+      .select("body")
+      .append("div")
+      .style("position", "absolute")
+      .style("background", "white")
+      .style("border", "1px solid black")
+      .style("padding", "5px")
+      .style("border-radius", "5px")
+      .style("font-size", "12px")
+      .style("pointer-events", "none")
+      .style("display", "none")
+      .style("z-index", "100001");
+
     pitchTypes.forEach((pitchType) => {
-      const pitchTypeData = pitcherData.filter(
+      const pitchTypeData = indexedPitcherData.filter(
         (d) => d.pitchType === pitchType
       );
 
@@ -126,19 +142,6 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
         .line()
         .x((d) => x(d.index))
         .y((d) => y(d[selectedMetric]));
-
-      const tooltip = d3
-        .select("body")
-        .append("div")
-        .style("position", "absolute")
-        .style("background", "white")
-        .style("border", "1px solid black")
-        .style("padding", "5px")
-        .style("border-radius", "5px")
-        .style("font-size", "12px")
-        .style("pointer-events", "none")
-        .style("display", "none")
-        .style("z-index", "100001");
 
       svg
         .append("path")
@@ -180,35 +183,38 @@ const RollingPlot = ({ pitchData, selectedPitcher }) => {
 
           tooltip.style("display", "none");
         });
-      const legendGroup = svg
-        .append("g")
-        // Legend is positioned below the x-axis
-        .attr("transform", `translate(170, ${height + 21})`);
-
-      // Set the width for each legend item
-      const legendItemWidth = 40;
-
-      pitchTypes.forEach((pitchType, i) => {
-        const legendItem = legendGroup
-          .append("g")
-          .attr("transform", `translate(${i * legendItemWidth}, 0)`);
-
-        legendItem
-          .append("rect")
-          .attr("width", 15)
-          .attr("height", 15)
-          .style("fill", colorScale(pitchType))
-          .style("stroke", "black");
-
-        legendItem
-          .append("text")
-          .attr("x", 20)
-          .attr("y", 8)
-          .style("font-size", "12px")
-          .style("alignment-baseline", "middle")
-          .text(pitchType);
-      });
     });
+
+    const legendGroup = svg
+      .append("g")
+      .attr("transform", `translate(170, ${height + 21})`);
+    const legendItemWidth = 40;
+
+    pitchTypes.forEach((pitchType, i) => {
+      const legendItem = legendGroup
+        .append("g")
+        .attr("transform", `translate(${i * legendItemWidth}, 0)`);
+
+      legendItem
+        .append("rect")
+        .attr("width", 15)
+        .attr("height", 15)
+        .style("fill", colorScale(pitchType))
+        .style("stroke", "black");
+
+      legendItem
+        .append("text")
+        .attr("x", 20)
+        .attr("y", 8)
+        .style("font-size", "12px")
+        .style("alignment-baseline", "middle")
+        .text(pitchType);
+    });
+
+    return () => {
+      tooltip.remove();
+      d3.select("#rolling-plot-container").selectAll("*").remove();
+    };
   }, [pitchData, selectedPitcher, selectedMetric]);
 
   return (

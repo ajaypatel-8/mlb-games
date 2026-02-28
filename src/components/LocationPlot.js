@@ -210,6 +210,11 @@ const LocationPlot = ({ pitchData, selectedPitcher, pitchers }) => {
       .style("fill", "white")
       .style("stroke", "black")
       .style("stroke-width", 2);
+
+    return () => {
+      tooltip.remove();
+      d3.select("#location-plot-container").selectAll("*").remove();
+    };
   }, [pitchData, selectedPitcher]);
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faChartBar } from "@fortawesome/free-solid-svg-icons";
@@ -14,14 +14,25 @@ import RollingPlot from "./RollingPlot";
 import PitchTable from "./PitchTable";
 import ChallengeTable from "./ChallengeTable";
 
-const LineupModal = ({ team, players, gameDate, gamePk }) => {
+const LineupModal = ({ team, players, gameDate, gamePk, gameStatus }) => {
+  const liveRefreshMs = 10000;
   const [showModal, setShowModal] = useState(false);
   const [currentView, setCurrentView] = useState("players");
   const [hitData, setHitData] = useState([]);
   const [pitchData, setPitchData] = useState([]);
-  const [challengeData, setChallengeData] = useState([]);
+  const [challengeData, setChallengeData] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPitcher, setSelectedPitcher] = useState(null);
+  const isSelectedDateToday =
+    new Date(gameDate).toDateString() === new Date().toDateString();
+  const normalizedGameStatus = (gameStatus || "").toLowerCase();
+  const shouldPollModalData =
+    isSelectedDateToday &&
+    (normalizedGameStatus.includes("in progress") ||
+      normalizedGameStatus.includes("delay") ||
+      normalizedGameStatus.includes("scheduled") ||
+      normalizedGameStatus.includes("pre-game") ||
+      normalizedGameStatus.includes("warmup"));
 
   const viewOptions = {
     players: "Players",
@@ -34,42 +45,121 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     challenges: "Challenge Data",
   };
 
-  const sortedPlayers = Array.isArray(players)
-    ? players
-        .map((player) => ({
-          ...player,
-          battingOrder: parseInt(player.battingOrder, 10),
-        }))
-        .sort((a, b) => a.battingOrder - b.battingOrder)
-    : [];
-
-  const hitters = sortedPlayers.filter(
-    (player) => player.position.type !== "Pitcher"
-  );
-  const pitchers = sortedPlayers.filter(
-    (player) => player.position.type === "Pitcher"
+  const sortedPlayers = useMemo(
+    () =>
+      Array.isArray(players)
+        ? players
+            .map((player) => ({
+              ...player,
+              battingOrder: parseInt(player.battingOrder, 10),
+            }))
+            .sort((a, b) => a.battingOrder - b.battingOrder)
+        : [],
+    [players]
   );
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const hitters = useMemo(
+    () => sortedPlayers.filter((player) => player.position.type !== "Pitcher"),
+    [sortedPlayers]
+  );
+  const pitchers = useMemo(
+    () => sortedPlayers.filter((player) => player.position.type === "Pitcher"),
+    [sortedPlayers]
+  );
+
+  const extractHitData = useCallback((plays) => {
+    const parsedHitData = [];
+
+    plays.forEach((play, playIndex) => {
+      play.playEvents.forEach((event, eventIndex) => {
+        if (event.hitData) {
+          const batter = play.matchup.batter;
+          parsedHitData.push({
+            playIndex,
+            eventIndex,
+            batterId: batter.id,
+            result: play.result.event,
+            batterName: batter.fullName,
+            hitData: event.hitData,
+          });
+        }
+      });
+    });
+
+    return parsedHitData;
+  }, []);
+
+  const extractPitchData = useCallback((plays) => {
+    const parsedPitchData = [];
+
+    plays.forEach((play) => {
+      play.playEvents.forEach((event) => {
+        if (event.details?.type?.description) {
+          const description = event.details.description;
+          parsedPitchData.push({
+            playId: event.playId,
+            inning: play.about.inning,
+            pitcherId: play.matchup.pitcher.id,
+            pitcherName: play.matchup.pitcher.fullName,
+            batterId: play.matchup.batter.id,
+            batterName: play.matchup.batter.fullName,
+            batterHand: play.matchup.batSide.description,
+            paPitchNumber: event.pitchNumber,
+            pitchType: event.details.type.code,
+            startSpeed: event.pitchData?.startSpeed,
+            extension: event.pitchData?.extension,
+            inducedVerticalBreak: event.pitchData?.breaks?.breakVerticalInduced,
+            horizontalBreak: event.pitchData?.breaks?.breakHorizontal,
+            plateX: event.pitchData?.coordinates?.pX,
+            plateZ: event.pitchData?.coordinates?.pZ,
+            relX: event.pitchData?.coordinates?.x0,
+            relZ: event.pitchData?.coordinates?.z0,
+            isCalledStrike: description === "Called Strike",
+            isWhiff:
+              description === "Swinging Strike" ||
+              description === "Swinging Strike (Blocked)",
+            launchSpeed: event.hitData?.launchSpeed,
+            description,
+          });
+        }
+      });
+    });
+
+    return parsedPitchData;
+  }, []);
+
+  const fetchModalData = useCallback(
+    async (liveFeedOptions = {}) => {
       try {
-        const [hitDataResponse, pitchDataResponse, challengeDataResponse] =
-          await Promise.all([
-            mlbService.getHitData(gamePk),
-            mlbService.getPitchData(gamePk),
-            mlbService.getChallenges(gamePk),
-          ]);
-
-        setHitData(hitDataResponse);
-        setPitchData(pitchDataResponse);
-        setChallengeData(challengeDataResponse);
+        const liveFeedData = await mlbService.getLiveFeed(gamePk, liveFeedOptions);
+        const plays = liveFeedData?.liveData?.plays?.allPlays || [];
+        setHitData(extractHitData(plays));
+        setPitchData(extractPitchData(plays));
+        setChallengeData({
+          review: liveFeedData?.gameData?.reviews,
+          absChallenges: liveFeedData?.gameData?.absChallenges,
+          teams: liveFeedData?.gameData?.teams,
+        });
       } catch (error) {
         console.error("Error fetching data", error);
       }
-    };
+    },
+    [gamePk, extractHitData, extractPitchData]
+  );
 
-    fetchData();
-  }, [gamePk]);
+  useEffect(() => {
+    if (!showModal) return;
+
+    fetchModalData();
+
+    if (!shouldPollModalData) return;
+
+    const intervalId = setInterval(() => {
+      fetchModalData({ maxAgeMs: 5000 });
+    }, liveRefreshMs);
+
+    return () => clearInterval(intervalId);
+  }, [showModal, shouldPollModalData, fetchModalData]);
 
   const teamMap = useMemo(() => {
     return mlbTeams.reduce((acc, team) => {
@@ -100,11 +190,15 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     return `https://img.mlbstatic.com/mlb-photos/image/upload/w_180,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${playerId}/headshot/silo/current`;
   };
 
-  const sortedPitchers = pitchers.sort((a, b) => {
-    const ipA = a.stats.pitching?.inningsPitched || 0;
-    const ipB = b.stats.pitching?.inningsPitched || 0;
-    return ipB - ipA;
-  });
+  const sortedPitchers = useMemo(
+    () =>
+      [...pitchers].sort((a, b) => {
+        const ipA = a.stats.pitching?.inningsPitched || 0;
+        const ipB = b.stats.pitching?.inningsPitched || 0;
+        return ipB - ipA;
+      }),
+    [pitchers]
+  );
   const processPitchData = (pitchData) => {
     const groupedData = {};
 
@@ -202,8 +296,12 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
       .flat();
   };
 
-  const processedData = processPitchData(pitchData).filter((data) =>
-    pitchers.some((pitcher) => pitcher.person.id === data.pitcherId)
+  const processedData = useMemo(
+    () =>
+      processPitchData(pitchData).filter((data) =>
+        pitchers.some((pitcher) => pitcher.person.id === data.pitcherId)
+      ),
+    [pitchData, pitchers]
   );
 
   const formattedDate = new Date(gameDate).toLocaleDateString();
@@ -313,16 +411,19 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
     [processedData, searchTerm]
   );
 
-  const filteredPitchersPlots = pitchData
-    .filter((data) =>
-      pitchers.some((pitcher) => pitcher.person.id === data.pitcherId)
-    )
-    .filter(
-      (value, index, self) =>
-        self.findIndex((v) => v.pitcherName === value.pitcherName) === index
-    );
-
-  const MemoizedTable = React.memo(Table);
+  const filteredPitchersPlots = useMemo(
+    () =>
+      pitchData
+        .filter((data) =>
+          pitchers.some((pitcher) => pitcher.person.id === data.pitcherId)
+        )
+        .filter(
+          (value, index, self) =>
+            self.findIndex((v) => v.pitcherName === value.pitcherName) ===
+            index
+        ),
+    [pitchData, pitchers]
+  );
 
   return (
     <div>
@@ -397,7 +498,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="mb-3 form-control"
               />
-              <MemoizedTable
+              <Table
                 columns={columns}
                 data={filteredHitters
                   .map((player) => {
@@ -452,7 +553,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="mb-3 form-control"
               />
-              <MemoizedTable
+              <Table
                 columns={[
                   {
                     Header: "Pitcher",
@@ -664,7 +765,7 @@ const LineupModal = ({ team, players, gameDate, gamePk }) => {
           ) : currentView === "challenges" ? (
             <div className="container">
               <h5>Challenge Data</h5>
-              <ChallengeTable challengeData={challengeData} gamePk={gamePk} />
+              <ChallengeTable challengeData={challengeData} />
             </div>
           ) : (
             <div className="row">
