@@ -1,33 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, Col, Table } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
 import { mlbService } from "../services/mlbService";
 import mlbTeams from "./mlbTeams.json";
 import LineupModal from "./PlayersModal";
-
-const TeamLogo = React.memo(function TeamLogo({ teamUrl, logoUrl, altText }) {
-  return (
-    <a href={teamUrl} target="_blank" rel="noopener noreferrer">
-      <img src={logoUrl} alt={altText} style={{ width: "25px", height: "25px" }} />
-    </a>
-  );
-});
-
-const PlayerHeadshotLink = React.memo(function PlayerHeadshotLink({
-  playerUrl,
-  imageUrl,
-  altText,
-  size = 30,
-}) {
-  return (
-    <a href={playerUrl} target="_blank" rel="noopener noreferrer">
-      <img
-        src={imageUrl}
-        alt={altText}
-        style={{ width: `${size}px`, height: `${size}px`, borderRadius: "50%" }}
-      />
-    </a>
-  );
-});
 
 const GameCard = ({ game, gameDate, showDetailedStats }) => {
   const liveRefreshMs = 15000;
@@ -42,10 +19,10 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
 
   const isInProgress = game.status.detailedState === "In Progress";
   const isRainDelay = ["Delayed", "Rain Delay"].includes(
-    game.status.detailedState
+    game.status.detailedState,
   );
   const isPregame = ["Scheduled", "Pre-Game", "Warmup"].includes(
-    game.status.detailedState
+    game.status.detailedState,
   );
   const isCancelled = game.status.detailedState === "Cancelled";
   const isPostponed = game.status.detailedState === "Postponed";
@@ -66,6 +43,84 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
   const [startTime, setStartTime] = useState(null);
   const [probablePitchers, setProbablePitchers] = useState(null);
   const [topPerformers, setTopPerformers] = useState([]);
+
+  const getLinescoreSignature = useCallback((innings = []) => {
+    return innings
+      .map(
+        (inning) =>
+          `${inning?.num}:${inning?.away?.runs ?? "-"}-${inning?.home?.runs ?? "-"}`,
+      )
+      .join("|");
+  }, []);
+
+  const getTeamLinescoreSignature = useCallback((teams) => {
+    return [
+      teams?.away?.runs ?? "-",
+      teams?.away?.hits ?? "-",
+      teams?.away?.errors ?? "-",
+      teams?.away?.leftOnBase ?? "-",
+      teams?.home?.runs ?? "-",
+      teams?.home?.hits ?? "-",
+      teams?.home?.errors ?? "-",
+      teams?.home?.leftOnBase ?? "-",
+    ].join("|");
+  }, []);
+
+  const getDecisionsSignature = useCallback((decisionData = {}) => {
+    return [
+      decisionData?.winner?.id ?? "-",
+      decisionData?.loser?.id ?? "-",
+      decisionData?.save?.id ?? "-",
+    ].join("|");
+  }, []);
+
+  const getTopPerformersSignature = useCallback((performers = []) => {
+    return performers
+      .map(
+        (performer) =>
+          `${performer?.player?.person?.id ?? "-"}:${performer?.player?.stats?.batting?.summary ?? ""}:${performer?.player?.stats?.pitching?.summary ?? ""}`,
+      )
+      .join("|");
+  }, []);
+
+  const getBattingStatsSignature = useCallback((teamBoxScore = {}) => {
+    const awayBatting = teamBoxScore?.away?.teamStats?.batting || {};
+    const homeBatting = teamBoxScore?.home?.teamStats?.batting || {};
+
+    return [
+      awayBatting.baseOnBalls ?? "-",
+      awayBatting.strikeOuts ?? "-",
+      awayBatting.stolenBases ?? "-",
+      awayBatting.doubles ?? "-",
+      awayBatting.triples ?? "-",
+      awayBatting.homeRuns ?? "-",
+      awayBatting.ops ?? "-",
+      homeBatting.baseOnBalls ?? "-",
+      homeBatting.strikeOuts ?? "-",
+      homeBatting.stolenBases ?? "-",
+      homeBatting.doubles ?? "-",
+      homeBatting.triples ?? "-",
+      homeBatting.homeRuns ?? "-",
+      homeBatting.ops ?? "-",
+    ].join("|");
+  }, []);
+
+  const getLineupSignature = useCallback((players = {}) => {
+    return Object.values(players)
+      .map((player) => ({
+        id: player?.person?.id ?? -1,
+        battingOrder: player?.battingOrder ?? "",
+        position: player?.position?.abbreviation ?? "",
+        batSummary: player?.stats?.batting?.summary ?? "",
+        pitchSummary: player?.stats?.pitching?.summary ?? "",
+      }))
+      .sort((a, b) => a.id - b.id)
+      .map(
+        (player) =>
+          `${player.id}:${player.battingOrder}:${player.position}:${player.batSummary}:${player.pitchSummary}`,
+      )
+      .join("|");
+  }, []);
 
   // Function to convert time to user's local time zone
   const convertToLocalTime = useCallback((utcDateTime) => {
@@ -93,21 +148,72 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
         ]);
 
         const recapSlug = contentData?.editorial?.recap?.mlb?.slug;
-        setRecapLink(recapSlug ? `https://www.mlb.com/news/${recapSlug}` : null);
+        setRecapLink(
+          recapSlug ? `https://www.mlb.com/news/${recapSlug}` : null,
+        );
 
-        setLinescore(liveFeedData?.liveData?.linescore?.innings || []);
-        setLeftOnBase(liveFeedData?.liveData?.linescore?.teams || null);
-        setDecisions(liveFeedData?.liveData?.decisions || {});
-        setTopPerformers(liveFeedData?.liveData?.boxscore?.topPerformers || []);
+        const nextLinescore = liveFeedData?.liveData?.linescore?.innings || [];
+        setLinescore((previousLinescore) =>
+          getLinescoreSignature(previousLinescore) ===
+          getLinescoreSignature(nextLinescore)
+            ? previousLinescore
+            : nextLinescore,
+        );
+
+        const nextLeftOnBase = liveFeedData?.liveData?.linescore?.teams || null;
+        setLeftOnBase((previousLeftOnBase) =>
+          getTeamLinescoreSignature(previousLeftOnBase) ===
+          getTeamLinescoreSignature(nextLeftOnBase)
+            ? previousLeftOnBase
+            : nextLeftOnBase,
+        );
+
+        const nextDecisions = liveFeedData?.liveData?.decisions || {};
+        setDecisions((previousDecisions) =>
+          getDecisionsSignature(previousDecisions) ===
+          getDecisionsSignature(nextDecisions)
+            ? previousDecisions
+            : nextDecisions,
+        );
+
+        const nextTopPerformers =
+          liveFeedData?.liveData?.boxscore?.topPerformers || [];
+        setTopPerformers((previousTopPerformers) =>
+          getTopPerformersSignature(previousTopPerformers) ===
+          getTopPerformersSignature(nextTopPerformers)
+            ? previousTopPerformers
+            : nextTopPerformers,
+        );
 
         const boxScoreData = liveFeedData?.liveData?.boxscore?.teams || {};
-        setBoxScore(boxScoreData);
-        setAwayLineup(boxScoreData?.away?.players || []);
-        setHomeLineup(boxScoreData?.home?.players || []);
+        setBoxScore((previousBoxScore) =>
+          getBattingStatsSignature(previousBoxScore) ===
+          getBattingStatsSignature(boxScoreData)
+            ? previousBoxScore
+            : boxScoreData,
+        );
+
+        const nextAwayLineup = boxScoreData?.away?.players || {};
+        setAwayLineup((previousAwayLineup) =>
+          getLineupSignature(previousAwayLineup) ===
+          getLineupSignature(nextAwayLineup)
+            ? previousAwayLineup
+            : nextAwayLineup,
+        );
+
+        const nextHomeLineup = boxScoreData?.home?.players || {};
+        setHomeLineup((previousHomeLineup) =>
+          getLineupSignature(previousHomeLineup) ===
+          getLineupSignature(nextHomeLineup)
+            ? previousHomeLineup
+            : nextHomeLineup,
+        );
 
         if (isPregame) {
           const startDateTime = liveFeedData?.gameData?.datetime?.dateTime;
-          setStartTime(startDateTime ? convertToLocalTime(startDateTime) : null);
+          setStartTime(
+            startDateTime ? convertToLocalTime(startDateTime) : null,
+          );
           setProbablePitchers(liveFeedData?.gameData?.probablePitchers || null);
         } else {
           setStartTime(null);
@@ -118,7 +224,17 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
         setProbablePitchers(null);
       }
     },
-    [gamePk, isPregame, convertToLocalTime]
+    [
+      gamePk,
+      isPregame,
+      convertToLocalTime,
+      getBattingStatsSignature,
+      getDecisionsSignature,
+      getLineupSignature,
+      getLinescoreSignature,
+      getTeamLinescoreSignature,
+      getTopPerformersSignature,
+    ],
   );
 
   useEffect(() => {
@@ -142,8 +258,24 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
     }, {});
   }, []);
 
-  const awayTeamData = teamMap[away.team.abbreviation];
-  const homeTeamData = teamMap[home.team.abbreviation];
+  const getTeamLogo = (teamAbbreviation) => {
+    const team = teamMap[teamAbbreviation];
+
+    if (team) {
+      const teamUrl = `https://www.mlb.com/${team.team_mascot.toLowerCase()}`;
+      return (
+        <a href={teamUrl} target="_blank" rel="noopener noreferrer">
+          <img
+            src={team.team_scoreboard_logo_espn}
+            alt={team.team_mascot}
+            style={{ width: "25px", height: "25px" }}
+          />
+        </a>
+      );
+    }
+
+    return teamAbbreviation;
+  };
 
   const formatPlayerName = (fullName) => {
     if (!fullName) return "TBD";
@@ -165,48 +297,51 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
       (player.stats?.fielding && Object.keys(player.stats.fielding).length > 0)
     );
   }, []);
-  const sortLineup = useCallback((lineup) => {
-    const players = Object.values(lineup)
-      .filter(filterPlayerStats)
-      .map((player) => {
-        const battingOrder = parseInt(player.battingOrder, 10);
-        return { ...player, battingOrder };
+  const sortLineup = useCallback(
+    (lineup) => {
+      const players = Object.values(lineup)
+        .filter(filterPlayerStats)
+        .map((player) => {
+          const battingOrder = parseInt(player.battingOrder, 10);
+          return { ...player, battingOrder };
+        });
+
+      const normalPlayers = [];
+      const subbedInPlayers = [];
+      const invalidPlayers = [];
+
+      players.forEach((player) => {
+        const isSubbedIn =
+          player.battingOrder >= 100 &&
+          player.battingOrder < 1000 &&
+          player.battingOrder % 10 !== 0;
+
+        if (isSubbedIn) {
+          subbedInPlayers.push(player);
+        } else if (
+          isNaN(player.battingOrder) ||
+          player.battingOrder < 1 ||
+          player.battingOrder > 900
+        ) {
+          invalidPlayers.push(player);
+        } else {
+          const position = Math.floor(player.battingOrder / 100) - 1;
+          normalPlayers[position] = player;
+        }
       });
 
-    const normalPlayers = [];
-    const subbedInPlayers = [];
-    const invalidPlayers = [];
-
-    players.forEach((player) => {
-      const isSubbedIn =
-        player.battingOrder >= 100 &&
-        player.battingOrder < 1000 &&
-        player.battingOrder % 10 !== 0;
-
-      if (isSubbedIn) {
-        subbedInPlayers.push(player);
-      } else if (
-        isNaN(player.battingOrder) ||
-        player.battingOrder < 1 ||
-        player.battingOrder > 900
-      ) {
-        invalidPlayers.push(player);
-      } else {
-        const position = Math.floor(player.battingOrder / 100) - 1;
-        normalPlayers[position] = player;
-      }
-    });
-
-    return [...normalPlayers, ...subbedInPlayers, ...invalidPlayers];
-  }, [filterPlayerStats]);
+      return [...normalPlayers, ...subbedInPlayers, ...invalidPlayers];
+    },
+    [filterPlayerStats],
+  );
 
   const sortedAwayLineup = useMemo(
     () => sortLineup(awayLineup),
-    [awayLineup, sortLineup]
+    [awayLineup, sortLineup],
   );
   const sortedHomeLineup = useMemo(
     () => sortLineup(homeLineup),
-    [homeLineup, sortLineup]
+    [homeLineup, sortLineup],
   );
   const awayBattingStats = boxScore?.away?.teamStats?.batting || {};
   const homeBattingStats = boxScore?.home?.teamStats?.batting || {};
@@ -214,17 +349,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
   const renderEmptyBoxScore = () => (
     <>
       <tr>
-        <td>
-          {awayTeamData ? (
-            <TeamLogo
-              teamUrl={`https://www.mlb.com/${awayTeamData.team_mascot.toLowerCase()}`}
-              logoUrl={awayTeamData.team_scoreboard_logo_espn}
-              altText={awayTeamData.team_mascot}
-            />
-          ) : (
-            away.team.abbreviation
-          )}
-        </td>
+        <td>{getTeamLogo(away.team.abbreviation)}</td>
         {linescore.map((inning, index) => (
           <td key={index}>-</td>
         ))}
@@ -239,17 +364,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
         </td>
       </tr>
       <tr>
-        <td>
-          {homeTeamData ? (
-            <TeamLogo
-              teamUrl={`https://www.mlb.com/${homeTeamData.team_mascot.toLowerCase()}`}
-              logoUrl={homeTeamData.team_scoreboard_logo_espn}
-              altText={homeTeamData.team_mascot}
-            />
-          ) : (
-            home.team.abbreviation
-          )}
-        </td>
+        <td>{getTeamLogo(home.team.abbreviation)}</td>
         {linescore.map((inning, index) => (
           <td key={index}>-</td>
         ))}
@@ -364,15 +479,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
             {isFinal || isInProgress || isRainDelay ? (
               <div className="text-center">
                 <span style={{ marginRight: "10px" }}>
-                  {awayTeamData ? (
-                    <TeamLogo
-                      teamUrl={`https://www.mlb.com/${awayTeamData.team_mascot.toLowerCase()}`}
-                      logoUrl={awayTeamData.team_scoreboard_logo_espn}
-                      altText={awayTeamData.team_mascot}
-                    />
-                  ) : (
-                    away.team.abbreviation
-                  )}
+                  {getTeamLogo(away.team.abbreviation)}
                 </span>
                 <span style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
                   {away.score}
@@ -382,15 +489,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   {home.score}
                 </span>
                 <span style={{ marginLeft: "10px" }}>
-                  {homeTeamData ? (
-                    <TeamLogo
-                      teamUrl={`https://www.mlb.com/${homeTeamData.team_mascot.toLowerCase()}`}
-                      logoUrl={homeTeamData.team_scoreboard_logo_espn}
-                      altText={homeTeamData.team_mascot}
-                    />
-                  ) : (
-                    home.team.abbreviation
-                  )}
+                  {getTeamLogo(home.team.abbreviation)}
                 </span>
               </div>
             ) : (
@@ -421,14 +520,33 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                           style={{ gap: "10px" }}
                         >
                           <strong>{away.team.abbreviation}: </strong>
-                          <PlayerHeadshotLink
-                            playerUrl={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.away?.id}`}
-                            imageUrl={getPlayerHeadshot(probablePitchers.away?.id)}
-                            altText={probablePitchers.away?.fullName}
-                          />
+                          <a
+                            href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.away?.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {getPlayerHeadshot(probablePitchers.away?.id) ? (
+                              <img
+                                src={getPlayerHeadshot(
+                                  probablePitchers.away?.id,
+                                )}
+                                alt={probablePitchers.away?.fullName}
+                                style={{
+                                  width: "30px",
+                                  height: "30px",
+                                  borderRadius: "50%",
+                                }}
+                              />
+                            ) : (
+                              <FontAwesomeIcon
+                                icon={faUserCircle}
+                                style={{ color: "white", fontSize: "25px" }}
+                              />
+                            )}
+                          </a>
                           <div>
                             {formatPlayerName(
-                              probablePitchers.away?.fullName
+                              probablePitchers.away?.fullName,
                             ) || "TBD"}
                           </div>
                         </div>
@@ -439,14 +557,33 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                           style={{ gap: "10px" }}
                         >
                           <strong>{home.team.abbreviation}: </strong>
-                          <PlayerHeadshotLink
-                            playerUrl={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.home?.id}`}
-                            imageUrl={getPlayerHeadshot(probablePitchers.home?.id)}
-                            altText={probablePitchers.home?.fullName}
-                          />
+                          <a
+                            href={`https://baseballsavant.mlb.com/savant-player/${probablePitchers.home?.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {getPlayerHeadshot(probablePitchers.home?.id) ? (
+                              <img
+                                src={getPlayerHeadshot(
+                                  probablePitchers.home?.id,
+                                )}
+                                alt={probablePitchers.home?.fullName}
+                                style={{
+                                  width: "30px",
+                                  height: "30px",
+                                  borderRadius: "50%",
+                                }}
+                              />
+                            ) : (
+                              <FontAwesomeIcon
+                                icon={faUserCircle}
+                                style={{ color: "white", fontSize: "25px" }}
+                              />
+                            )}
+                          </a>
                           <div>
                             {formatPlayerName(
-                              probablePitchers.home?.fullName
+                              probablePitchers.home?.fullName,
                             ) || "TBD"}
                           </div>
                         </div>
@@ -477,7 +614,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     {[...Array(Math.max(9, linescore.length))].map(
                       (_, index) => (
                         <th key={index}>{index + 1}</th>
-                      )
+                      ),
                     )}
 
                     <th>
@@ -505,17 +642,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 <tbody>
                   {/* Away Team */}
                   <tr>
-                    <td>
-                      {awayTeamData ? (
-                        <TeamLogo
-                          teamUrl={`https://www.mlb.com/${awayTeamData.team_mascot.toLowerCase()}`}
-                          logoUrl={awayTeamData.team_scoreboard_logo_espn}
-                          altText={awayTeamData.team_mascot}
-                        />
-                      ) : (
-                        away.team.abbreviation
-                      )}
-                    </td>
+                    <td>{getTeamLogo(away.team.abbreviation)}</td>
 
                     {[...Array(Math.max(9, linescore.length))].map(
                       (_, index) => {
@@ -526,7 +653,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                             {/* Display score if available, else "-" */}
                           </td>
                         );
-                      }
+                      },
                     )}
 
                     <td>
@@ -541,12 +668,8 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     {showDetailedStats && (
                       <>
                         <td>{leftOnBase?.away?.leftOnBase || 0}</td>
-                        <td>
-                          {awayBattingStats.baseOnBalls || 0}
-                        </td>
-                        <td>
-                          {awayBattingStats.strikeOuts || 0}
-                        </td>
+                        <td>{awayBattingStats.baseOnBalls || 0}</td>
+                        <td>{awayBattingStats.strikeOuts || 0}</td>
                         <td>{awayBattingStats.stolenBases || 0}</td>
                         <td>
                           {(awayBattingStats.doubles || 0) +
@@ -560,17 +683,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                   </tr>
                   {/* Home Team */}
                   <tr>
-                    <td>
-                      {homeTeamData ? (
-                        <TeamLogo
-                          teamUrl={`https://www.mlb.com/${homeTeamData.team_mascot.toLowerCase()}`}
-                          logoUrl={homeTeamData.team_scoreboard_logo_espn}
-                          altText={homeTeamData.team_mascot}
-                        />
-                      ) : (
-                        home.team.abbreviation
-                      )}
-                    </td>
+                    <td>{getTeamLogo(home.team.abbreviation)}</td>
                     {[...Array(Math.max(9, linescore.length))].map(
                       (_, index) => {
                         const inning = linescore[index];
@@ -579,7 +692,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                             {inning ? inning.home?.runs || 0 : "-"}{" "}
                           </td>
                         );
-                      }
+                      },
                     )}
 
                     <td className="table-column">
@@ -599,9 +712,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                         <td className="table-column">
                           {homeBattingStats.baseOnBalls || 0}
                         </td>
-                        <td>
-                          {homeBattingStats.strikeOuts || 0}
-                        </td>
+                        <td>{homeBattingStats.strikeOuts || 0}</td>
                         <td className="table-column">
                           {homeBattingStats.stolenBases || 0}
                         </td>
@@ -714,11 +825,28 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                       style={{ gap: "10px" }}
                     >
                       <strong>{role.charAt(0).toUpperCase()}:</strong>
-                      <PlayerHeadshotLink
-                        playerUrl={playerUrl}
-                        imageUrl={headshotUrl}
-                        altText={role.toUpperCase()}
-                      />
+                      <a
+                        href={playerUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {headshotUrl ? (
+                          <img
+                            src={headshotUrl}
+                            alt={role.toUpperCase()}
+                            style={{
+                              width: "30px",
+                              height: "30px",
+                              borderRadius: "50%",
+                            }}
+                          />
+                        ) : (
+                          <FontAwesomeIcon
+                            icon={faUserCircle}
+                            style={{ color: "white", fontSize: "25px" }}
+                          />
+                        )}
+                      </a>
                       <a
                         href={playerUrl}
                         target="_blank"
@@ -755,11 +883,28 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 }. ${playerName.split(" ").slice(1).join(" ")}`;
 
                 const headshot = (
-                  <PlayerHeadshotLink
-                    playerUrl={`https://baseballsavant.mlb.com/savant-player/${playerId}`}
-                    imageUrl={getPlayerHeadshot(playerId)}
-                    altText={playerName}
-                  />
+                  <a
+                    href={`https://baseballsavant.mlb.com/savant-player/${playerId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {getPlayerHeadshot(playerId) ? (
+                      <img
+                        src={getPlayerHeadshot(playerId)}
+                        alt={playerName}
+                        style={{
+                          width: "30px",
+                          height: "30px",
+                          borderRadius: "50%",
+                        }}
+                      />
+                    ) : (
+                      <FontAwesomeIcon
+                        icon={faUserCircle}
+                        style={{ color: "#6c757d", fontSize: "25px" }}
+                      />
+                    )}
+                  </a>
                 );
 
                 let statSummary = [];
