@@ -167,11 +167,11 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
       position: "absolute",
       left,
       top,
-      width: "8px",
-      height: "8px",
+      width: "9px",
+      height: "9px",
       transform: "translate(-50%, -50%) rotate(45deg)",
-      backgroundColor: isOccupied ? "#6c757d" : "#d1d5db",
-      border: "1px solid #6c757d",
+      backgroundColor: isOccupied ? "#f5d100" : "#d9dde2",
+      border: "1px solid #8a9099",
       borderRadius: "1px",
     };
   }, []);
@@ -560,21 +560,27 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 {isInProgress && liveContext && (
                   <div
                     className="text-muted mt-2"
-                    style={{ fontSize: "0.85rem", fontWeight: 500 }}
+                    style={{
+                      fontSize: "0.85rem",
+                      fontWeight: 500,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                    }}
                   >
-                    {liveContext.inningHalf} {liveContext.inningLabel}
-                    {typeof liveContext.outs === "number"
-                      ? ` • ${liveContext.outs} Out${liveContext.outs === 1 ? "" : "s"}`
-                      : ""}
-                    <span style={{ margin: "0 6px" }}>•</span>
+                    <span>
+                      {liveContext.inningHalf} {liveContext.inningLabel}
+                    </span>
+                    <span>•</span>
                     <span
                       aria-label="Baserunners"
                       title="Baserunners"
                       style={{
                         position: "relative",
                         display: "inline-block",
-                        width: "22px",
-                        height: "14px",
+                        width: "28px",
+                        height: "16px",
                         verticalAlign: "middle",
                       }}
                     >
@@ -582,24 +588,33 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                         style={getBaseDiamondStyle(
                           liveContext.onSecond,
                           "50%",
-                          "20%",
+                          "18%",
                         )}
                       />
                       <span
                         style={getBaseDiamondStyle(
                           liveContext.onThird,
-                          "25%",
-                          "75%",
+                          "20%",
+                          "78%",
                         )}
                       />
                       <span
                         style={getBaseDiamondStyle(
                           liveContext.onFirst,
-                          "75%",
-                          "75%",
+                          "80%",
+                          "78%",
                         )}
                       />
                     </span>
+                    {typeof liveContext.outs === "number" && (
+                      <>
+                        <span>•</span>
+                        <span>
+                          {liveContext.outs} Out
+                          {liveContext.outs === 1 ? "" : "s"}
+                        </span>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
