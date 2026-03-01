@@ -43,6 +43,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
   const [startTime, setStartTime] = useState(null);
   const [probablePitchers, setProbablePitchers] = useState(null);
   const [topPerformers, setTopPerformers] = useState([]);
+  const [liveContext, setLiveContext] = useState(null);
 
   const getLinescoreSignature = useCallback((innings = []) => {
     return innings
@@ -122,6 +123,52 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
       .join("|");
   }, []);
 
+  const getLiveContextSignature = useCallback((context) => {
+    return [
+      context?.inningHalf ?? "-",
+      context?.inningLabel ?? "-",
+      context?.outs ?? "-",
+      context?.runnersText ?? "-",
+    ].join("|");
+  }, []);
+
+  const getLiveContextFromLinescore = useCallback((lineScoreData) => {
+    const inningHalfRaw =
+      lineScoreData?.inningHalf || (lineScoreData?.isTopInning ? "Top" : "Bottom");
+    const inningHalf = inningHalfRaw ? inningHalfRaw.trim() : "";
+    const inningLabel =
+      lineScoreData?.currentInningOrdinal ||
+      (lineScoreData?.currentInning ? `${lineScoreData.currentInning}` : null);
+
+    if (!inningHalf || !inningLabel) return null;
+
+    const outs = Number.isInteger(lineScoreData?.outs)
+      ? lineScoreData.outs
+      : null;
+
+    const occupiedBases = ["first", "second", "third"].filter(
+      (base) => Boolean(lineScoreData?.offense?.[base]),
+    );
+
+    const baseLabelMap = {
+      first: "1st",
+      second: "2nd",
+      third: "3rd",
+    };
+
+    const runnersText =
+      occupiedBases.length === 0
+        ? "Bases empty"
+        : `On ${occupiedBases.map((base) => baseLabelMap[base]).join(" & ")}`;
+
+    return {
+      inningHalf,
+      inningLabel,
+      outs,
+      runnersText,
+    };
+  }, []);
+
   // Function to convert time to user's local time zone
   const convertToLocalTime = useCallback((utcDateTime) => {
     const date = new Date(utcDateTime);
@@ -166,6 +213,16 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
           getTeamLinescoreSignature(nextLeftOnBase)
             ? previousLeftOnBase
             : nextLeftOnBase,
+        );
+
+        const nextLiveContext = getLiveContextFromLinescore(
+          liveFeedData?.liveData?.linescore,
+        );
+        setLiveContext((previousLiveContext) =>
+          getLiveContextSignature(previousLiveContext) ===
+          getLiveContextSignature(nextLiveContext)
+            ? previousLiveContext
+            : nextLiveContext,
         );
 
         const nextDecisions = liveFeedData?.liveData?.decisions || {};
@@ -231,6 +288,8 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
       getBattingStatsSignature,
       getDecisionsSignature,
       getLineupSignature,
+      getLiveContextFromLinescore,
+      getLiveContextSignature,
       getLinescoreSignature,
       getTeamLinescoreSignature,
       getTopPerformersSignature,
@@ -491,6 +550,18 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 <span style={{ marginLeft: "10px" }}>
                   {getTeamLogo(home.team.abbreviation)}
                 </span>
+                {isInProgress && liveContext && (
+                  <div
+                    className="text-muted mt-2"
+                    style={{ fontSize: "0.85rem", fontWeight: 500 }}
+                  >
+                    {liveContext.inningHalf} {liveContext.inningLabel}
+                    {typeof liveContext.outs === "number"
+                      ? ` • ${liveContext.outs} Out${liveContext.outs === 1 ? "" : "s"}`
+                      : ""}
+                    {liveContext.runnersText ? ` • ${liveContext.runnersText}` : ""}
+                  </div>
+                )}
               </div>
             ) : (
               isPregame && (
