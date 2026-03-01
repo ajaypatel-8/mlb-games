@@ -563,7 +563,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     style={{
                       fontSize: "0.85rem",
                       fontWeight: 500,
-                      display: "inline-flex",
+                      display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       gap: "8px",
