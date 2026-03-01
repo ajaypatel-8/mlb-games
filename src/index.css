@@ -236,12 +236,32 @@ button svg:hover {
   white-space: nowrap; 
 }
 
-.table-sm th:first-child,
-.table-sm td:first-child {
-  position: sticky; 
+.boxscore-table th:first-child,
+.boxscore-table td:first-child {
+  position: sticky;
   left: 0;
-  background: white; 
   z-index: 2;
+  background-color: #fff;
+  background-clip: padding-box;
+  transform: translateZ(0);
+  will-change: transform;
+  contain: paint;
+}
+
+.boxscore-table td:first-child {
+  z-index: 3;
+}
+
+.boxscore-table td:first-child img,
+.boxscore-table th:first-child img {
+  display: block;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.boxscore-table.table-striped > tbody > tr > td:first-child,
+.boxscore-table.table-striped > tbody > tr > th:first-child {
+  background-color: #fff !important;
 }
 
 .player-cell {

@@ -602,7 +602,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 bordered
                 hover
                 responsive
-                className="table-sm"
+                className="table-sm boxscore-table"
                 style={{
                   fontSize: "0.85rem",
                   marginBottom: "0.5rem",
@@ -738,7 +738,7 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                 bordered
                 hover
                 responsive
-                className="table-sm"
+                className="table-sm boxscore-table"
                 style={{ fontSize: "0.85rem", marginBottom: "0.5rem" }}
               >
                 <thead>
