@@ -7,7 +7,7 @@ import mlbTeams from "./mlbTeams.json";
 import LineupModal from "./PlayersModal";
 
 const GameCard = ({ game, gameDate, showDetailedStats }) => {
-  const liveRefreshMs = 15000;
+  const liveRefreshMs = 8000;
   // Defining constants that will be used in rendering a game card
   const { away, home } = game.teams;
   const isFinal = [
