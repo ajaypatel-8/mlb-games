@@ -733,33 +733,35 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
             </div>
           ) : (
             <>
-              <Table
-                striped
-                bordered
-                hover
-                responsive
-                className="table-sm boxscore-table"
-                style={{ fontSize: "0.85rem", marginBottom: "0.5rem" }}
-              >
-                <thead>
-                  <tr>
-                    <th></th>
-                    {linescore.map((inning, index) => (
-                      <th key={index}>{inning.num}</th>
-                    ))}
-                    <th>
-                      <strong>R</strong>
-                    </th>
-                    <th>
-                      <strong>H</strong>
-                    </th>
-                    <th>
-                      <strong>E</strong>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>{renderEmptyBoxScore()}</tbody>
-              </Table>
+              {!isPregame && (
+                <Table
+                  striped
+                  bordered
+                  hover
+                  responsive
+                  className="table-sm boxscore-table"
+                  style={{ fontSize: "0.85rem", marginBottom: "0.5rem" }}
+                >
+                  <thead>
+                    <tr>
+                      <th></th>
+                      {linescore.map((inning, index) => (
+                        <th key={index}>{inning.num}</th>
+                      ))}
+                      <th>
+                        <strong>R</strong>
+                      </th>
+                      <th>
+                        <strong>H</strong>
+                      </th>
+                      <th>
+                        <strong>E</strong>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>{renderEmptyBoxScore()}</tbody>
+                </Table>
+              )}
               {gamePk && !isCancelled && !isPostponed && (
                 <div
                   className="text-center mb-3 mx-3"

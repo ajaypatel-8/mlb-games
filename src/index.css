@@ -246,15 +246,25 @@ button svg:hover {
   transform: translateZ(0);
   will-change: transform;
   contain: paint;
+  text-align: center;
 }
 
 .boxscore-table td:first-child {
   z-index: 3;
 }
 
+.boxscore-table td:first-child a,
+.boxscore-table th:first-child a {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
 .boxscore-table td:first-child img,
 .boxscore-table th:first-child img {
   display: block;
+  margin: 0 auto;
   transform: translateZ(0);
   backface-visibility: hidden;
 }
