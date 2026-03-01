@@ -128,7 +128,9 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
       context?.inningHalf ?? "-",
       context?.inningLabel ?? "-",
       context?.outs ?? "-",
-      context?.runnersText ?? "-",
+      context?.onFirst ? "1" : "0",
+      context?.onSecond ? "1" : "0",
+      context?.onThird ? "1" : "0",
     ].join("|");
   }, []);
 
@@ -146,26 +148,31 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
       ? lineScoreData.outs
       : null;
 
-    const occupiedBases = ["first", "second", "third"].filter(
-      (base) => Boolean(lineScoreData?.offense?.[base]),
-    );
-
-    const baseLabelMap = {
-      first: "1st",
-      second: "2nd",
-      third: "3rd",
-    };
-
-    const runnersText =
-      occupiedBases.length === 0
-        ? "Bases empty"
-        : `On ${occupiedBases.map((base) => baseLabelMap[base]).join(" & ")}`;
+    const onFirst = Boolean(lineScoreData?.offense?.first);
+    const onSecond = Boolean(lineScoreData?.offense?.second);
+    const onThird = Boolean(lineScoreData?.offense?.third);
 
     return {
       inningHalf,
       inningLabel,
       outs,
-      runnersText,
+      onFirst,
+      onSecond,
+      onThird,
+    };
+  }, []);
+
+  const getBaseDiamondStyle = useCallback((isOccupied, left, top) => {
+    return {
+      position: "absolute",
+      left,
+      top,
+      width: "8px",
+      height: "8px",
+      transform: "translate(-50%, -50%) rotate(45deg)",
+      backgroundColor: isOccupied ? "#6c757d" : "#d1d5db",
+      border: "1px solid #6c757d",
+      borderRadius: "1px",
     };
   }, []);
 
@@ -559,7 +566,40 @@ const GameCard = ({ game, gameDate, showDetailedStats }) => {
                     {typeof liveContext.outs === "number"
                       ? ` • ${liveContext.outs} Out${liveContext.outs === 1 ? "" : "s"}`
                       : ""}
-                    {liveContext.runnersText ? ` • ${liveContext.runnersText}` : ""}
+                    <span style={{ margin: "0 6px" }}>•</span>
+                    <span
+                      aria-label="Baserunners"
+                      title="Baserunners"
+                      style={{
+                        position: "relative",
+                        display: "inline-block",
+                        width: "22px",
+                        height: "14px",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <span
+                        style={getBaseDiamondStyle(
+                          liveContext.onSecond,
+                          "50%",
+                          "20%",
+                        )}
+                      />
+                      <span
+                        style={getBaseDiamondStyle(
+                          liveContext.onThird,
+                          "25%",
+                          "75%",
+                        )}
+                      />
+                      <span
+                        style={getBaseDiamondStyle(
+                          liveContext.onFirst,
+                          "75%",
+                          "75%",
+                        )}
+                      />
+                    </span>
                   </div>
                 )}
               </div>
