@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { format } from "date-fns";
 import { mlbService } from "../services/mlbService";
 import { Container, Row, Spinner, Button } from "react-bootstrap";
+import AppViewNav from "./AppViewNav";
 import DatePickerComponent from "./DatePickerComponent";
 import GameCard from "./GameCard";
 
@@ -189,27 +190,34 @@ const Schedule = () => {
 
   return (
     <Container>
-      <DatePickerComponent
-        selectedDate={selectedDate}
-        setSelectedDate={setSelectedDate}
-      />
-
-      <div className="d-flex justify-content-center mb-3">
-        <Button
-          variant="primary"
-          onClick={toggleDetailedStats}
-          className="me-2"
-          size="sm"
-        >
-          {showDetailedStats ? "Hide Detailed Stats" : "Show Detailed Stats"}
-        </Button>
-        <Button
-          variant={showOnlyLiveGames ? "success" : "outline-success"}
-          onClick={toggleOnlyLiveGames}
-          size="sm"
-        >
-          {showOnlyLiveGames ? "Showing Live Games" : "Only Live Games"}
-        </Button>
+      <div className="scores-toolbar mb-4">
+        <div className="scores-toolbar-section scores-toolbar-nav">
+          <AppViewNav />
+        </div>
+        <div className="scores-toolbar-section scores-toolbar-date">
+          <DatePickerComponent
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+          />
+        </div>
+        <div className="scores-toolbar-section scores-toolbar-filters">
+          <Button
+            variant={showDetailedStats ? "primary" : "outline-primary"}
+            onClick={toggleDetailedStats}
+            size="sm"
+            className="scores-toolbar-button"
+          >
+            {showDetailedStats ? "Detailed Stats On" : "Detailed Stats"}
+          </Button>
+          <Button
+            variant={showOnlyLiveGames ? "success" : "outline-success"}
+            onClick={toggleOnlyLiveGames}
+            size="sm"
+            className="scores-toolbar-button"
+          >
+            {showOnlyLiveGames ? "Live Only On" : "Live Only"}
+          </Button>
+        </div>
       </div>
 
       {loading && <Spinner animation="border" className="d-block mx-auto" />}

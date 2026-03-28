@@ -167,14 +167,36 @@ button svg:hover {
     font-size: 0.8rem;
   }
 
-  .d-flex.datepicker-wrapper {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+  .scores-toolbar {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .d-flex.datepicker-wrapper .custom-datepicker-input {
-    margin-right: 10px;
+  .scores-toolbar-nav,
+  .scores-toolbar-date,
+  .scores-toolbar-filters {
+    justify-content: center;
+  }
+
+  .scores-toolbar-filters {
+    flex-wrap: wrap;
+  }
+
+  .standings-toolbar {
+    justify-content: center;
+  }
+
+  .standings-toolbar-season {
+    text-align: center;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .d-flex.datepicker-wrapper {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
   }
 
   .d-flex.justify-content-evenly {
@@ -284,4 +306,145 @@ button svg:hover {
   height: 30px;
   border-radius: 50%;
   margin-right: 10px;
+}
+
+.app-nav {
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.app-shell {
+  padding-bottom: 2rem;
+}
+
+.app-nav-link {
+  border: 1px solid #0d6efd;
+  border-radius: 999px;
+  color: #0d6efd;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.app-nav-link:hover {
+  background-color: #eef5ff;
+  color: #0a58ca;
+}
+
+.app-nav-link-active {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+.scores-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.scores-toolbar-section {
+  display: flex;
+  align-items: center;
+  flex: 1 1 0;
+}
+
+.scores-toolbar-nav {
+  justify-content: flex-start;
+}
+
+.scores-toolbar-date {
+  justify-content: center;
+}
+
+.scores-toolbar-filters {
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.scores-toolbar-button {
+  border-radius: 999px !important;
+  padding: 0.45rem 1rem !important;
+  white-space: nowrap;
+}
+
+.standings-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.standings-toolbar-season {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  text-align: right;
+}
+
+.standings-season-select {
+  border-radius: 999px !important;
+  font-weight: 600;
+  padding-left: 1rem !important;
+  width: auto !important;
+}
+
+.standings-season-label {
+  white-space: nowrap;
+}
+
+.standings-card {
+  border-radius: 16px;
+  width: 100%;
+  max-width: none;
+}
+
+.standings-table td,
+.standings-table th {
+  vertical-align: middle;
+}
+
+.standings-league-column {
+  width: 100%;
+}
+
+.standings-league-header {
+  padding-left: 0.25rem;
+}
+
+.standings-table {
+  font-size: 1rem;
+}
+
+.standings-table th:first-child,
+.standings-table td:first-child {
+  min-width: 240px;
+}
+
+.standings-team-cell {
+  justify-content: flex-start;
+}
+
+.standings-table td.standings-run-differential-positive {
+  color: #1f8f4e !important;
+}
+
+.standings-table td.standings-run-differential-negative {
+  color: #c2362b !important;
+}
+
+.datepicker-wrapper {
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.datepicker-arrow-button {
+  align-items: center;
+  color: #0d6efd;
+  display: inline-flex;
+  justify-content: center;
+  padding: 0.35rem;
 }

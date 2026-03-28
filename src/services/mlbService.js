@@ -85,5 +85,14 @@ export const mlbService = {
     return fetchData(`${BASE_URL}/schedule`, params);
   },
 
+  getStandings: (season, standingsType = "regularSeason") => {
+    const params = {
+      leagueId: "103,104",
+      season,
+      standingsTypes: standingsType,
+    };
+    return fetchData(`${BASE_URL}/standings`, params);
+  },
+
   getGameContent: (gamePk) => fetchData(`${BASE_URL}/game/${gamePk}/content`),
 };

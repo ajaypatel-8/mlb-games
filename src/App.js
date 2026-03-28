@@ -1,5 +1,7 @@
 import React from "react";
+import { Route, Routes } from "react-router-dom";
 import Schedule from "./components/Schedule";
+import StandingsPage from "./components/StandingsPage";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTwitter, faGithub } from "@fortawesome/free-brands-svg-icons";
@@ -7,7 +9,7 @@ import { faLink } from "@fortawesome/free-solid-svg-icons";
 
 const App = () => {
   return (
-    <div className="container">
+    <div className="container app-shell">
       <div className="d-flex justify-content-between align-items-center my-4">
         <img
           src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg"
@@ -45,7 +47,10 @@ const App = () => {
       <h5 className="text-center smaller-text">
         All Data Courtesy Of MLB Advanced Media. By Ajay Patel
       </h5>
-      <Schedule />
+      <Routes>
+        <Route path="/" element={<Schedule />} />
+        <Route path="/standings" element={<StandingsPage />} />
+      </Routes>
     </div>
   );
 };

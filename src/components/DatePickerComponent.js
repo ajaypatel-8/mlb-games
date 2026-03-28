@@ -23,8 +23,12 @@ const DatePickerComponent = ({ selectedDate, setSelectedDate }) => {
   );
 
   return (
-    <div className="d-flex justify-content-center mb-4 align-items-center datepicker-wrapper">
-      <button onClick={goToPreviousDay}>
+    <div className="d-flex align-items-center datepicker-wrapper">
+      <button
+        onClick={goToPreviousDay}
+        className="datepicker-arrow-button"
+        aria-label="Previous day"
+      >
         <BsArrowLeft size={20} />
       </button>
       <DatePicker
@@ -37,7 +41,11 @@ const DatePickerComponent = ({ selectedDate, setSelectedDate }) => {
         customInput={<CustomInput />}
       />
 
-      <button onClick={goToNextDay}>
+      <button
+        onClick={goToNextDay}
+        className="datepicker-arrow-button"
+        aria-label="Next day"
+      >
         <BsArrowRight size={20} />
       </button>
     </div>
