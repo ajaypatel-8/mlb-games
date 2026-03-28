@@ -14,7 +14,7 @@ const Schedule = () => {
   const [showDetailedStats, setShowDetailedStats] = useState(false);
   const [showOnlyLiveGames, setShowOnlyLiveGames] = useState(false);
 
-  const lastValidDate = "2024-10-31";
+  const lastValidDate = "2025-11-01";
   const refreshMs = 20000;
 
   const getGamePriority = useCallback((game) => {

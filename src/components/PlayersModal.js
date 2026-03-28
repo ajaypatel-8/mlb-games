@@ -170,23 +170,79 @@ const LineupModal = ({ team, players, gameDate, gamePk, gameStatus }) => {
     return parsedPitchData;
   }, []);
 
+  const extractChallengeEvents = useCallback((plays, gamePlayers = {}) => {
+    return plays
+      .flatMap((play) => {
+        const playDescription =
+          play?.result?.description || play?.result?.event || "Reviewed play";
+        const playReviewDetails = play?.reviewDetails;
+        const challengeType = playDescription
+          .toLowerCase()
+          .includes("pitch result")
+          ? "ABS Challenge"
+          : "Review Challenge";
+
+        if (!playReviewDetails) return [];
+
+        const reviewedPitchEvent =
+          [...(play?.playEvents || [])]
+            .reverse()
+            .find((event) => event?.details?.hasReview) ||
+          [...(play?.playEvents || [])]
+            .reverse()
+            .find((event) => event?.type === "pitch");
+
+        const reviewedPitchCount = reviewedPitchEvent?.count || null;
+        const reviewedPitchCode = reviewedPitchEvent?.details?.code || null;
+        const reviewedPitchDescription =
+          reviewedPitchEvent?.details?.description || null;
+        const challengerId = playReviewDetails?.player?.id;
+        const challengerPlayer =
+          challengerId && gamePlayers[`ID${challengerId}`]
+            ? gamePlayers[`ID${challengerId}`]
+            : null;
+
+        return [
+          {
+            playId: play?.playId || `${play?.about?.inning}-${playDescription}`,
+            inning: play?.about?.inning ?? null,
+            inningHalf: play?.about?.halfInning ?? null,
+            count: reviewedPitchCount,
+            challengePitchCode: reviewedPitchCode,
+            challengePitchDescription: reviewedPitchDescription,
+            result: play?.result?.event ?? null,
+            description: playDescription,
+            type: challengeType,
+            isOverturned: playReviewDetails?.isOverturned ?? null,
+            inProgress: playReviewDetails?.inProgress ?? false,
+            challengeTeamId: playReviewDetails?.challengeTeamId ?? null,
+            challenger: playReviewDetails?.player ?? null,
+            challengerPosition: challengerPlayer?.primaryPosition || null,
+          },
+        ];
+      })
+      .sort((a, b) => (a.inning ?? 0) - (b.inning ?? 0));
+  }, []);
+
   const fetchModalData = useCallback(
     async (liveFeedOptions = {}) => {
       try {
         const liveFeedData = await mlbService.getLiveFeed(gamePk, liveFeedOptions);
         const plays = liveFeedData?.liveData?.plays?.allPlays || [];
+        const gamePlayers = liveFeedData?.gameData?.players || {};
         setHitData(extractHitData(plays));
         setPitchData(extractPitchData(plays));
         setChallengeData({
-          review: liveFeedData?.gameData?.reviews,
+          review: liveFeedData?.gameData?.review,
           absChallenges: liveFeedData?.gameData?.absChallenges,
           teams: liveFeedData?.gameData?.teams,
+          events: extractChallengeEvents(plays, gamePlayers),
         });
       } catch (error) {
         console.error("Error fetching data", error);
       }
     },
-    [gamePk, extractHitData, extractPitchData]
+    [gamePk, extractHitData, extractPitchData, extractChallengeEvents]
   );
 
   useEffect(() => {
@@ -786,9 +842,9 @@ const LineupModal = ({ team, players, gameDate, gamePk, gameStatus }) => {
               />
             </>
           ) : currentView === "challenges" ? (
-            <div className="container">
+            <div>
               <h5>Challenge Data</h5>
-              <ChallengeTable challengeData={challengeData} />
+              <ChallengeTable challengeData={challengeData} selectedTeam={team} />
             </div>
           ) : (
             <div className="row">
